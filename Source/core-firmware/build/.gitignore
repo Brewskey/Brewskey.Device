@@ -1,0 +1,8 @@
+# Compiled objects and dependancies
+obj/
+applications/
+*.elf
+*.bin
+*.map
+*.hex
+*.dfu
