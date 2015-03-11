@@ -29,7 +29,7 @@
 
 #include "spark_wiring_stream.h"
 
-#define BUFFER_LENGTH 64
+#define BUFFER_LENGTH 128
 #define EVENT_TIMEOUT 100
 
 #define CLOCK_SPEED_100KHZ (uint32_t)100000

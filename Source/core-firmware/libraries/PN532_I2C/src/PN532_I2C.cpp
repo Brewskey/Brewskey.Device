@@ -39,15 +39,6 @@ int8_t PN532_I2C::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
     write(PN532_HOSTTOPN532);
     uint8_t sum = PN532_HOSTTOPN532;    // sum of TFI + DATA
 
-    DMSG("command header length: ");
-    DMSG_INT(hlen);
-    DMSG('\n');
-    DMSG("command length: ");
-    DMSG_INT(blen);
-    DMSG('\n');
-
-    DMSG("write: ");
-
     for (uint8_t i = 0; i < hlen; i++) {
         if (write(header[i])) {
             sum += header[i];
@@ -106,7 +97,6 @@ int16_t PN532_I2C::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
         return PN532_INVALID_FRAME;
     }
-
     uint8_t length = read();
     if (0 != (uint8_t)(length + read())) {   // checksum of length
         return PN532_INVALID_FRAME;

@@ -763,17 +763,23 @@ bool PN532::inListPassiveTarget()
 
 int8_t PN532::tgInitAsTarget(const uint8_t* command, const uint8_t len, const uint16_t timeout){
 
-  int8_t status = HAL(writeCommand)(command, len);
+    int8_t status = HAL(writeCommand)(command, len);
     if (status < 0) {
         return -1;
     }
-
+    DMSG("Passed Init\n");
     status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), timeout);
+    DMSG("Error Code: ");
+    DMSG_INT(status);
+
     if (status > 0) {
+    DMSG("Fail Init 1\n");
         return 1;
     } else if (PN532_TIMEOUT == status) {
+    DMSG("Success Init\n");
         return 0;
     } else {
+    DMSG("Fail Init -2\n");
         return -2;
     }
 }
