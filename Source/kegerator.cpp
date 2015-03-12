@@ -4,7 +4,7 @@
 #include "PN532.h"
 #include "NfcAdapter.h"
 
-PN532_SPI pn532spi(SPI, SS);
+PN532_SPI pn532spi(SCK, MISO, MOSI, SS);
 NfcAdapter nfc = NfcAdapter(pn532spi);
 
 void setup(void) {

@@ -7,32 +7,51 @@
 #define DATA_WRITE      1
 #define DATA_READ       3
 
+#ifdef SPI_HW_MODE
 PN532_SPI::PN532_SPI(SPIClass &spi, uint8_t ss)
 {
     command = 0;
     _spi = &spi;
     _ss  = ss;
 }
+#else
+PN532_SPI::PN532_SPI(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss) {
+  _clk = clk;
+  _miso = miso;
+  _mosi = mosi;
+  _ss = ss;
+}
+#endif
 
 void PN532_SPI::begin()
 {
+#ifdef SPI_HW_MODE
     pinMode(_ss, OUTPUT);
 
+    _spi->setClockDivider(SPI_CLOCK_DIV16); // set clock 2MHz(max: 5MHz)
     _spi->setDataMode(SPI_MODE0);  // PN532 only supports mode0
     _spi->setBitOrder(LSBFIRST);
-//#ifndef __SAM3X8E__
-    _spi->setClockDivider(SPI_CLOCK_DIV16); // set clock 2MHz(max: 5MHz)
-//#else
-    /** DUE spi library does not support SPI_CLOCK_DIV8 macro */
-//    _spi->setClockDivider(42);             // set clock 2MHz(max: 5MHz)
-//#endif
-  _spi->begin();
+    _spi->begin(_ss);
+#else
+    // Setup Software SPI
+    pinMode(_ss, OUTPUT);
+    pinMode(_clk, OUTPUT);
+    pinMode(_mosi, OUTPUT);
+    pinMode(_miso, INPUT);
+
+    #ifdef PN532DEBUG
+      Serial.print("[SPI PINS] CLK:"); Serial.print(_clk);
+      Serial.print(",MISO:"); Serial.print(_miso);
+      Serial.print(",MOSI:"); Serial.print(_mosi);
+      Serial.print(",SS:"); Serial.println(_ss);
+    #endif
+#endif
 }
 
 void PN532_SPI::wakeup()
 {
     digitalWrite(_ss, LOW);
-    delay(2);
+    delay(1000);
     digitalWrite(_ss, HIGH);
 }
 
@@ -40,18 +59,18 @@ void PN532_SPI::wakeup()
 
 int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)
 {
-    command = header[0];
+    uint16_t timer = 0;
     writeFrame(header, hlen, body, blen);
 
-    uint8_t timeout = PN532_ACK_WAIT_TIME;
     while (!isReady()) {
-        delay(1);
-        timeout--;
-        if (0 == timeout) {
+        timer+=10;
+        if (timer > PN532_ACK_WAIT_TIME){
             DMSG("Time out when waiting for ACK\n");
             return -2;
         }
+        delay(10);
     }
+
     if (readAckFrame()) {
         DMSG("Invalid ACK\n");
         return PN532_INVALID_ACK;
@@ -71,7 +90,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     }
 
     digitalWrite(_ss, LOW);
-    delay(1);
+    delay(2);
 
     int16_t result;
     do {
@@ -81,19 +100,21 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
                 0x00 != read()  ||       // STARTCODE1
                 0xFF != read()           // STARTCODE2
            ) {
-
+            Serial.println("invalid 1");
             result = PN532_INVALID_FRAME;
             break;
         }
 
         uint8_t length = read();
         if (0 != (uint8_t)(length + read())) {   // checksum of length
+            Serial.println("invalid 2");
             result = PN532_INVALID_FRAME;
             break;
         }
 
         uint8_t cmd = command + 1;               // response command
         if (PN532_PN532TOHOST != read() || (cmd) != read()) {
+            Serial.println("invalid 3");
             result = PN532_INVALID_FRAME;
             break;
         }
@@ -141,15 +162,15 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 boolean PN532_SPI::isReady()
 {
     digitalWrite(_ss, LOW);
-
+    delay(2);
     write(STATUS_READ);
     uint8_t status = read() & 1;
     digitalWrite(_ss, HIGH);
+
     return status;
 }
 
-void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)
-{
+void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
     digitalWrite(_ss, LOW);
     delay(2);               // wake up PN532
 
@@ -196,10 +217,11 @@ int8_t PN532_SPI::readAckFrame()
     uint8_t ackBuf[sizeof(PN532_ACK)];
 
     digitalWrite(_ss, LOW);
-    delay(1);
+    delay(2);
     write(DATA_READ);
 
     for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
+        delay(4);
         ackBuf[i] = read();
     }
 
@@ -207,13 +229,51 @@ int8_t PN532_SPI::readAckFrame()
 
     int output = memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
     DMSG("Ack Output: ");
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < sizeof(PN532_ACK); i++)
     {
         DMSG_HEX(ackBuf[i]);
     }
-    DMSG("\nSS: ");
-    DMSG_INT(SS);
-    DMSG('\n');
 
     return output;
 }
+
+void PN532_SPI::write(uint8_t data) {
+#ifdef SPI_HW_MODE
+    _spi->transfer(data);
+#else
+    PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Start with Data Low (MODE0)
+    for (uint8_t bit=0; bit<8; bit++) {
+      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low
+      if (data & (1<<bit)) { // walks up mask from bit 0 to bit 7
+        PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Data High
+      } else {
+        PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Data Low
+      }
+      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted Out)
+    }
+    asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Return Clock Low (MODE0)
+    PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Return Data High (MODE0)
+#endif
+};
+
+uint8_t PN532_SPI::read() {
+#ifdef SPI_HW_MODE
+    return _spi->transfer(0);
+#else
+    uint8_t x = 0;
+    for (uint8_t bit=0; bit<8; bit++)  {
+      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted In)
+
+      if (PIN_MAP[_miso].gpio_peripheral->IDR & PIN_MAP[_miso].gpio_pin) {
+        x |= (1<<bit);
+      }
+      //asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
+    }
+    
+    return x;
+#endif
+};

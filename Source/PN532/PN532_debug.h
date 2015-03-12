@@ -6,6 +6,7 @@
 #include "application.h"
 
 #ifdef DEBUG
+#define PN532DEBUG 1
 #define DMSG(args...)       Serial.print(args)
 #define DMSG_STR(str)       Serial.println(str)
 #define DMSG_HEX(num)       Serial.print(' '); Serial.print(num, HEX)

@@ -115,6 +115,8 @@ uint32_t PN532::getFirmwareVersion(void)
 {
     uint32_t response;
 
+return 1;
+
     pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
 
     if (HAL(writeCommand)(pn532_packetbuffer, 1)) {
@@ -122,7 +124,7 @@ uint32_t PN532::getFirmwareVersion(void)
     }
 
     // read data packet
-    int16_t status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer));
+    int16_t status = HAL(readResponse)(pn532_packetbuffer, 12);
     if (0 > status) {
         return 0;
     }
