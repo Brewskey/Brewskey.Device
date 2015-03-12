@@ -51,7 +51,7 @@ void PN532::PrintHex(const uint8_t *data, const uint32_t numBytes)
     for (uint8_t i = 0; i < numBytes; i++) {
         printf(" %2X", data[i]);
     }
-    printf("\n");
+    printf("\r\n");
 #endif
 }
 
@@ -99,7 +99,7 @@ void PN532::PrintHexChar(const uint8_t *data, const uint32_t numBytes)
         } else {
             printf("%c", c);
         }
-        printf("\n");
+        printf("\r\n");
     }
 #endif
 }
@@ -126,9 +126,6 @@ uint32_t PN532::getFirmwareVersion(void)
     if (0 > status) {
         return 0;
     }
-
-    Serial.println("Firmware numbers:");
-    PrintHexChar(pn532_packetbuffer, 12);
 
     response = pn532_packetbuffer[0];
     response <<= 8;
@@ -175,7 +172,7 @@ bool PN532::writeGPIO(uint8_t pinstate)
 
     DMSG("Writing P3 GPIO: ");
     DMSG_HEX(pn532_packetbuffer[1]);
-    DMSG("\n");
+    DMSG("\r\n");
 
     // Send the WRITEGPIO command (0x0E)
     if (HAL(writeCommand)(pn532_packetbuffer, 3))
@@ -221,7 +218,7 @@ uint8_t PN532::readGPIO(void)
     DMSG("P3 GPIO: "); DMSG_HEX(pn532_packetbuffer[7]);
     DMSG("P7 GPIO: "); DMSG_HEX(pn532_packetbuffer[8]);
     DMSG("I0I1 GPIO: "); DMSG_HEX(pn532_packetbuffer[9]);
-    DMSG("\n");
+    DMSG("\r\n");
 
     return pn532_packetbuffer[0];
 }
@@ -238,7 +235,7 @@ bool PN532::SAMConfig(void)
     pn532_packetbuffer[2] = 0x14; // timeout 50ms * 20 = 1 second
     pn532_packetbuffer[3] = 0x01; // use IRQ pin!
 
-    DMSG("SAMConfig\n");
+    DMSG("SAMConfig\r\n");
 
     if (HAL(writeCommand)(pn532_packetbuffer, 4))
         return false;
@@ -324,7 +321,7 @@ bool PN532::readPassiveTargetID(uint8_t cardbaudrate, uint8_t *uid, uint8_t *uid
 
     DMSG("ATQA: 0x");  DMSG_HEX(sens_res);
     DMSG("SAK: 0x");  DMSG_HEX(pn532_packetbuffer[4]);
-    DMSG("\n");
+    DMSG("\r\n");
 
     /* Card appears to be Mifare Classic */
     *uidLength = pn532_packetbuffer[5];
@@ -420,7 +417,7 @@ uint8_t PN532::mifareclassic_AuthenticateBlock (uint8_t *uid, uint8_t uidLen, ui
     // for an auth success it should be bytes 5-7: 0xD5 0x41 0x00
     // Mifare auth error is technically byte 7: 0x14 but anything other and 0x00 is not good
     if (pn532_packetbuffer[0] != 0x00) {
-        DMSG("Authentification failed\n");
+        DMSG("Authentification failed\r\n");
         return 0;
     }
 
@@ -623,7 +620,7 @@ uint8_t PN532::mifareclassic_WriteNDEFURI (uint8_t sectorNumber, uint8_t uriIden
 uint8_t PN532::mifareultralight_ReadPage (uint8_t page, uint8_t *buffer)
 {
     if (page >= 64) {
-        DMSG("Page value out of range\n");
+        DMSG("Page value out of range\r\n");
         return 0;
     }
 
@@ -713,7 +710,7 @@ bool PN532::inDataExchange(uint8_t *send, uint8_t sendLength, uint8_t *response,
     }
 
     if ((response[0] & 0x3f) != 0) {
-        DMSG("Status code indicates an error\n");
+        DMSG("Status code indicates an error\r\n");
         return false;
     }
 
@@ -744,7 +741,7 @@ bool PN532::inListPassiveTarget()
     pn532_packetbuffer[1] = 1;
     pn532_packetbuffer[2] = 0;
 
-    DMSG("inList passive target\n");
+    DMSG("inList passive target\r\n");
 
     if (HAL(writeCommand)(pn532_packetbuffer, 3)) {
         return false;
@@ -821,7 +818,7 @@ int16_t PN532::tgGetData(uint8_t *buf, uint8_t len)
 
 
     if (buf[0] != 0) {
-        DMSG("status is not ok\n");
+        DMSG("status is not ok\r\n");
         return -5;
     }
 
@@ -836,7 +833,7 @@ bool PN532::tgSetData(const uint8_t *header, uint8_t hlen, const uint8_t *body, 
 {
     if (hlen > (sizeof(pn532_packetbuffer) - 1)) {
         if ((body != 0) || (header == pn532_packetbuffer)) {
-            DMSG("tgSetData:buffer too small\n");
+            DMSG("tgSetData:buffer too small\r\n");
             return false;
         }
 

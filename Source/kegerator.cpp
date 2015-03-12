@@ -18,7 +18,7 @@ void setup(void) {
 }
 
 void loop(void) {
-    Serial.println("\nScan a NFC tag\n");
+    Serial.println("\r\nScan a NFC tag\r\n");
     if (nfc.tagPresent())
     {
         NfcTag tag = nfc.read();
@@ -51,7 +51,7 @@ void loop() {
     if (msgSize > 0) {
         NdefMessage msg  = NdefMessage(ndefBuf, msgSize);
         msg.print();
-        Serial.println("\nSuccess");
+        Serial.println("\r\nSuccess");
     } else {
         Serial.println("Failed");
     }

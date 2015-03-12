@@ -112,7 +112,7 @@ void NfcTag::print()
     Serial.print(F("UID "));Serial.println(getUidString());
     if (_ndefMessage == NULL)
     {
-        Serial.println(F("\nNo NDEF Message"));
+        Serial.println(F("\r\nNo NDEF Message"));
     }
     else
     {

@@ -126,7 +126,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
   while(runLoop){
     status = pn532.tgGetData(rwbuf, sizeof(rwbuf));
     if(status < 0){
-      DMSG("tgGetData failed!\n");
+      DMSG("tgGetData failed!\r\n");
       pn532.inRelease();
       return true;
     }
@@ -141,7 +141,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
       switch(p1){
       case C_APDU_P1_SELECT_BY_ID:
 	if(p2 != 0x0c){
-	  DMSG("C_APDU_P2 != 0x0c\n");
+	  DMSG("C_APDU_P2 != 0x0c\r\n");
 	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
 	} else if(lc == 2 && rwbuf[C_APDU_DATA] == 0xE1 && (rwbuf[C_APDU_DATA+1] == 0x03 || rwbuf[C_APDU_DATA+1] == 0x04)){
 	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
@@ -159,7 +159,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
 	if(0 == memcmp(ndef_tag_application_name_v2, rwbuf + C_APDU_P2, sizeof(ndef_tag_application_name_v2))){
 	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
 	} else{
-	  DMSG("function not supported\n");
+	  DMSG("function not supported\r\n");
 	  setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
 	}
 	break;
@@ -210,12 +210,12 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
     default:
       DMSG("Command not supported!");
       DMSG_HEX(rwbuf[C_APDU_INS]);
-      DMSG("\n");
+      DMSG("\r\n");
       setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
     }
     status = pn532.tgSetData(rwbuf, sendlen);
     if(status < 0){
-      DMSG("tgSetData failed\n!");
+      DMSG("tgSetData failed\r\n!");
       pn532.inRelease();
       return true;
     }

@@ -262,7 +262,7 @@ NdefRecord NdefMessage::operator[](int index)
 
 void NdefMessage::print()
 {
-    Serial.print(F("\nNDEF Message "));Serial.print(_recordCount);Serial.print(F(" record"));
+    Serial.print(F("\r\nNDEF Message "));Serial.print(_recordCount);Serial.print(F(" record"));
     _recordCount == 1 ? Serial.print(", ") : Serial.print("s, ");
     Serial.print(getEncodedSize());Serial.println(F(" bytes"));
 

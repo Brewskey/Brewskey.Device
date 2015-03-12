@@ -65,14 +65,14 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
     while (!isReady()) {
         timer+=10;
         if (timer > PN532_ACK_WAIT_TIME){
-            DMSG("Time out when waiting for ACK\n");
+            DMSG("Time out when waiting for ACK\r\n");
             return -2;
         }
         delay(10);
     }
 
     if (readAckFrame()) {
-        DMSG("Invalid ACK\n");
+        DMSG("Invalid ACK\r\n");
         return PN532_INVALID_ACK;
     }
     return 0;
@@ -133,7 +133,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
             for (uint8_t i = 0; i < length; i++) {
                 DMSG_HEX(read());                 // dump message
             }
-            DMSG("\nNot enough space\n");
+            DMSG("\r\nNot enough space\r\n");
             read();
             read();
             result = PN532_NO_SPACE;  // not enough space
@@ -147,7 +147,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
             DMSG_HEX(buf[i]);
         }
-        DMSG('\n');
+        DMSG('\r\n');
 
         uint8_t checksum = read();
         if (0 != (uint8_t)(sum + checksum)) {
@@ -213,7 +213,7 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
 
     digitalWrite(_ss, HIGH);
 
-    DMSG('\n');
+    DMSG('\r\n');
 }
 
 int8_t PN532_SPI::readAckFrame()
@@ -233,14 +233,7 @@ int8_t PN532_SPI::readAckFrame()
 
     digitalWrite(_ss, HIGH);
 
-    int output = memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
-    DMSG("Ack Output: ");
-    for(int i = 0; i < sizeof(PN532_ACK); i++)
-    {
-        DMSG_HEX(ackBuf[i]);
-    }
-
-    return output;
+    return memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
 }
 
 void PN532_SPI::write(uint8_t data) {
@@ -249,17 +242,17 @@ void PN532_SPI::write(uint8_t data) {
 #else
     PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Start with Data Low (MODE0)
     for (uint8_t bit=0; bit<8; bit++) {
-      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
       PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low
       if (data & (1<<bit)) { // walks up mask from bit 0 to bit 7
         PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Data High
       } else {
         PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Data Low
       }
-      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
       PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted Out)
     }
-    asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
     PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Return Clock Low (MODE0)
     PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Return Data High (MODE0)
 #endif
@@ -276,7 +269,7 @@ uint8_t PN532_SPI::read() {
       if (PIN_MAP[_miso].gpio_peripheral->IDR & PIN_MAP[_miso].gpio_pin) {
         x |= (1<<bit);
       }
-      //asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      //asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
       PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
     }
 

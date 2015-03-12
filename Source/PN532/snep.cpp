@@ -5,12 +5,12 @@
 int8_t SNEP::write(const uint8_t *buf, uint8_t len, uint16_t timeout)
 {
 	if (0 >= llcp.activate(timeout)) {
-		DMSG("failed to activate PN532 as a target\n");
+		DMSG("failed to activate PN532 as a target\r\n");
 		return -1;
 	}
 
 	if (0 >= llcp.connect(timeout)) {
-		DMSG("failed to set up a connection\n");
+		DMSG("failed to set up a connection\r\n");
 		return -2;
 	}
 
@@ -32,14 +32,14 @@ int8_t SNEP::write(const uint8_t *buf, uint8_t len, uint16_t timeout)
 
 	// check SNEP version
 	if (SNEP_DEFAULT_VERSION != rbuf[0]) {
-		DMSG("The received SNEP message's major version is different\n");
+		DMSG("The received SNEP message's major version is different\r\n");
 		// To-do: send Unsupported Version response
 		return -4;
 	}
 
 	// expect a put request
 	if (SNEP_RESPONSE_SUCCESS != rbuf[1]) {
-		DMSG("Expect a success response\n");
+		DMSG("Expect a success response\r\n");
 		return -4;
 	}
 
@@ -51,12 +51,12 @@ int8_t SNEP::write(const uint8_t *buf, uint8_t len, uint16_t timeout)
 int16_t SNEP::read(uint8_t *buf, uint8_t len, uint16_t timeout)
 {
 	if (0 >= llcp.activate(timeout)) {
-		DMSG("failed to activate PN532 as a target\n");
+		DMSG("failed to activate PN532 as a target\r\n");
 		return -1;
 	}
 
 	if (0 >= llcp.waitForConnection(timeout)) {
-		DMSG("failed to set up a connection\n");
+		DMSG("failed to set up a connection\r\n");
 		return -2;
 	}
 
@@ -68,14 +68,14 @@ int16_t SNEP::read(uint8_t *buf, uint8_t len, uint16_t timeout)
 
 	// check SNEP version
 	if (SNEP_DEFAULT_VERSION != buf[0]) {
-		DMSG("The received SNEP message's major version is different\n");
+		DMSG("The received SNEP message's major version is different\r\n");
 		// To-do: send Unsupported Version response
 		return -4;
 	}
 
 	// expect a put request
 	if (SNEP_REQUEST_PUT != buf[1]) {
-		DMSG("Expect a put request\n");
+		DMSG("Expect a put request\r\n");
 		return -4;
 	}
 
@@ -86,7 +86,7 @@ int16_t SNEP::read(uint8_t *buf, uint8_t len, uint16_t timeout)
 		DMSG("The SNEP message is too large: "); 
         DMSG_INT(length);
         DMSG_INT(status - 6);
-		DMSG("\n");
+		DMSG("\r\n");
 		return -4;
 	}
 	for (uint8_t i = 0; i < length; i++) {
