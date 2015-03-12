@@ -18,7 +18,6 @@ void setup(void) {
 }
 
 void loop(void) {
-  return;
     Serial.println("\nScan a NFC tag\n");
     if (nfc.tagPresent())
     {

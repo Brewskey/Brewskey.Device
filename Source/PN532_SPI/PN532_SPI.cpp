@@ -95,30 +95,36 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     int16_t result;
     do {
         write(DATA_READ);
+        int16_t first = read();
+        int16_t second = read();
+        uint8_t length = 0;
 
-        if (0x00 != read()      ||       // PREAMBLE
-                0x00 != read()  ||       // STARTCODE1
-                0xFF != read()           // STARTCODE2
-           ) {
+        if (first == 0x00 && second == 0xFF) {
+            length = read();
+        } else if (first == 0x00 && second == 0x00 && read() == 0xFF) {
+            length = read();
+        } else {
             Serial.println("invalid 1");
             result = PN532_INVALID_FRAME;
             break;
         }
 
-        uint8_t length = read();
         if (0 != (uint8_t)(length + read())) {   // checksum of length
             Serial.println("invalid 2");
             result = PN532_INVALID_FRAME;
             break;
         }
 
-        uint8_t cmd = command + 1;               // response command
-        if (PN532_PN532TOHOST != read() || (cmd) != read()) {
+        uint8_t cmd = buf[0] + 1;               // response command
+        uint16_t toHost = read();
+        uint16_t cmdRead = read();
+
+        if (PN532_PN532TOHOST != toHost || (cmd) != cmdRead) {
             Serial.println("invalid 3");
             result = PN532_INVALID_FRAME;
             break;
         }
-
+        DMSG("\r\n");
         DMSG("read:  ");
         DMSG_HEX(cmd);
 
@@ -145,7 +151,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
         uint8_t checksum = read();
         if (0 != (uint8_t)(sum + checksum)) {
-            DMSG("checksum is not ok\n");
+            DMSG("checksum is not ok\r\n");
             result = PN532_INVALID_FRAME;
             break;
         }
@@ -273,7 +279,7 @@ uint8_t PN532_SPI::read() {
       //asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
       PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
     }
-    
+
     return x;
 #endif
 };

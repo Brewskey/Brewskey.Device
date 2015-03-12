@@ -113,9 +113,7 @@ void PN532::PrintHexChar(const uint8_t *data, const uint32_t numBytes)
 /**************************************************************************/
 uint32_t PN532::getFirmwareVersion(void)
 {
-    uint32_t response;
-
-return 1;
+    uint32_t response = 0;
 
     pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
 
@@ -128,6 +126,9 @@ return 1;
     if (0 > status) {
         return 0;
     }
+
+    Serial.println("Firmware numbers:");
+    PrintHexChar(pn532_packetbuffer, 12);
 
     response = pn532_packetbuffer[0];
     response <<= 8;
