@@ -4,57 +4,80 @@
 #include "PN532.h"
 #include "NfcAdapter.h"
 
+#define SOLENOID_PIN (D2)
+
 PN532_SPI pn532spi(SCK, MISO, MOSI, SS);
 NfcAdapter nfc = NfcAdapter(pn532spi);
 
+#define FLOW_PIN (D0)
+#define PULSE_EPSILON 0
+
+void flowCounter();
+
+byte state, waitCount;
+volatile int flowCount = 0;
+unsigned long pourTimer, totalPulses;
+
 void setup(void) {
     Serial.begin(115200);
+
+
     while(!Serial.available()) {
       Spark.process();
     }
 
+
+    pinMode(SOLENOID_PIN, OUTPUT);
+
     Serial.println("NDEF Reader");
-    nfc.begin();
+    //nfc.begin();
+
+    attachInterrupt(FLOW_PIN, flowCounter, FALLING);
 }
 
 void loop(void) {
-    Serial.println("\r\nScan a NFC tag\r\n");
+    /*Serial.println("\r\nScan a NFC tag\r\n");
     if (nfc.tagPresent())
     {
+        digitalWrite(SOLENOID_PIN, HIGH);
         NfcTag tag = nfc.read();
         tag.print();
     }
+
     delay(5000);
+    digitalWrite(SOLENOID_PIN, LOW); */
+
+    Serial.print("P:");
+    Serial.println(flowCount);
 }
 
 /*
-#include "PN532_HSU.h"
-#include "PN532.h"
-#include "snep.h"
-#include "NdefMessage.h"
+void pour() {
+  if ((millis() - time) >= 1000) {
+		detachInterrupt(FLOW);
+		time = millis();
 
-PN532_HSU pn532(Serial1);
-SNEP nfc(pn532);
-uint8_t ndefBuf[128];
+		if (flowCount == PULSE_EPSILON) {
+			waitCount++;
+			int maxWait = totalPulses > PULSE_EPSILON ? 3 : 5;
+			if (waitCount > maxWait)
+			{
+				state = DONE_POURING;
+			}
 
-void setup(void) {
-  Serial.begin(115200); // Make sure your serial terminal is closed before power the Core.
-  while(!Serial.available()) {
-    Spark.process();
-  }
-  Serial.println("Hello!");
-}
-
-void loop() {
-    Serial.println("Waiting for message from Peer");
-    int msgSize = nfc.read(ndefBuf, sizeof(ndefBuf));
-    if (msgSize > 0) {
-        NdefMessage msg  = NdefMessage(ndefBuf, msgSize);
-        msg.print();
-        Serial.println("\r\nSuccess");
-    } else {
-        Serial.println("Failed");
-    }
-    delay(3000);
+		} else {
+			waitCount = 0;
+			Serial.print("P:");
+			Serial.println(flowCount);
+			totalPulses += flowCount;
+			flowCount = 0;
+		}
+		attachInterrupt(FLOW, flowCounter, FALLING);
+	}
 }
 */
+
+void flowCounter() {
+Serial.println("++");
+	flowCount++;
+}
