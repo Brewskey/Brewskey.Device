@@ -1,19 +1,45 @@
 #include "NfcClient.h"
 
 NfcClient::NfcClient() :
-  pn532spi(SCK, MISO, MOSI, SS), /*nfc(pn532spi),*/ snep(pn532spi)
+  pn532spi(SCK, MISO, MOSI, SS), nfc(pn532spi), snep(pn532spi)
 {
-  //this->nfc.begin();
+  this->nfc.begin();
 }
 
 void NfcClient::Tick()
 {
   // If reading authentication from a tag
-  /*if (this->nfc.tagPresent())
+  if (!this->nfc.tagPresent())
   {
-      NfcTag tag = this->nfc.read();
-      tag.print();
-  }*/
+    return;
+  }
+
+  NfcTag tag = this->nfc.read();
+
+  if (!tag.hasNdefMessage())
+  {
+    return;
+  }
+
+  int totalLength = 0;
+  NdefMessage message = tag.getNdefMessage();
+  int recordCount = message.getRecordCount();
+
+  String authenticationKey;
+
+  for (int i = 0; i < recordCount; i++) {
+    NdefRecord record = message[i];
+
+    totalLength += record.getPayloadLength();
+
+    byte* payload;
+    record.getPayload(payload);
+
+    authenticationKey += String(reinterpret_cast< char const* >(payload));
+  }
+
+  Serial.println(authenicationKey);
+
   /*
   // Read message over peer-to-peer
   Serial.println("Reading peer-to-peer");
@@ -27,6 +53,7 @@ void NfcClient::Tick()
   }
   */
 
+  /*
   // Write peer-to-peer
   NdefMessage message = NdefMessage();
   message.addUriRecord("http://arduino.cc");
@@ -43,14 +70,5 @@ void NfcClient::Tick()
   } else {
       Serial.println("Success");
   }
+  */
 }
-
-/*
-Serial.println("\r\nScan a NFC tag\r\n");
-if (nfc.tagPresent())
-{
-
-    NfcTag tag = nfc.read();
-    tag.print();
-}
-*/
