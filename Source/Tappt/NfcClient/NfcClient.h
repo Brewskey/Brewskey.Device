@@ -3,8 +3,9 @@
 
 #include "PN532_SPI.h"
 #include "PN532.h"
-//#include "snep.h"
-#include "NfcAdapter.h"
+#include "snep.h"
+#include "NdefMessage.h"
+//#include "NfcAdapter.h"
 
 #include "ITick.h"
 
@@ -14,8 +15,8 @@ public:
   virtual void Tick();
 private:
   PN532_SPI pn532spi;
-  NfcAdapter nfc;
-  //SNEP snep;
+  //NfcAdapter nfc;
+  SNEP snep;
 
   uint8_t ndefBuf[128];
 };

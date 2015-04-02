@@ -1,22 +1,22 @@
 #include "NfcClient.h"
 
 NfcClient::NfcClient() :
-  pn532spi(SCK, MISO, MOSI, SS), nfc(pn532spi)//, snep(pn532spi)
+  pn532spi(SCK, MISO, MOSI, SS), /*nfc(pn532spi),*/ snep(pn532spi)
 {
-  this->nfc.begin();
+  //this->nfc.begin();
 }
 
 void NfcClient::Tick()
 {
   // If reading authentication from a tag
-  if (this->nfc.tagPresent())
+  /*if (this->nfc.tagPresent())
   {
       NfcTag tag = this->nfc.read();
       tag.print();
-  }
-
+  }*/
   /*
   // Read message over peer-to-peer
+  Serial.println("Reading peer-to-peer");
   int msgSize = this->snep.read(ndefBuf, sizeof(ndefBuf));
   if (msgSize > 0) {
     NdefMessage msg  = NdefMessage(ndefBuf, msgSize);
@@ -25,6 +25,7 @@ void NfcClient::Tick()
   } else {
     Serial.println("Failed");
   }
+  */
 
   // Write peer-to-peer
   NdefMessage message = NdefMessage();
@@ -42,7 +43,6 @@ void NfcClient::Tick()
   } else {
       Serial.println("Success");
   }
-  */
 }
 
 /*
