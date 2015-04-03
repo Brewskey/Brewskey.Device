@@ -1,45 +1,13 @@
 #include "NfcClient.h"
 
 NfcClient::NfcClient() :
-  pn532spi(SCK, MISO, MOSI, SS), nfc(pn532spi), snep(pn532spi)
+  pn532spi(SCK, MISO, MOSI, SS), nfc(pn532spi)//, snep(pn532spi)
 {
   this->nfc.begin();
 }
 
 void NfcClient::Tick()
 {
-  // If reading authentication from a tag
-  if (!this->nfc.tagPresent())
-  {
-    return;
-  }
-
-  NfcTag tag = this->nfc.read();
-
-  if (!tag.hasNdefMessage())
-  {
-    return;
-  }
-
-  int totalLength = 0;
-  NdefMessage message = tag.getNdefMessage();
-  int recordCount = message.getRecordCount();
-
-  String authenticationKey;
-
-  for (int i = 0; i < recordCount; i++) {
-    NdefRecord record = message[i];
-
-    totalLength += record.getPayloadLength();
-
-    byte* payload;
-    record.getPayload(payload);
-
-    authenticationKey += String(reinterpret_cast< char const* >(payload));
-  }
-
-  Serial.println(authenicationKey);
-
   /*
   // Read message over peer-to-peer
   Serial.println("Reading peer-to-peer");
@@ -71,4 +39,51 @@ void NfcClient::Tick()
       Serial.println("Success");
   }
   */
+}
+
+int NfcClient::ReadMessage()
+{
+  // If reading authentication from a tag
+  if (!this->nfc.tagPresent())
+  {
+    Serial.println("Tag not present");
+    return -1;
+  }
+
+  NfcTag tag = this->nfc.read();
+
+  if (!tag.hasNdefMessage())
+  {
+    Serial.println("No message");
+    return -1;
+  }
+
+  int totalLength = 0;
+  NdefMessage message = tag.getNdefMessage();
+
+  int recordCount = message.getRecordCount();
+  String authenticationKey;
+
+  for (int i = 0; i < recordCount; i++) {
+    NdefRecord record = message[i];
+    int length = record.getPayloadLength();
+
+    totalLength += length;
+
+    byte* payload = new byte[length + 1];
+    payload[length] = (byte)'\0';
+    record.getPayload(payload);
+
+    authenticationKey += String((const char*)payload);
+    delete[] payload;
+  }
+
+  // TODO - Check authentication
+
+  return 0;
+}
+
+int NfcClient::SendMessage()
+{
+  return 0;
 }

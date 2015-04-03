@@ -1,6 +1,6 @@
 #include "application.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 #include "NfcClient.h"
 
