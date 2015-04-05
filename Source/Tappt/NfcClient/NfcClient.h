@@ -14,9 +14,12 @@ public:
   NfcClient();
   virtual void Tick();
 private:
+  int ReadMessage();
+  int SendMessage();
+
   PN532_SPI pn532spi;
   NfcAdapter nfc;
-  SNEP snep;
+  //SNEP snep;
 
   uint8_t ndefBuf[128];
 };

@@ -5,7 +5,7 @@
 
 #include "application.h"
 
-#ifdef DEBUG
+#if DEBUG == 100
 #define PN532DEBUG 1
 #define DMSG(args...)       Serial.print(args)
 #define DMSG_STR(str)       Serial.println(str)
