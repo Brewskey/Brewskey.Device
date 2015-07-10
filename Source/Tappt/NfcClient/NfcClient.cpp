@@ -79,7 +79,8 @@ int NfcClient::ReadMessage()
   }
 
   // TODO - Check authentication
-
+  Serial.println(authenticationKey);
+  Serial.println("printed");
   return 0;
 }
 
