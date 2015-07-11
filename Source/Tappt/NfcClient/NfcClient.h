@@ -10,7 +10,8 @@
 #include "ITick.h"
 
 namespace NfcState {
-  enum e {
+  enum value {
+    ERROR = -1,
     NO_MESSAGE,
   };
 };
@@ -20,7 +21,7 @@ public:
   NfcClient();
   virtual int Tick();
 private:
-  int ReadMessage();
+  NfcState::value ReadMessage();
   int SendMessage();
 
   PN532_SPI pn532spi;
