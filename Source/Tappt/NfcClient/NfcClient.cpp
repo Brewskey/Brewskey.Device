@@ -6,7 +6,7 @@ NfcClient::NfcClient() :
   this->nfc.begin();
 }
 
-void NfcClient::Tick()
+int NfcClient::Tick()
 {
   /*
   // Read message over peer-to-peer
@@ -39,6 +39,8 @@ void NfcClient::Tick()
       Serial.println("Success");
   }
   */
+
+  return -1;
 }
 
 int NfcClient::ReadMessage()

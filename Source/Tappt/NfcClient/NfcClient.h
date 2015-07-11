@@ -9,10 +9,16 @@
 
 #include "ITick.h"
 
+namespace NfcState {
+  enum e {
+    NO_MESSAGE,
+  };
+};
+
 class NfcClient {
 public:
   NfcClient();
-  virtual void Tick();
+  virtual int Tick();
 private:
   int ReadMessage();
   int SendMessage();
