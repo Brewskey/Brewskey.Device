@@ -2,9 +2,11 @@
 
 //#define DEBUG 1
 
+#include "KegeratorState.h"
 #include "NfcClient.h"
 
 NfcClient* nfcClient;
+int state = KegeratorState::LISTENING;
 
 void setup(void) {
     Serial.begin(115200);
@@ -17,10 +19,24 @@ void setup(void) {
 }
 
 void loop(void) {
-  nfcClient->Tick();
+  switch (state) {
+    case KegeratorState::LISTENING:
+      {
+        int nfcState = nfcClient->Tick();
+        if (nfcState == NfcState::NO_MESSAGE) {
+          delay(1000);
+          break;
+        }
 
-  Serial.println("Tick");
-  delay(5000);
+
+        // handle status. switch state
+      }
+      break;
+    case KegeratorState::POURING:
+      break;
+    case KegeratorState::DONE_POURING:
+      break;
+  }
 }
 
 /*

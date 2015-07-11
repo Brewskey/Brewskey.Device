@@ -6,7 +6,7 @@ NfcClient::NfcClient() :
   this->nfc.begin();
 }
 
-void NfcClient::Tick()
+int NfcClient::Tick()
 {
   /*
   // Read message over peer-to-peer
@@ -39,15 +39,17 @@ void NfcClient::Tick()
       Serial.println("Success");
   }
   */
+
+  return -1;
 }
 
-int NfcClient::ReadMessage()
+NfcState::value NfcClient::ReadMessage()
 {
   // If reading authentication from a tag
   if (!this->nfc.tagPresent())
   {
     Serial.println("Tag not present");
-    return -1;
+    return NfcState::ERROR;
   }
 
   NfcTag tag = this->nfc.read();
@@ -55,7 +57,7 @@ int NfcClient::ReadMessage()
   if (!tag.hasNdefMessage())
   {
     Serial.println("No message");
-    return -1;
+    return NfcState::ERROR;
   }
 
   int totalLength = 0;
@@ -81,7 +83,7 @@ int NfcClient::ReadMessage()
   // TODO - Check authentication
   Serial.println(authenticationKey);
   Serial.println("printed");
-  return 0;
+  return NfcState::NO_MESSAGE;
 }
 
 int NfcClient::SendMessage()

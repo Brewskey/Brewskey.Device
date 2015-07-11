@@ -9,12 +9,19 @@
 
 #include "ITick.h"
 
+namespace NfcState {
+  enum value {
+    ERROR = -1,
+    NO_MESSAGE,
+  };
+};
+
 class NfcClient {
 public:
   NfcClient();
-  virtual void Tick();
+  virtual int Tick();
 private:
-  int ReadMessage();
+  NfcState::value ReadMessage();
   int SendMessage();
 
   PN532_SPI pn532spi;
