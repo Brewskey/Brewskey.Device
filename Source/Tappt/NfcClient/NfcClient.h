@@ -8,6 +8,7 @@
 #include "NfcAdapter.h"
 
 #include "ITick.h"
+#include "RestClient.h"
 
 namespace NfcState {
   enum value {
@@ -19,10 +20,10 @@ namespace NfcState {
 class NfcClient {
 public:
   NfcClient();
-  virtual int Tick();
+  virtual NfcState::value Tick();
 private:
   NfcState::value ReadMessage();
-  int SendMessage();
+  NfcState::value SendMessage();
 
   PN532_SPI pn532spi;
   NfcAdapter nfc;

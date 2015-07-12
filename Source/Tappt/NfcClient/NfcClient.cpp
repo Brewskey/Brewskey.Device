@@ -6,7 +6,7 @@ NfcClient::NfcClient() :
   this->nfc.begin();
 }
 
-int NfcClient::Tick()
+NfcState::value NfcClient::Tick()
 {
   /*
   // Read message over peer-to-peer
@@ -40,7 +40,7 @@ int NfcClient::Tick()
   }
   */
 
-  return -1;
+  return NfcState::NO_MESSAGE;
 }
 
 NfcState::value NfcClient::ReadMessage()
@@ -86,7 +86,7 @@ NfcState::value NfcClient::ReadMessage()
   return NfcState::NO_MESSAGE;
 }
 
-int NfcClient::SendMessage()
+NfcState::value NfcClient::SendMessage()
 {
-  return 0;
+  return NfcState::NO_MESSAGE;
 }
