@@ -4,6 +4,7 @@
 
 #include "KegeratorState.h"
 #include "NfcClient.h"
+//#include "RestClient.h"
 
 NfcClient* nfcClient;
 int state = KegeratorState::LISTENING;
@@ -19,6 +20,10 @@ void setup(void) {
 }
 
 void loop(void) {
+  delay(6000);
+  //RestClient RestClient = RestClient("http://tappt.io");
+
+
   switch (state) {
     case KegeratorState::LISTENING:
       {
