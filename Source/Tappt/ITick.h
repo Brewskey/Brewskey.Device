@@ -3,7 +3,8 @@
 
 class ITick {
 public:
-  virtual void Tick() = 0;
+  virtual int Tick() = 0;
+  virtual ~ITick() {}
 };
 
 #endif
