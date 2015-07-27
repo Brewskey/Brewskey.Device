@@ -1,7 +1,12 @@
 #include "NfcClient.h"
 
 NfcClient::NfcClient() :
-  pn532spi(SCK, MISO, MOSI, SS), nfc(pn532spi)//, snep(pn532spi)
+#ifdef SPI_HW_MODE
+  pn532spi(SPI, SS),
+#else
+  pn532spi(SCK, MISO, MOSI, SS),
+#endif
+  nfc(pn532spi)//, snep(pn532spi)
 {
   this->nfc.begin();
 }
@@ -40,7 +45,7 @@ NfcState::value NfcClient::Tick()
   }
   */
 
-  return NfcState::NO_MESSAGE;
+  return this->ReadMessage();
 }
 
 NfcState::value NfcClient::ReadMessage()

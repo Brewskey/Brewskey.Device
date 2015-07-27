@@ -240,21 +240,21 @@ void PN532_SPI::write(uint8_t data) {
 #ifdef SPI_HW_MODE
     _spi->transfer(data);
 #else
-    PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Start with Data Low (MODE0)
+    digitalWriteFastLow(_mosi); // Start with Data Low (MODE0)
     for (uint8_t bit=0; bit<8; bit++) {
       asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low
+      digitalWriteFastLow(_clk); // Clock Low
       if (data & (1<<bit)) { // walks up mask from bit 0 to bit 7
-        PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Data High
+        digitalWriteFastHigh(_mosi); // Data High
       } else {
-        PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Data Low
+        digitalWriteFastLow(_mosi); // Data Low
       }
       asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted Out)
+      digitalWriteFastHigh(_clk); // Clock High (Data Shifted Out)
     }
     asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-    PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Return Clock Low (MODE0)
-    PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Return Data High (MODE0)
+    digitalWriteFastLow(_clk); // Return Clock Low (MODE0)
+    digitalWriteFastHigh(_mosi); // Return Data High (MODE0)
 #endif
 };
 
@@ -264,13 +264,13 @@ uint8_t PN532_SPI::read() {
 #else
     uint8_t x = 0;
     for (uint8_t bit=0; bit<8; bit++)  {
-      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted In)
+      digitalWriteFastHigh(_clk); // Clock High (Data Shifted In)
 
       if (PIN_MAP[_miso].gpio_peripheral->IDR & PIN_MAP[_miso].gpio_pin) {
         x |= (1<<bit);
       }
       //asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
+      digitalWriteFastLow(_clk); // Clock Low (On exit, Clock Low (MODE0))
     }
 
     return x;
