@@ -40,7 +40,7 @@ int Temperature::Tick()
   // Sometimes the temperature isn't read correctly and is a large
   // negative number so don't send it.
   if (temperature < -50) {
-    return -1;
+    // return -1;
   }
 
   Serial.print("Temperature: "); Serial.println(temperature);
