@@ -7,7 +7,7 @@
 #include "ITick.h"
 
 #ifndef TEMPERATURE_PIN
-#define TEMPERATURE_PIN (D2)
+#define TEMPERATURE_PIN (A6)
 #endif
 
 class Temperature : public ITick {

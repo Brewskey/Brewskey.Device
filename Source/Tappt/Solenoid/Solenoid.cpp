@@ -3,15 +3,18 @@
 Solenoid::Solenoid()
 {
   pinMode(SOLENOID_PIN, OUTPUT);
-
-  // turn on
-  digitalWrite(SOLENOID_PIN, HIGH);
-  // turn off
-  digitalWrite(SOLENOID_PIN, LOW);
 }
+bool on = true;
+int Solenoid::Tick() {
+  if (on) {
+    // turn on
+    digitalWrite(SOLENOID_PIN, HIGH);
+  } else {
+    // turn off
+    digitalWrite(SOLENOID_PIN, LOW);
+  }
 
-void Solenoid::Pour() {
-
+  on != on;
 }
 
 /*

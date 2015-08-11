@@ -32,7 +32,7 @@ void WiFiListen() {
   WiFi.off();
   WiFi.on();
   WiFi.clearCredentials();   // if you only want one set of credentials stored
-  WiFi.setCredentials(ssid, password, auth);
+  WiFi.setCredentials(ssid.c_str(), password.c_str(), auth);
 
   WiFi.connect();
 
