@@ -1,0 +1,10 @@
+{
+    "event": "tappt_temperature",
+    "url": "http://tappt.io/api/temperature",
+    "requestType": "PUT",
+    "json": {
+        "temperature": "{{temperature}}",
+        "deviceID": "{{SPARK_CORE_ID}}"
+    },
+    "mydevices": true
+}

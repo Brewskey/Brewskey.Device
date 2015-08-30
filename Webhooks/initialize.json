@@ -1,0 +1,10 @@
+{
+    "event": "tappt_device_status",
+    "url": "http://tappt.io/api/taps/{{sparkID}}/status",
+    "requestType": "GET",
+    "json": {
+        "temperature": "{{temperature}}",
+        "deviceID": "{{SPARK_CORE_ID}}"
+    },
+    "mydevices": true
+}
