@@ -3,6 +3,7 @@
 
 #include "PN532_SPI.h"
 #include "PN532.h"
+#include "emulatetag.h"
 #include "snep.h"
 #include "NdefMessage.h"
 #include "NfcAdapter.h"
@@ -26,10 +27,15 @@ private:
   NfcState::value SendMessage();
 
   PN532_SPI pn532spi;
-  NfcAdapter nfc;
-  //SNEP snep;
 
+  EmulateTag nfc;
+  //SNEP nfc;
+  //NfcAdapter nfc;
+
+  int messageSize;
+  NdefMessage message;
   uint8_t ndefBuf[128];
+  uint8_t uid[3] = { 0x12, 0x34, 0x56 };
 };
 
 #endif

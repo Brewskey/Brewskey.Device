@@ -769,6 +769,7 @@ int8_t PN532::tgInitAsTarget(const uint8_t* command, const uint8_t len, const ui
     }
 
     status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), timeout);
+   
     if (status > 0) {
         return 1;
     } else if (PN532_TIMEOUT == status) {
@@ -796,7 +797,8 @@ int8_t PN532::tgInitAsTarget(uint16_t timeout)
 
         0x01, 0xFE, 0x0F, 0xBB, 0xBA, 0xA6, 0xC9, 0x89, 0x00, 0x00, //NFCID3t: Change this to desired value
 
-        0x06, 0x46,  0x66, 0x6D, 0x01, 0x01, 0x10, 0x00// LLCP magic number and version parameter
+        0x0a, 0x46,  0x66, 0x6D, 0x01, 0x01, 0x10, 0x02, 0x02, 0x00, 0x80, // LLCP magic number, version parameter and MIUX
+        0x00
     };
     return tgInitAsTarget(command, sizeof(command), timeout);
 }

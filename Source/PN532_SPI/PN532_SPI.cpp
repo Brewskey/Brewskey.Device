@@ -51,7 +51,7 @@ void PN532_SPI::begin()
 void PN532_SPI::wakeup()
 {
     digitalWrite(_ss, LOW);
-    delay(1000);
+    delay(500);
     digitalWrite(_ss, HIGH);
 }
 
@@ -59,6 +59,7 @@ void PN532_SPI::wakeup()
 
 int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)
 {
+    command = header[0];
     uint16_t timer = 0;
     writeFrame(header, hlen, body, blen);
 
@@ -115,10 +116,9 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
             break;
         }
 
-        uint8_t cmd = buf[0] + 1;               // response command
+        uint8_t cmd = command + 1;               // response command
         uint16_t toHost = read();
         uint16_t cmdRead = read();
-
         if (PN532_PN532TOHOST != toHost || (cmd) != cmdRead) {
             Serial.println("invalid 3");
             result = PN532_INVALID_FRAME;
@@ -147,7 +147,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
             DMSG_HEX(buf[i]);
         }
-        DMSG('\r\n');
+        DMSG("\r\n");
 
         uint8_t checksum = read();
         if (0 != (uint8_t)(sum + checksum)) {
@@ -213,7 +213,7 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
 
     digitalWrite(_ss, HIGH);
 
-    DMSG('\r\n');
+    DMSG("\r\n");
 }
 
 int8_t PN532_SPI::readAckFrame()

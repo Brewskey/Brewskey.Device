@@ -6,50 +6,44 @@ NfcClient::NfcClient() :
 #else
   pn532spi(SCK, MISO, MOSI, SS),
 #endif
-  nfc(pn532spi)//, snep(pn532spi)
+  nfc(pn532spi)
 {
-  this->nfc.begin();
-}
+  nfc.init();
 
-NfcState::value NfcClient::Tick()
-{
-  /*
-  // Read message over peer-to-peer
-  Serial.println("Reading peer-to-peer");
-  int msgSize = this->snep.read(ndefBuf, sizeof(ndefBuf));
-  if (msgSize > 0) {
-    NdefMessage msg  = NdefMessage(ndefBuf, msgSize);
-    msg.print();
-    Serial.println("\nSuccess");
-  } else {
-    Serial.println("Failed");
-  }
-  */
-
-  /*
-  // Write peer-to-peer
-  NdefMessage message = NdefMessage();
-  message.addUriRecord("http://arduino.cc");
-
-  int messageSize = message.getEncodedSize();
+  message = NdefMessage();
+  message.addUriRecord("http://www.seeedstudio.com");
+  messageSize = message.getEncodedSize();
   if (messageSize > sizeof(ndefBuf)) {
       Serial.println("ndefBuf is too small");
       while (1) { }
   }
 
-  message.encode(ndefBuf);
-  if (0 >= this->snep.write(ndefBuf, messageSize)) {
-      Serial.println("Failed");
-  } else {
-      Serial.println("Success");
-  }
-  */
+  Serial.print("Ndef encoded message size: ");
+  Serial.println(messageSize);
 
-  return this->ReadMessage();
+  message.encode(ndefBuf);
+
+  // comment out this command for no ndef message
+  nfc.setNdefFile(ndefBuf, messageSize);
+
+  // uid must be 3 bytes!
+  nfc.setUid(uid);
+}
+
+NfcState::value NfcClient::Tick()
+{
+  nfc.emulate();
+
+  delay(1000);
+
+  return NfcState::NO_MESSAGE;
+  return this->SendMessage();
 }
 
 NfcState::value NfcClient::ReadMessage()
 {
+  /*
+#ifndef SNEP
   // If reading authentication from a tag
   if (!this->nfc.tagPresent())
   {
@@ -88,10 +82,25 @@ NfcState::value NfcClient::ReadMessage()
   // TODO - Check authentication
   Serial.println(authenticationKey);
   Serial.println("printed");
+#endif */
   return NfcState::NO_MESSAGE;
 }
 
 NfcState::value NfcClient::SendMessage()
 {
+  /*
+  if (nfc.tagPresent()) {
+      NdefMessage message = NdefMessage();
+      message.addUriRecord("http://arduino.cc");
+
+      bool success = nfc.write(message);
+      if (success) {
+        Serial.println("Success. Try reading this tag with your phone.");
+      } else {
+        Serial.println("Write failed.");
+      }
+  }
+  */
+
   return NfcState::NO_MESSAGE;
 }

@@ -48,9 +48,22 @@
 
 typedef enum { NONE_Tag_File, CC_Tag_File, NDEF_Tag_File } tag_file;   // CC ... Compatibility Container
 
-bool EmulateTag::init(){
+bool EmulateTag::init() {
   pn532.begin();
-  return pn532.SAMConfig();
+  uint32_t versiondata = pn532.getFirmwareVersion();
+
+  if (! versiondata)
+  {
+      Serial.print(F("Didn't find PN53x board"));
+      while (1); // halt
+  }
+
+  Serial.print(F("Found chip PN5")); Serial.println((versiondata>>24) & 0xFF, HEX);
+  Serial.print(F("Firmware ver. ")); Serial.print((versiondata>>16) & 0xFF, DEC);
+  Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
+
+  // configure board to read RFID tags
+  pn532.SAMConfig();
 }
 
 void EmulateTag::setNdefFile(const uint8_t* ndef, const int16_t ndefLength){
