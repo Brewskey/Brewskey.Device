@@ -32,7 +32,7 @@ NfcClient::NfcClient() :
 
 NfcState::value NfcClient::Tick()
 {
-  nfc.emulate();
+  nfc.emulate(1000);
 
   delay(1000);
 
