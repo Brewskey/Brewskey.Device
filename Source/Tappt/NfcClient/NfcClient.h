@@ -15,13 +15,15 @@ namespace NfcState {
   enum value {
     ERROR = -1,
     NO_MESSAGE,
+    SENT_MESSAGE,
+    READ_MESSAGE,
   };
 };
 
-class NfcClient {
+class NfcClient: public ITick {
 public:
   NfcClient();
-  virtual NfcState::value Tick();
+  virtual int Tick();
 private:
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
@@ -30,10 +32,10 @@ private:
 
   EmulateTag nfc;
   //SNEP nfc;
-  //NfcAdapter nfc;
+  NfcAdapter nfcAdapter;
 
-  int messageSize;
   NdefMessage message;
+  int messageSize;
   uint8_t ndefBuf[128];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
 };

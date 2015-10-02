@@ -2,6 +2,7 @@
 
 Temperature::Temperature():
   sensors(new OneWire(TEMPERATURE_PIN)) {
+
   // locate devices on the bus
   Serial.print("Locating devices...");
   sensors.begin();
@@ -34,6 +35,12 @@ Temperature::Temperature():
 
 int Temperature::Tick()
 {
+  this->timer.Tick();
+
+  if (!this->timer.ShouldTrigger) {
+    return 0;
+  }
+
   this->sensors.requestTemperatures();
   float temperature = this->sensors.getTempF(this->insideThermometer);
 
@@ -45,7 +52,15 @@ int Temperature::Tick()
 
   Serial.print("Temperature: "); Serial.println(temperature);
 
-  // TODO - Spark.publish();
+  sprintf(
+    json,
+    "{\"t\":\"%f\"}",
+    temperature
+  );
+
+  Serial.print("Json: ");Serial.println(json);
+
+  Particle.publish("tappt_temperature", json, 60, PRIVATE);
 
   return 0;
 }

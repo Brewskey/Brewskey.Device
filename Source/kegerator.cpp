@@ -2,7 +2,8 @@
 
 //#define DEBUG 1
 
-#define PLATFORM_ID 6
+//#define PLATFORM_ID 6
+#define NFC 0
 
 #include "FlowMeter.h"
 #include "KegeratorState.h"
@@ -24,29 +25,31 @@ int state = KegeratorState::LISTENING;
 
 void setup(void) {
     Serial.begin(115200);
-
     //WifiSetup();
-/*
+
     while(!Serial.available()) {
       Spark.process();
     }
-*/
+
+    Serial.println("Starting");
+
+#if NFC == 1
     nfcClient = new NfcClient();
+#endif
     temperatureSensor = new Temperature();
 		solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
 }
 
 void loop(void) {
-  //WiFiListen();
-  //return;
   temperatureSensor->Tick();
-	//solenoid->Tick();
 
   switch (state) {
     case KegeratorState::LISTENING:
       {
-        //nfcClient->Tick();
+        #if NFC == 1
+        nfcClient->Tick();
+        #endif
       }
       break;
     case KegeratorState::POURING:

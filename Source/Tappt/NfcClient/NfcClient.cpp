@@ -6,57 +6,49 @@ NfcClient::NfcClient() :
 #else
   pn532spi(SCK, MISO, MOSI, SS),
 #endif
-  nfc(pn532spi)
+  nfc(pn532spi), nfcAdapter(pn532spi)
 {
+  // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
 
-  message = NdefMessage();
-  message.addUriRecord("http://www.seeedstudio.com");
-  messageSize = message.getEncodedSize();
-  if (messageSize > sizeof(ndefBuf)) {
+  this->message = NdefMessage();
+
+  this->message.addUriRecord("tappt://view-tap?particleId=" + System.deviceID());
+
+  this->messageSize = this->message.getEncodedSize();
+  if (this->messageSize > sizeof(this->ndefBuf)) {
       Serial.println("ndefBuf is too small");
       while (1) { }
   }
 
-  Serial.print("Ndef encoded message size: ");
-  Serial.println(messageSize);
-
   message.encode(ndefBuf);
-
-  // comment out this command for no ndef message
-  nfc.setNdefFile(ndefBuf, messageSize);
-
-  // uid must be 3 bytes!
-  nfc.setUid(uid);
 }
 
-NfcState::value NfcClient::Tick()
+int NfcClient::Tick()
 {
-  nfc.emulate(1000);
+  NfcState::value output = this->SendMessage();
+  if (output != NfcState::NO_MESSAGE) {
+    return output;
+  }
 
-  delay(1000);
-
-  return NfcState::NO_MESSAGE;
-  return this->SendMessage();
+  return this->ReadMessage();
 }
 
 NfcState::value NfcClient::ReadMessage()
 {
-  /*
-#ifndef SNEP
   // If reading authentication from a tag
-  if (!this->nfc.tagPresent())
+  if (!this->nfcAdapter.tagPresent())
   {
     Serial.println("Tag not present");
-    return NfcState::ERROR;
+    return NfcState::NO_MESSAGE;
   }
 
-  NfcTag tag = this->nfc.read();
+  NfcTag tag = this->nfcAdapter.read();
 
   if (!tag.hasNdefMessage())
   {
     Serial.println("No message");
-    return NfcState::ERROR;
+    return NfcState::NO_MESSAGE;
   }
 
   int totalLength = 0;
@@ -79,28 +71,21 @@ NfcState::value NfcClient::ReadMessage()
     delete[] payload;
   }
 
-  // TODO - Check authentication
   Serial.println(authenticationKey);
   Serial.println("printed");
-#endif */
+
   return NfcState::NO_MESSAGE;
 }
 
 NfcState::value NfcClient::SendMessage()
 {
-  /*
-  if (nfc.tagPresent()) {
-      NdefMessage message = NdefMessage();
-      message.addUriRecord("http://arduino.cc");
+  // comment out this command for no ndef message
+  nfc.setNdefFile(ndefBuf, messageSize);
 
-      bool success = nfc.write(message);
-      if (success) {
-        Serial.println("Success. Try reading this tag with your phone.");
-      } else {
-        Serial.println("Write failed.");
-      }
-  }
-  */
+  // uid must be 3 bytes!
+  nfc.setUid(uid);
+
+  nfc.emulate(250);
 
   return NfcState::NO_MESSAGE;
 }

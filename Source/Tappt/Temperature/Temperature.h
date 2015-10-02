@@ -5,9 +5,10 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "ITick.h"
+#include "Timer.h"
 
 #ifndef TEMPERATURE_PIN
-#define TEMPERATURE_PIN (D1)
+#define TEMPERATURE_PIN (D3)
 #endif
 
 class Temperature : public ITick {
@@ -15,7 +16,11 @@ public:
   Temperature();
   virtual int Tick();
 private:
+  char json[64];
+  char coreID[30];
   void PrintAddress(DeviceAddress deviceAddress);
+
+  Timer timer = Timer(10000);
 
   DallasTemperature sensors;
 
