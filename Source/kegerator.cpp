@@ -3,7 +3,6 @@
 //#define DEBUG 1
 
 //#define PLATFORM_ID 6
-#define NFC 0
 
 #include "FlowMeter.h"
 #include "KegeratorState.h"
@@ -25,36 +24,27 @@ int state = KegeratorState::LISTENING;
 
 void setup(void) {
     Serial.begin(115200);
-    //WifiSetup();
 
+    nfcClient = new NfcClient();
+    temperatureSensor = new Temperature();
+    solenoid = new Solenoid();
+    flowMeter = new FlowMeter(solenoid);
+/*
     while(!Serial.available()) {
       Spark.process();
     }
-
+*/
     Serial.println("Starting");
-
-#if NFC == 1
-    nfcClient = new NfcClient();
-#endif
-    temperatureSensor = new Temperature();
-		solenoid = new Solenoid();
-    flowMeter = new FlowMeter(solenoid);
 }
 
 void loop(void) {
   temperatureSensor->Tick();
 
-  switch (state) {
-    case KegeratorState::LISTENING:
-      {
-        #if NFC == 1
-        nfcClient->Tick();
-        #endif
-      }
-      break;
-    case KegeratorState::POURING:
-      break;
-    case KegeratorState::DONE_POURING:
-      break;
+  int isPouring = flowMeter->Tick();
+
+  // if isPouring equals 1 then it is currently pouring and shouldn't accept
+  // nfc
+  if (isPouring <= 0) {
+    nfcClient->Tick();
   }
 }

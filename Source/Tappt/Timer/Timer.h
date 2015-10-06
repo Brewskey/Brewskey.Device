@@ -7,6 +7,7 @@
 class Timer: public ITick {
 public:
   Timer(unsigned long interval);
+  void Reset();
   virtual int Tick();
 
   bool ShouldTrigger = false;

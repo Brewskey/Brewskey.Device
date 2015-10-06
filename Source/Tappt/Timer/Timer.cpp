@@ -2,6 +2,11 @@
 
 Timer::Timer(unsigned long interval) {
   this->interval = interval;
+  this->Reset();
+}
+
+void Timer::Reset() {
+  this->ShouldTrigger = false;
   this->previousMillis = millis();
 }
 

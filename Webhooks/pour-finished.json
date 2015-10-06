@@ -1,0 +1,10 @@
+{
+    "event": "tappt_pour-finished",
+    "url": "http://tappt.azurewebsites.net/api/pour/finish",
+    "requestType": "POST",
+    "json": {
+    	"pourKey": "{{pourKey}}",
+        "pulses": "{{pulses}}"
+    },
+    "mydevices": true
+}

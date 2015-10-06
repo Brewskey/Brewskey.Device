@@ -1,10 +1,6 @@
 {
-    "event": "tappt_device_status",
-    "url": "http://tappt.io/api/taps/{{sparkID}}/status",
+    "event": "tappt_initialize",
+    "url": "http://tappt.azurewebsites.net/api/devices/particle/{{SPARK_CORE_ID}}/id",
     "requestType": "GET",
-    "json": {
-        "temperature": "{{temperature}}",
-        "deviceID": "{{SPARK_CORE_ID}}"
-    },
     "mydevices": true
 }

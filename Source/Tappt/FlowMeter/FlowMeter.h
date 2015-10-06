@@ -2,6 +2,7 @@
 #define FlowMeter_h
 
 #include "Solenoid.h"
+#include "Timer.h"
 
 #ifndef FLOW_PIN
 #define FLOW_PIN (D2)
@@ -12,15 +13,19 @@
 class FlowMeter : public ITick {
 public:
   FlowMeter(Solenoid *solenoid);
-  void StartPour();
+  int StartPour(String parameters);
   void StopPour();
   virtual int Tick();
 private:
   Solenoid *solenoid;
   bool pouring;
   byte state, waitCount;
-  int lastFlowCount = 0;
-  unsigned long pourTimer;
+  volatile int flowCount = 0;
+  unsigned long lastFlowCount = 0;
+  Timer timer = Timer(1000);
+
+  char json[128];
+  String pourKey;
 
   void FlowCounter();
 };

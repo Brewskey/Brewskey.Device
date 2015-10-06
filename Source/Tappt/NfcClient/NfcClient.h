@@ -10,6 +10,7 @@
 
 #include "ITick.h"
 #include "RestClient.h"
+#include "Timer.h"
 
 namespace NfcState {
   enum value {
@@ -25,13 +26,16 @@ public:
   NfcClient();
   virtual int Tick();
 private:
+  int Initialize(String id);
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
+
+  String deviceId;
+  Timer getIdTimer = Timer(10000);
 
   PN532_SPI pn532spi;
 
   EmulateTag nfc;
-  //SNEP nfc;
   NfcAdapter nfcAdapter;
 
   NdefMessage message;

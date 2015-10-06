@@ -8,12 +8,19 @@ NfcClient::NfcClient() :
 #endif
   nfc(pn532spi), nfcAdapter(pn532spi)
 {
+  Particle.function("initialize", &NfcClient::Initialize, this);
+  Particle.publish("tappt_initialize", (const char *)0, 60, PRIVATE);
+
   // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
+}
+
+int NfcClient::Initialize(String deviceId) {
+  Serial.print("Device ID: ");Serial.println(deviceId);
 
   this->message = NdefMessage();
 
-  this->message.addUriRecord("tappt://view-tap?particleId=" + System.deviceID());
+  this->message.addUriRecord("tappt://view-tap?deviceId=" + deviceId);
 
   this->messageSize = this->message.getEncodedSize();
   if (this->messageSize > sizeof(this->ndefBuf)) {
@@ -22,10 +29,24 @@ NfcClient::NfcClient() :
   }
 
   message.encode(ndefBuf);
+
+  this->deviceId = deviceId;
+  return 0;
 }
 
 int NfcClient::Tick()
 {
+  if (this->deviceId == NULL || this->deviceId == "") {
+    this->getIdTimer.Tick();
+
+    if (this->getIdTimer.ShouldTrigger) {
+      Serial.println("Requesting DeviceId");
+      Particle.publish("tappt_initialize", (const char *)0, 60, PRIVATE);
+    }
+
+    return NfcState::NO_MESSAGE;
+  }
+
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
@@ -37,7 +58,7 @@ int NfcClient::Tick()
 NfcState::value NfcClient::ReadMessage()
 {
   // If reading authentication from a tag
-  if (!this->nfcAdapter.tagPresent())
+  if (!this->nfcAdapter.tagPresent(100))
   {
     Serial.println("Tag not present");
     return NfcState::NO_MESSAGE;
@@ -79,13 +100,15 @@ NfcState::value NfcClient::ReadMessage()
 
 NfcState::value NfcClient::SendMessage()
 {
+
   // comment out this command for no ndef message
   nfc.setNdefFile(ndefBuf, messageSize);
 
   // uid must be 3 bytes!
   nfc.setUid(uid);
 
-  nfc.emulate(250);
+  nfc.emulate(100);
+  Serial.println("Emulated Tag");
 
   return NfcState::NO_MESSAGE;
 }

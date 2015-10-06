@@ -59,7 +59,7 @@ NfcTag MifareUltralight::read(byte * uid, unsigned int uidLength)
             Serial.print(F("Read failed "));Serial.println(page);
             // TODO error handling
             messageLength = 0;
-            break;
+            return NfcTag(uid, uidLength, NFC_FORUM_TAG_TYPE_2);
         }
 
         if (index >= (messageLength + ndefStartIndex))
