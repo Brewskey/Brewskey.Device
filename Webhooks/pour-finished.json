@@ -1,6 +1,6 @@
 {
     "event": "tappt_pour-finished",
-    "url": "http://tappt.azurewebsites.net/api/pour/finish",
+    "url": "https://tappt.io/api/pour/finish",
     "requestType": "POST",
     "json": {
     	"pourKey": "{{pourKey}}",

@@ -1,6 +1,6 @@
 {
     "event": "tappt_temperature",
-    "url": "http://tappt.azurewebsites.net/api/temperature",
+    "url": "https://tappt.io/api/temperature",
     "requestType": "PUT",
     "json": {
         "temperature": "{{t}}",
