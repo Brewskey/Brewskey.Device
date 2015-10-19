@@ -1,6 +1,6 @@
 {
     "event": "tappt_initialize",
-    "url": "http://tappt.azurewebsites.net/api/devices/particle/{{SPARK_CORE_ID}}/id",
+    "url": "https://tappt.io/api/devices/particle/{{SPARK_CORE_ID}}/id",
     "requestType": "GET",
     "mydevices": true
 }
