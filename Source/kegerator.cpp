@@ -29,11 +29,11 @@ void setup(void) {
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
-/*
-    while(!Serial.available()) {
-      Spark.process();
-    }
-*/
+
+    //while(!Serial.available()) {
+      //Spark.process();
+    //}
+
     Serial.println("Starting");
 }
 
