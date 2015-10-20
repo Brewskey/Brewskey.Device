@@ -40,7 +40,7 @@ private:
 
   NdefMessage message;
   int messageSize;
-  uint8_t ndefBuf[128];
+  uint8_t ndefBuf[48];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
 };
 
