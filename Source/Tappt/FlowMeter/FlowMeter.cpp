@@ -28,6 +28,8 @@ FlowMeter::FlowMeter(Solenoid *solenoid)
 	digitalWrite(FLOW_PIN, HIGH);
   //attachInterrupt(FLOW_PIN, &FlowMeter::FlowCounter, this, FALLING);
 	Particle.function("pour", &FlowMeter::StartPour, this);
+
+	//this->StopPour();
 }
 
 int FlowMeter::StartPour(String pourKey)
@@ -51,12 +53,12 @@ void FlowMeter::StopPour()
 
 int FlowMeter::Tick()
 {
-  if (!this->pouring) {
+  if (this->pouring == false) {
     return -1;
   }
 
 	this->FlowCounter();
-
+ 
 	this->timer.Tick();
 
   if (!this->timer.ShouldTrigger) {

@@ -46,12 +46,14 @@ int NfcClient::Tick()
 
     return NfcState::NO_MESSAGE;
   }
-/*
+
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
-*/
+
+  return output;
+
   return this->ReadMessage();
 }
 
@@ -100,14 +102,12 @@ NfcState::value NfcClient::ReadMessage()
 
 NfcState::value NfcClient::SendMessage()
 {
-
   // comment out this command for no ndef message
   nfc.setNdefFile(ndefBuf, messageSize);
 
   // uid must be 3 bytes!
   nfc.setUid(uid);
-
-  nfc.emulate(1000);
+  nfc.emulate(500);
   Serial.println("Emulated Tag");
 
   return NfcState::NO_MESSAGE;

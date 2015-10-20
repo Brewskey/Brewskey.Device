@@ -18,7 +18,7 @@ public:
   virtual int Tick();
 private:
   Solenoid *solenoid;
-  bool pouring;
+  bool pouring = false;
   byte state, waitCount;
   volatile int flowCount = 0;
   unsigned long lastFlowCount = 0;

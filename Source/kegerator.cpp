@@ -3,6 +3,7 @@
 //#define DEBUG 1
 
 //#define PLATFORM_ID 6
+//#define SPI_HW_MODE 1
 
 #include "FlowMeter.h"
 #include "KegeratorState.h"
@@ -30,9 +31,9 @@ void setup(void) {
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
 
-    //while(!Serial.available()) {
-      //Spark.process();
-    //}
+    while(!Serial.available()) {
+      Spark.process();
+    }
 
     Serial.println("Starting");
 }

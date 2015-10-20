@@ -31,7 +31,7 @@ NfcTag MifareClassic::read(byte *uid, unsigned int uidLength)
         if (success)
         {
             if (!decodeTlv(data, messageLength, messageStartIndex)) {
-                return NfcTag(uid, uidLength, "ERROR"); // TODO should the error message go in NfcTag?
+                return NfcTag(uid, uidLength, MIFARE_CLASSIC); // TODO should the error message go in NfcTag?
             }
         }
         else
