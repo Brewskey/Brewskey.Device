@@ -4,9 +4,9 @@
 #include "application.h"
 #include "ITick.h"
 
-class Timer: public ITick {
+class TapptTimer: public ITick {
 public:
-  Timer(unsigned long interval);
+  TapptTimer(unsigned long interval);
   void Reset();
   virtual int Tick();
 

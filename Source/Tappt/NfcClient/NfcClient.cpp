@@ -94,7 +94,17 @@ NfcState::value NfcClient::ReadMessage()
 
   Serial.println(authenticationKey);
   Serial.println("printed");
+/*
+  sprintf(
+    json,
+    "{\"deviceId\":\"%s\",\"t\":\"%s\"}",
+    this->deviceId.c_str(),
+    authenticationKey.c_str()
+  );
 
+  Serial.print("Request Pour");Serial.println(json);
+  Particle.publish("tappt_request-pour", json, 60, PRIVATE);
+*/
   return NfcState::NO_MESSAGE;
 }
 

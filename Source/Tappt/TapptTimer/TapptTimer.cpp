@@ -1,16 +1,16 @@
-#include "Timer.h"
+#include "TapptTimer.h"
 
-Timer::Timer(unsigned long interval) {
+TapptTimer::TapptTimer(unsigned long interval) {
   this->interval = interval;
   this->Reset();
 }
 
-void Timer::Reset() {
+void TapptTimer::Reset() {
   this->ShouldTrigger = false;
   this->previousMillis = millis();
 }
 
-int Timer::Tick() {
+int TapptTimer::Tick() {
   unsigned long currentMillis = millis();
   this->ShouldTrigger = currentMillis - this->previousMillis > this->interval;
 

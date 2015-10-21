@@ -2,7 +2,7 @@
 #define FlowMeter_h
 
 #include "Solenoid.h"
-#include "Timer.h"
+#include "TapptTimer.h"
 
 #ifndef FLOW_PIN
 #define FLOW_PIN (D2)
@@ -22,9 +22,9 @@ private:
   byte state, waitCount;
   volatile int flowCount = 0;
   unsigned long lastFlowCount = 0;
-  Timer timer = Timer(1000);
+  TapptTimer timer = TapptTimer(1000);
 
-  char json[128];
+  char json[64];
   String pourKey;
 
   void FlowCounter();

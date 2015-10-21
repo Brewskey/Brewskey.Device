@@ -5,7 +5,7 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "ITick.h"
-#include "Timer.h"
+#include "TapptTimer.h"
 
 #ifndef TEMPERATURE_PIN
 #define TEMPERATURE_PIN (D3)
@@ -20,7 +20,7 @@ private:
   char coreID[30];
   void PrintAddress(DeviceAddress deviceAddress);
 
-  Timer timer = Timer(10000);
+  TapptTimer timer = TapptTimer(10000);
 
   DallasTemperature sensors;
 

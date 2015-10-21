@@ -10,7 +10,7 @@
 
 #include "ITick.h"
 #include "RestClient.h"
-#include "Timer.h"
+#include "TapptTimer.h"
 
 namespace NfcState {
   enum value {
@@ -31,7 +31,7 @@ private:
   NfcState::value SendMessage();
 
   String deviceId;
-  Timer getIdTimer = Timer(10000);
+  TapptTimer getIdTimer = TapptTimer(10000);
 
   PN532_SPI pn532spi;
 
@@ -42,6 +42,8 @@ private:
   int messageSize;
   uint8_t ndefBuf[48];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
+
+  char json[64];
 };
 
 #endif

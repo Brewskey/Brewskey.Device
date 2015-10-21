@@ -1,0 +1,10 @@
+{
+    "event": "tappt_request-pour",
+    "url": "https://tappt.io/api/authorizations/pour",
+    "requestType": "POST",
+    "json": {
+    	"deviceId": "{{SPARK_CORE_ID}}"
+    	"token": "{{t}}",
+    },
+    "mydevices": true
+}
