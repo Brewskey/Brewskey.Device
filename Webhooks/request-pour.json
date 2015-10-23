@@ -3,8 +3,8 @@
     "url": "https://tappt.io/api/authorizations/pour",
     "requestType": "POST",
     "json": {
-    	"deviceId": "{{SPARK_CORE_ID}}"
-    	"token": "{{t}}",
+    	"deviceId": "{{id}}",
+    	"token": "{{tkn}}"
     },
     "mydevices": true
 }

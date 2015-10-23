@@ -1,7 +1,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#define DEBUG 100
+//#define DEBUG 100
 
 #include "application.h"
 

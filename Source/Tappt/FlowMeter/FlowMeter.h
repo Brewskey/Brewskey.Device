@@ -24,7 +24,7 @@ private:
   unsigned long lastFlowCount = 0;
   TapptTimer timer = TapptTimer(1000);
 
-  char json[64];
+  char json[96];
   String pourKey;
 
   void FlowCounter();

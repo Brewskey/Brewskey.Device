@@ -43,7 +43,7 @@ private:
   uint8_t ndefBuf[48];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
 
-  char json[64];
+  char json[96];
 };
 
 #endif
