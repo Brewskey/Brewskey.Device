@@ -21,9 +21,10 @@ void FlowMeter::FlowCounter()
 	}
 }
 
-FlowMeter::FlowMeter(Solenoid *solenoid)
+FlowMeter::FlowMeter(Solenoid *solenoid, LED* led)
 {
   this->solenoid = solenoid;
+	this->led = led;
 	pinMode(FLOW_PIN, INPUT);
 	digitalWrite(FLOW_PIN, HIGH);
   //attachInterrupt(FLOW_PIN, &FlowMeter::FlowCounter, this, FALLING);
@@ -32,16 +33,22 @@ FlowMeter::FlowMeter(Solenoid *solenoid)
 	//this->StopPour();
 }
 
-int FlowMeter::StartPour(String pourKey)
+int FlowMeter::StartPour(String data)
 {
+	if (this->pouring == true) {
+		Serial.println("Tried to start pour while already pouring.");
+		return 0;
+	}
+
   this->solenoid->Open();
 	this->timer.Reset();
   flowCount = 0;
   this->lastFlowCount = 0;
   this->pouring = true;
   this->waitCount = 0;
-	this->pourKey = pourKey;
+	this->pourKey = String(data);
 	Serial.print("Start Pour");Serial.println(pourKey);
+	return 0;
 }
 
 void FlowMeter::StopPour()
@@ -49,6 +56,7 @@ void FlowMeter::StopPour()
 	this->pourKey = "";
 	this->solenoid->Close();
 	this->pouring = false;
+	this->led->SetColor(0,0,0);
 }
 
 int FlowMeter::Tick()
@@ -57,8 +65,9 @@ int FlowMeter::Tick()
     return -1;
   }
 
+	this->led->SetColor(0,255,0);
 	this->FlowCounter();
- 
+
 	this->timer.Tick();
 
   if (!this->timer.ShouldTrigger) {

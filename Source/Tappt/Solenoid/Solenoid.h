@@ -1,12 +1,9 @@
 #ifndef Solenoid_h
 #define Solenoid_h
 
+#include "Pins.h"
 #include "application.h"
 #include "ITick.h"
-
-#ifndef SOLENOID_PIN
-#define SOLENOID_PIN (D0)
-#endif
 
 class Solenoid {
 public:

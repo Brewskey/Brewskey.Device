@@ -1,6 +1,10 @@
 #include "NfcClient.h"
 
-NfcClient::NfcClient() :
+void test(const char *eventName, const char *data) {
+  Serial.println("FOOOOOO");
+}
+
+NfcClient::NfcClient(LED* led) :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
 #else
@@ -8,14 +12,18 @@ NfcClient::NfcClient() :
 #endif
   nfc(pn532spi), nfcAdapter(pn532spi)
 {
+  this->led = led;
+
   Particle.function("initialize", &NfcClient::Initialize, this);
-  Particle.publish("tappt_initialize", (const char *)0, 60, PRIVATE);
+  Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 
   // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
 }
 
-int NfcClient::Initialize(String deviceId) {
+int NfcClient::Initialize(String data) {
+  Serial.println("FOOOOOO");
+  this->deviceId = String(data);
   Serial.print("Device ID: ");Serial.println(deviceId);
 
   this->message = NdefMessage();
@@ -30,7 +38,6 @@ int NfcClient::Initialize(String deviceId) {
 
   message.encode(ndefBuf);
 
-  this->deviceId = deviceId;
   return 0;
 }
 
@@ -41,17 +48,20 @@ int NfcClient::Tick()
 
     if (this->getIdTimer.ShouldTrigger) {
       Serial.println("Requesting DeviceId");
-      Particle.publish("tappt_initialize", (const char *)0, 60, PRIVATE);
+      Particle.publish("tappt_initialize", (const char *)0, 5, PRIVATE);
     }
 
     return NfcState::NO_MESSAGE;
   }
 
+  this->led->IsBreathing(true);
+  this->led->SetColor(0, 0, 255);
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
 
+  this->led->SetColor(0, 255, 255);
   return this->ReadMessage();
 }
 
@@ -95,16 +105,25 @@ NfcState::value NfcClient::ReadMessage()
   Serial.println(authenticationKey);
   Serial.println("printed");
 
+  String deviceId = this->deviceId;
+
   sprintf(
     json,
     "{\"id\":\"%s\",\"tkn\":\"%s\"}",
-    this->deviceId.c_str(),
+    deviceId.c_str(),
     // remove \u0002 and "en"
     authenticationKey.substring(3).c_str()
   );
 
   Serial.print("Request Pour");Serial.println(json);
-  Particle.publish("tappt_request-pour", json, 60, PRIVATE);
+  Particle.publish("tappt_request-pour", json, 5, PRIVATE);
+
+  // wait for webserver to respond
+  int counter = 0;
+  while (counter++ < 400) {
+    Spark.process();
+    delay(1);
+  }
 
   return NfcState::NO_MESSAGE;
 }

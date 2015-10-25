@@ -9,6 +9,7 @@
 #include "NfcAdapter.h"
 
 #include "ITick.h"
+#include "LED.h"
 #include "RestClient.h"
 #include "TapptTimer.h"
 
@@ -23,12 +24,14 @@ namespace NfcState {
 
 class NfcClient: public ITick {
 public:
-  NfcClient();
+  NfcClient(LED *led);
   virtual int Tick();
 private:
-  int Initialize(String id);
+  int Initialize(String data);
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
+
+  LED *led;
 
   String deviceId;
   TapptTimer getIdTimer = TapptTimer(10000);
@@ -43,7 +46,7 @@ private:
   uint8_t ndefBuf[48];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
 
-  char json[96];
+  char json[76];
 };
 
 #endif

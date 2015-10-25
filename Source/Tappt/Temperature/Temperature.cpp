@@ -60,7 +60,7 @@ int Temperature::Tick()
 
   Serial.print("Json: ");Serial.println(json);
 
-  Particle.publish("tappt_temperature", json, 60, PRIVATE);
+  Particle.publish("tappt_temperature", json, 5, PRIVATE);
 
   return 0;
 }

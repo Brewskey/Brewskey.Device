@@ -4,19 +4,16 @@
 
 //#define PLATFORM_ID 6
 //#define SPI_HW_MODE 1
-
+#include "Pins.h"
 #include "FlowMeter.h"
+#include "LED.h"
 #include "KegeratorState.h"
 #include "NfcClient.h"
 #include "Solenoid.h"
 #include "Temperature.h"
 #include "WiFiSetup.h"
 
-#define SCK  (A3)
-#define MOSI (A5)
-#define SS   (A2)
-#define MISO (A4)
-
+LED* led;
 NfcClient* nfcClient;
 FlowMeter* flowMeter;
 Solenoid* solenoid;
@@ -26,12 +23,15 @@ int state = KegeratorState::LISTENING;
 void setup(void) {
     Serial.begin(115200);
 
-    nfcClient = new NfcClient();
+    led = new LED();
+    nfcClient = new NfcClient(led);
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
-    flowMeter = new FlowMeter(solenoid);
-/*
-    while(!Serial.available()) {
+    flowMeter = new FlowMeter(solenoid, led);
+
+    led->SetColor(255, 255, 255);
+
+  /*  while(!Serial.available()) {
       Spark.process();
     }
 */
@@ -40,6 +40,7 @@ void setup(void) {
 
 void loop(void) {
   temperatureSensor->Tick();
+  led->Tick();
 
   int isPouring = flowMeter->Tick();
 
@@ -49,3 +50,19 @@ void loop(void) {
     nfcClient->Tick();
   }
 }
+
+/*
+void setup()
+{
+  Serial.begin(115200);
+
+  led = new LED();
+  led->SetColor(0, 255, 47);
+  led->IsBreathing(true);
+}
+
+void loop()
+{
+  led->Tick();
+}
+*/
