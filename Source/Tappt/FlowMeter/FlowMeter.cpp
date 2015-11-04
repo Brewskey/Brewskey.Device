@@ -35,12 +35,13 @@ FlowMeter::FlowMeter(Solenoid *solenoid, LED* led)
 
 int FlowMeter::StartPour(String data)
 {
+	/*
 	if (this->pouring == true) {
 		Serial.println("Tried to start pour while already pouring.");
 		return 0;
 	}
+	*/
 
-  this->solenoid->Open();
 	this->timer.Reset();
   flowCount = 0;
   this->lastFlowCount = 0;

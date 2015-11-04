@@ -22,7 +22,6 @@ NfcClient::NfcClient(LED* led) :
 }
 
 int NfcClient::Initialize(String data) {
-  Serial.println("FOOOOOO");
   this->deviceId = String(data);
   Serial.print("Device ID: ");Serial.println(deviceId);
 
@@ -117,13 +116,6 @@ NfcState::value NfcClient::ReadMessage()
 
   Serial.print("Request Pour");Serial.println(json);
   Particle.publish("tappt_request-pour", json, 5, PRIVATE);
-
-  // wait for webserver to respond
-  int counter = 0;
-  while (counter++ < 400) {
-    Spark.process();
-    delay(1);
-  }
 
   return NfcState::NO_MESSAGE;
 }
