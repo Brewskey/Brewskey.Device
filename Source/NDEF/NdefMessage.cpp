@@ -235,6 +235,25 @@ void NdefMessage::addUriRecord(String uri)
     delete(r);
 }
 
+void NdefMessage::addApplicationRecord(String application)
+{
+    NdefRecord* r = new NdefRecord();
+    r->setTnf(TNF_EXTERNAL_TYPE);
+
+    String mimeType = "android.com:pkg";
+    byte type[mimeType.length() + 1];
+    mimeType.getBytes(type, sizeof(type));
+    r->setType(type, mimeType.length());
+
+    byte payload[application.length() + 1];
+    application.getBytes(payload, sizeof(payload));
+
+    r->setPayload(payload, application.length());
+
+    addRecord(*r);
+    delete(r);
+}
+
 void NdefMessage::addEmptyRecord()
 {
     NdefRecord* r = new NdefRecord();

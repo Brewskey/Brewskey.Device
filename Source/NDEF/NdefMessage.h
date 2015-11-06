@@ -19,6 +19,7 @@ class NdefMessage
         void encode(byte *data);
 
         boolean addRecord(NdefRecord& record);
+        void addApplicationRecord(String application);
         void addMimeMediaRecord(String mimeType, String payload);
         void addMimeMediaRecord(String mimeType, byte *payload, int payloadLength);
         void addTextRecord(String text);

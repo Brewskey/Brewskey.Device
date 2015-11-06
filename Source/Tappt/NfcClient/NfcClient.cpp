@@ -28,6 +28,7 @@ int NfcClient::Initialize(String data) {
   this->message = NdefMessage();
 
   this->message.addUriRecord("tappt://view-tap?deviceId=" + deviceId);
+  this->message.addApplicationRecord("com.tappt.app");
 
   this->messageSize = this->message.getEncodedSize();
   if (this->messageSize > sizeof(this->ndefBuf)) {
@@ -127,7 +128,7 @@ NfcState::value NfcClient::SendMessage()
 
   // uid must be 3 bytes!
   nfc.setUid(uid);
-  nfc.emulate(1200);
+  nfc.emulate(250);
   Serial.println("Emulated Tag");
 
   return NfcState::NO_MESSAGE;
