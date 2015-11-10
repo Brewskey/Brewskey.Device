@@ -37,22 +37,13 @@ void PN532::begin()
 /**************************************************************************/
 void PN532::PrintHex(const uint8_t *data, const uint32_t numBytes)
 {
-#ifdef ARDUINO
     for (uint8_t i = 0; i < numBytes; i++) {
         if (data[i] < 0x10) {
-            Serial.print(" 0");
-        } else {
-            Serial.print(' ');
+            Serial.print("0");
         }
         Serial.print(data[i], HEX);
     }
     Serial.println("");
-#else
-    for (uint8_t i = 0; i < numBytes; i++) {
-        printf(" %2X", data[i]);
-    }
-    printf("\r\n");
-#endif
 }
 
 /**************************************************************************/
@@ -769,7 +760,7 @@ int8_t PN532::tgInitAsTarget(const uint8_t* command, const uint8_t len, const ui
     }
 
     status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), timeout);
-   
+
     if (status > 0) {
         return 1;
     } else if (PN532_TIMEOUT == status) {

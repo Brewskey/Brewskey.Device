@@ -254,6 +254,36 @@ void NdefMessage::addApplicationRecord(String application)
     delete(r);
 }
 
+void NdefMessage::addLaunchApp(String application, String parameters)
+{
+    NdefRecord* r = new NdefRecord();
+    r->setTnf(TNF_ABSOLUTE_URI);
+
+    String mimeType = "windows.com/LaunchApp";
+    byte type[mimeType.length() + 1];
+    mimeType.getBytes(type, sizeof(type));
+    r->setType(type, mimeType.length());
+
+    String payloadString = "WindowsPhone&{" + application + "}";
+    uint32_t appLength = payloadString.length();
+    uint32_t primaryLength = appLength + 5;
+    uint32_t fullLength = primaryLength + parameters.length();
+    byte payload[fullLength];
+    payload[0] = 0x00; // start of message
+    payload[1] = 0x01;
+    payload[2] = 0x0C;
+    payloadString.getBytes(&payload[3], primaryLength);
+    parameters.getBytes(&payload[primaryLength], parameters.length() + 1);
+    payload[primaryLength - 2] = 0x00;
+    payload[primaryLength - 1] = 0x0B;
+
+    r->setPayload(payload, fullLength);
+
+    addRecord(*r);
+    delete(r);
+}
+
+
 void NdefMessage::addEmptyRecord()
 {
     NdefRecord* r = new NdefRecord();

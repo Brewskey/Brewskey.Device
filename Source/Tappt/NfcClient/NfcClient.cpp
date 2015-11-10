@@ -27,7 +27,8 @@ int NfcClient::Initialize(String data) {
 
   this->message = NdefMessage();
 
-  this->message.addUriRecord("tappt://view-tap?deviceId=" + deviceId);
+  this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "Hello World");
+  this->message.addUriRecord("https://tappt.io/d/" + deviceId);
   this->message.addApplicationRecord("com.tappt.app");
 
   this->messageSize = this->message.getEncodedSize();
