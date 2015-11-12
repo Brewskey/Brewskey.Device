@@ -18,7 +18,7 @@ NfcClient* nfcClient;
 FlowMeter* flowMeter;
 Solenoid* solenoid;
 Temperature* temperatureSensor;
-int state = KegeratorState::LISTENING;
+KegeratorState* state;
 
 void setup(void) {
     Serial.begin(115200);
@@ -28,6 +28,7 @@ void setup(void) {
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid, led);
+    state = new KegeratorState(nfcClient, flowMeter);
 
     led->SetColor(255, 255, 255);
 
@@ -47,22 +48,7 @@ void loop(void) {
   // if isPouring equals 1 then it is currently pouring and shouldn't accept
   // nfc
   if (isPouring <= 0) {
-    nfcClient->Tick();
+    NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
+    state->SetNfcState(nfcState);
   }
 }
-
-/*
-void setup()
-{
-  Serial.begin(115200);
-
-  led = new LED();
-  led->SetColor(0, 255, 47);
-  led->IsBreathing(true);
-}
-
-void loop()
-{
-  led->Tick();
-}
-*/
