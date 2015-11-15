@@ -34,36 +34,12 @@ private:
     uint8_t command;
 
     boolean isReady();
+    int8_t receive(uint8_t *buf, int len, uint16_t timeout);
     void writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body = 0, uint8_t blen = 0);
     int8_t readAckFrame();
 
     void write(uint8_t data);
     uint8_t read();
-
-    /**************Conditional fast pin access for Core and Photon*****************/
-    #if PLATFORM_ID == 0 // Core
-      inline void digitalWriteFastLow(int pin) {
-        PIN_MAP[pin].gpio_peripheral->BRR = PIN_MAP[pin].gpio_pin;
-      }
-
-      inline void digitalWriteFastHigh(int pin) {
-        PIN_MAP[pin].gpio_peripheral->BSRR = PIN_MAP[pin].gpio_pin;
-      }
-
-    #elif PLATFORM_ID == 6 // Photon
-      STM32_Pin_Info* PIN_MAP = HAL_Pin_Map(); // Pointer required for highest access speed
-
-      inline void digitalWriteFastLow(int pin) {
-        PIN_MAP[pin].gpio_peripheral->BSRRH = PIN_MAP[pin].gpio_pin;
-      }
-
-      inline void digitalWriteFastHigh(int pin) {
-        PIN_MAP[pin].gpio_peripheral->BSRRL = PIN_MAP[pin].gpio_pin;
-      }
-
-    #else
-      #error "*** PLATFORM_ID not supported by this library. PLATFORM should be Core or Photon ***"
-    #endif
 };
 
 #endif

@@ -21,21 +21,20 @@ void FlowMeter::FlowCounter()
 	}
 }
 
-FlowMeter::FlowMeter(Solenoid *solenoid, LED* led)
+FlowMeter::FlowMeter(Solenoid *solenoid)
 {
   this->solenoid = solenoid;
-	this->led = led;
+
 	pinMode(FLOW_PIN, INPUT);
 	digitalWrite(FLOW_PIN, HIGH);
   //attachInterrupt(FLOW_PIN, &FlowMeter::FlowCounter, this, FALLING);
-	Particle.function("pour", &FlowMeter::StartPour, this);
 
 	//this->StopPour();
 }
 
 int FlowMeter::StartPour(String data)
 {
-  this->solenoid->Open();
+	this->solenoid->Open();
 
 	this->timer.Reset();
   flowCount = 0;
@@ -52,7 +51,6 @@ void FlowMeter::StopPour()
 	this->pourKey = "";
 	this->solenoid->Close();
 	this->pouring = false;
-	this->led->SetColor(0,0,0);
 }
 
 int FlowMeter::Tick()
@@ -61,7 +59,6 @@ int FlowMeter::Tick()
     return -1;
   }
 
-	this->led->SetColor(0,255,0);
 	this->FlowCounter();
 
 	this->timer.Tick();
@@ -85,14 +82,19 @@ int FlowMeter::Tick()
   int maxWait = this->flowCount > PULSE_EPSILON ? 3 : 5;
   if (this->waitCount > maxWait)
   {
+		// Don't log it... not enough pulses.
+		if (this->flowCount <= PULSE_EPSILON) {
+			Serial.println("Not enough pulses. Ending pour " + this->pourKey);
+			this->StopPour();
+			return 0;
+		}
+
 		sprintf(
 	    json,
 	    "{\"pourKey\":\"%s\",\"pulses\":\"%d\"}",
 	    this->pourKey.c_str(),
 			this->flowCount
 	  );
-
-		this->StopPour();
 
 		Serial.print("Finished Pour");Serial.println(json);
 		Particle.publish("tappt_pour-finished", json, 60, PRIVATE);

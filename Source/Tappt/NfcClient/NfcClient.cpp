@@ -14,9 +14,6 @@ NfcClient::NfcClient(LED* led) :
 {
   this->led = led;
 
-  Particle.function("initialize", &NfcClient::Initialize, this);
-  Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
-
   // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
 }
@@ -27,9 +24,9 @@ int NfcClient::Initialize(String data) {
 
   this->message = NdefMessage();
 
-  this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "d/" + deviceId);
-  this->message.addUriRecord("https://tappt.io/d/" + deviceId);
+  //this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "d/" + deviceId);
   this->message.addUriRecord("tappt://"); // WP8.1 wasn't respecting launch app...
+  this->message.addUriRecord("https://tappt.io/d/" + deviceId);
   this->message.addApplicationRecord("com.tappt.app");
 
   this->messageSize = this->message.getEncodedSize();
@@ -40,30 +37,24 @@ int NfcClient::Initialize(String data) {
 
   message.encode(ndefBuf);
 
+  // uid must be 3 bytes!
+  nfc.setUid(uid);
+
+  // comment out this command for no ndef message
+  nfc.setNdefFile(ndefBuf, messageSize);
+
   return 0;
 }
 
 int NfcClient::Tick()
 {
-  if (this->deviceId == NULL || this->deviceId == "") {
-    this->getIdTimer.Tick();
-
-    if (this->getIdTimer.ShouldTrigger) {
-      Serial.println("Requesting DeviceId");
-      Particle.publish("tappt_initialize", (const char *)0, 5, PRIVATE);
-    }
-
-    return NfcState::NO_MESSAGE;
-  }
-
-  this->led->IsBreathing(true);
   this->led->SetColor(0, 0, 255);
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
 
-  this->led->SetColor(0, 255, 255);
+  this->led->SetColor(0, 20, 255);
   return this->ReadMessage();
 }
 
@@ -104,6 +95,10 @@ NfcState::value NfcClient::ReadMessage()
     delete[] payload;
   }
 
+  if (authenticationKey.length() == 0) {
+    return NfcState::NO_MESSAGE;
+  }
+
   Serial.println(authenticationKey);
   Serial.println("printed");
 
@@ -120,18 +115,15 @@ NfcState::value NfcClient::ReadMessage()
   Serial.print("Request Pour");Serial.println(json);
   Particle.publish("tappt_request-pour", json, 5, PRIVATE);
 
-  return NfcState::NO_MESSAGE;
+  return NfcState::READ_MESSAGE;
 }
 
 NfcState::value NfcClient::SendMessage()
 {
-  // comment out this command for no ndef message
-  nfc.setNdefFile(ndefBuf, messageSize);
-
-  // uid must be 3 bytes!
-  nfc.setUid(uid);
-  nfc.emulate(450);
   Serial.println("Emulated Tag");
+  if (nfc.emulate(300)) {
+    return NfcState::SENT_MESSAGE;
+  }
 
   return NfcState::NO_MESSAGE;
 }

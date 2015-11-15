@@ -804,6 +804,7 @@ int16_t PN532::tgGetData(uint8_t *buf, uint8_t len)
 
     int16_t status = HAL(readResponse)(buf, len, 3000);
     if (0 >= status) {
+        DMSG("status is not ok\r\n");
         return status;
     }
 

@@ -2,7 +2,6 @@
 #define FlowMeter_h
 
 #include "Pins.h"
-#include "LED.h"
 #include "Solenoid.h"
 #include "TapptTimer.h"
 
@@ -10,13 +9,12 @@
 
 class FlowMeter : public ITick {
 public:
-  FlowMeter(Solenoid *solenoid, LED* led);
+  FlowMeter(Solenoid *solenoid);
   int StartPour(String data);
   void StopPour();
   virtual int Tick();
 private:
   Solenoid *solenoid;
-  LED *led;
   bool pouring = false;
   byte state, waitCount;
   volatile int flowCount = 0;

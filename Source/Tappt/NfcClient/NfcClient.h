@@ -11,7 +11,8 @@
 #include "ITick.h"
 #include "LED.h"
 #include "RestClient.h"
-#include "TapptTimer.h"
+
+//#define P2P 1
 
 namespace NfcState {
   enum value {
@@ -26,15 +27,14 @@ class NfcClient: public ITick {
 public:
   NfcClient(LED *led);
   virtual int Tick();
-private:
   int Initialize(String data);
+private:
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
 
   LED *led;
 
   String deviceId;
-  TapptTimer getIdTimer = TapptTimer(10000);
 
   PN532_SPI pn532spi;
 

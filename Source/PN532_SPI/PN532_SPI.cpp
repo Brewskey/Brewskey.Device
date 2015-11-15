@@ -28,7 +28,7 @@ void PN532_SPI::begin()
 #ifdef SPI_HW_MODE
     pinMode(_ss, OUTPUT);
 
-    _spi->setClockDivider(SPI_CLOCK_DIV16); // set clock 2MHz(max: 5MHz)
+    _spi->setClockDivider(SPI_CLOCK_DIV8); // set clock 2MHz(max: 5MHz)
     _spi->setDataMode(SPI_MODE0);  // PN532 only supports mode0
     _spi->setBitOrder(LSBFIRST);
     _spi->begin(_ss);
@@ -96,68 +96,64 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     int16_t result;
     do {
         write(DATA_READ);
-        int16_t first = read();
-        int16_t second = read();
-        uint8_t length = 0;
+        uint8_t tmp[3];
 
-        if (first == 0x00 && second == 0xFF) {
-            length = read();
-        } else if (first == 0x00 && second == 0x00 && read() == 0xFF) {
-            length = read();
-        } else {
-            Serial.println("invalid 1");
-            result = PN532_INVALID_FRAME;
-            break;
+        /** Frame Preamble and Start Code */
+        if(receive(tmp, 3, timeout)<=0){
+            return PN532_TIMEOUT;
+        }
+        if(0 != tmp[0] || 0!= tmp[1] || 0xFF != tmp[2]){
+            DMSG("Preamble error");
+            return PN532_INVALID_FRAME;
         }
 
-        if (0 != (uint8_t)(length + read())) {   // checksum of length
-            Serial.println("invalid 2");
-            result = PN532_INVALID_FRAME;
-            break;
+        /** receive length and check */
+        uint8_t length[2];
+        if(receive(length, 2, timeout) <= 0){
+           return PN532_TIMEOUT;
+        }
+        if( 0 != (uint8_t)(length[0] + length[1]) ){
+           DMSG("Length error");
+           return PN532_INVALID_FRAME;
+        }
+        length[0] -= 2;
+        if( length[0] > len){
+           return PN532_NO_SPACE;
         }
 
+        /** receive command byte */
         uint8_t cmd = command + 1;               // response command
-        uint16_t toHost = read();
-        uint16_t cmdRead = read();
-        if (PN532_PN532TOHOST != toHost || (cmd) != cmdRead) {
-            Serial.println("invalid 3");
-            result = PN532_INVALID_FRAME;
-            break;
+        if(receive(tmp, 2, timeout) <= 0){
+            return PN532_TIMEOUT;
         }
+        if( PN532_PN532TOHOST != tmp[0] || cmd != tmp[1]){
+            DMSG("Command error");
+            return PN532_INVALID_FRAME;
+        }
+
         DMSG("\r\n");
         DMSG("read:  ");
         DMSG_HEX(cmd);
 
-        length -= 2;
-        if (length > len) {
-            for (uint8_t i = 0; i < length; i++) {
-                DMSG_HEX(read());                 // dump message
-            }
-            DMSG("\r\nNot enough space\r\n");
-            read();
-            read();
-            result = PN532_NO_SPACE;  // not enough space
-            break;
+        if(receive(buf, length[0], timeout) != length[0]){
+            return PN532_TIMEOUT;
         }
-
         uint8_t sum = PN532_PN532TOHOST + cmd;
-        for (uint8_t i = 0; i < length; i++) {
-            buf[i] = read();
+        for(uint8_t i=0; i<length[0]; i++){
             sum += buf[i];
-
             DMSG_HEX(buf[i]);
         }
-        DMSG("\r\n");
 
-        uint8_t checksum = read();
-        if (0 != (uint8_t)(sum + checksum)) {
-            DMSG("checksum is not ok\r\n");
-            result = PN532_INVALID_FRAME;
-            break;
+        /** checksum and postamble */
+        if(receive(tmp, 2, timeout) <= 0){
+            return PN532_TIMEOUT;
         }
-        read();         // POSTAMBLE
+        if( 0 != (uint8_t)(sum + tmp[0]) || 0 != tmp[1] ){
+            DMSG("Checksum error");
+            return PN532_INVALID_FRAME;
+        }
 
-        result = length;
+        result = length[0];
     } while (0);
 
     digitalWrite(_ss, HIGH);
@@ -226,9 +222,9 @@ int8_t PN532_SPI::readAckFrame()
     delay(2);
     write(DATA_READ);
 
-    for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
-        delay(4);
-        ackBuf[i] = read();
+    if( receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0 ){
+        DMSG("Timeout\n");
+        return PN532_TIMEOUT;
     }
 
     digitalWrite(_ss, HIGH);
@@ -236,43 +232,101 @@ int8_t PN532_SPI::readAckFrame()
     return memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
 }
 
-void PN532_SPI::write(uint8_t data) {
-#ifdef SPI_HW_MODE
-    _spi->transfer(data);
-#else
-    digitalWriteFastLow(_mosi); // Start with Data Low (MODE0)
-    for (uint8_t bit=0; bit<8; bit++) {
-      asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      digitalWriteFastLow(_clk); // Clock Low
-      if (data & (1<<bit)) { // walks up mask from bit 0 to bit 7
-        digitalWriteFastHigh(_mosi); // Data High
-      } else {
-        digitalWriteFastLow(_mosi); // Data Low
-      }
-      asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      digitalWriteFastHigh(_clk); // Clock High (Data Shifted Out)
+int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
+{
+  int read_bytes = 0;
+  int ret;
+  unsigned long start_millis;
+
+  while (read_bytes < len) {
+    start_millis = millis();
+    do {
+      ret = read();
+      if (ret >= 0) {
+        break;
+     }
+     delay(12);
+    } while((timeout == 0) || ((millis()- start_millis ) < timeout));
+
+    if (ret < 0) {
+        if(read_bytes){
+            return read_bytes;
+        }else{
+            return PN532_TIMEOUT;
+        }
     }
-    asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-    digitalWriteFastLow(_clk); // Return Clock Low (MODE0)
-    digitalWriteFastHigh(_mosi); // Return Data High (MODE0)
-#endif
+    buf[read_bytes] = (uint8_t)ret;
+    read_bytes++;
+  }
+  return read_bytes;
+}
+
+void PN532_SPI::write(uint8_t data) {
+  #if SPI_HW_MODE
+    SPI.transfer(data);
+  #else
+  #ifdef SPARK_CORE
+    PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Start with Data Low (MODE0)
+
+    for (uint8_t bit=0; bit<8; bit++) {
+      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low
+      if (data & (1<<bit)) { // walks up mask from bit 0 to bit 7
+        PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Data High
+      } else {
+        PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Data Low
+      }
+      asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted Out)
+    }
+    asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Return Clock Low (MODE0)
+    PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Return Data High (MODE0)
+  #else
+    digitalWrite(_mosi, HIGH);
+
+    for (uint8_t i=0; i<8; i++) {
+      digitalWrite(_clk, LOW);
+      if (data & (1<<i)) {
+        digitalWrite(_mosi, HIGH);
+      } else {
+        digitalWrite(_mosi, LOW);
+      }
+      digitalWrite(_clk, HIGH);
+    }
+    digitalWrite(_clk, LOW);
+    digitalWrite(_mosi, HIGH);
+  #endif // Spark
+  #endif // HW SPI
 };
 
 uint8_t PN532_SPI::read() {
-#ifdef SPI_HW_MODE
-    return _spi->transfer(0);
-#else
+  #ifdef SPI_HW_MODE
+    uint8_t x = SPI.transfer(0x55);
+  #else
+  #ifdef SPARK_CORE
     uint8_t x = 0;
+
     for (uint8_t bit=0; bit<8; bit++)  {
-      digitalWriteFastHigh(_clk); // Clock High (Data Shifted In)
+      PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted In)
 
       if (PIN_MAP[_miso].gpio_peripheral->IDR & PIN_MAP[_miso].gpio_pin) {
         x |= (1<<bit);
       }
-      //asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
-      digitalWriteFastLow(_clk); // Clock Low (On exit, Clock Low (MODE0))
+      //asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+      PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
     }
+  #else
+    uint8_t x = 0;
 
+    for (uint8_t i=0; i<8; i++) {
+      digitalWrite(_clk, HIGH);
+      if (digitalRead(_miso)) {
+        x |= (1<<i);
+      }
+      digitalWrite(_clk, LOW);
+    }
+  #endif //Spark
+  #endif //HW SPI
     return x;
-#endif
 };

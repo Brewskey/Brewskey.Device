@@ -1,6 +1,8 @@
 #ifndef Pins_h
 #define Pins_h
 
+#define SPI_HW_MODE 1
+
 #define RED_PIN (D0)
 #define GREEN_PIN (D1)
 #define BLUE_PIN (D2)
