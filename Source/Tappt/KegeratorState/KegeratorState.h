@@ -1,6 +1,7 @@
 #ifndef KegeratorState_h
 #define KegeratorState_h
 
+#include "jsmn.h"
 #include "FlowMeter.h"
 #include "LED.h"
 #include "NfcClient.h"
@@ -25,7 +26,7 @@ public:
   };
 
 private:
-  int Initialize(String data);
+  void Initialized(const char* event, const char* data);
   int Pour(String data);
 
   NfcClient* nfcClient;
@@ -33,7 +34,7 @@ private:
   LED* led;
 
   String deviceId;
-  TapptTimer getIdTimer = TapptTimer(60000);
+  TapptTimer getIdTimer = TapptTimer(10000);
   TapptTimer responseTimer = TapptTimer(3000);
 };
 

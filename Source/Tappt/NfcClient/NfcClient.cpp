@@ -48,6 +48,7 @@ int NfcClient::Initialize(String data) {
 
 int NfcClient::Tick()
 {
+  Serial.println(this->deviceId);
   this->led->SetColor(0, 0, 255);
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {

@@ -1,15 +1,29 @@
 #include "KegeratorState.h"
 
+#define TOKEN_STRING(js, t, s) \
+	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
+	 && strlen(s) == (t).end - (t).start)
+
+void sunTimeHandler(const char * event, const char * data)
+{
+  Serial.println("Initialized");
+  Serial.println(event);
+  Serial.println(data);
+  Serial.println(System.deviceID());
+  Serial.println(".");
+}
+
 KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* led) {
   this->nfcClient = nfcClient;
   this->flowMeter = flowMeter;
   this->led = led;
 
   // This is to reset the settings on the device via a serverside call
-  Particle.function("initialize", &KegeratorState::Initialize, this);
+  //Particle.function("initialize", &KegeratorState::Initialize, this);
   Particle.function("pour", &KegeratorState::Pour, this);
 
-  // TODO -
+  //Particle.subscribe("hook-response/", &sunTimeHandler, MY_DEVICES);
+  Particle.subscribe("hook-response/tappt_initialize", &KegeratorState::Initialized, this, MY_DEVICES);// System.deviceID());
   Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 }
 
@@ -78,9 +92,38 @@ int KegeratorState::Tick()
   return 0;
 }
 
-int KegeratorState::Initialize(String data) {
-  this->deviceId = data;
-  return this->nfcClient->Initialize(data);
+void KegeratorState::Initialized(const char* event, const char* data) {
+  int resultCode;
+  jsmn_parser p;
+  jsmntok_t tokens[10]; // a number >= total number of tokens
+
+  jsmn_init(&p);
+  resultCode = jsmn_parse(&p, data, tokens, 10);
+
+  if (resultCode < 0) {
+    Serial.println("Bad initialize value.");
+    return;
+  }
+
+  if (!TOKEN_STRING(data, tokens[1], "deviceId")) {
+    Serial.println("Initialize - no device ID");
+    return;
+  }
+
+	Serial.println(data);
+	Serial.print("start ");
+	Serial.println(tokens[2].start);
+	Serial.print("size ");
+	Serial.println(tokens[2].size);
+
+  char deviceId[12];
+  memcpy(deviceId, &data[tokens[2].start], tokens[2].start - tokens[2].end);
+  deviceId[11] = '\0';
+
+	Serial.println(String(deviceId));
+	return;
+  this->deviceId = String(deviceId);
+  this->nfcClient->Initialize(String(data));
 }
 
 
