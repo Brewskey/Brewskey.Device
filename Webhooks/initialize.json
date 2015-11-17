@@ -1,8 +1,7 @@
 {
     "event": "tappt_initialize",
-    "url": "https://tappt.io/api/devices/particle/{{SPARK_CORE_ID}}/id",
-    "requestType": "GET",
     "mydevices": true,
-    "deviceid": "{{SPARK_CORE_ID}}",
-    "coreid": "{{SPARK_CORE_ID}}"
+    "requestType": "GET",
+    "responseTopic": "hook-response/tappt_initialize-{{SPARK_CORE_ID}}",
+    "url": "https://tappt.io/api/devices/particle/{{SPARK_CORE_ID}}/id"
 }
