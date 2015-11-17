@@ -24,7 +24,7 @@ void setup(void) {
     led = new LED();
     led->IsBreathing(true);
     led->SetColor(255, 255, 255);
-  
+
     Serial.begin(115200);
 
 
