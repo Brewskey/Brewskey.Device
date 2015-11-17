@@ -20,12 +20,18 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* 
 
   // This is to reset the settings on the device via a serverside call
   //Particle.function("initialize", &KegeratorState::Initialize, this);
-  Particle.function("pour", &KegeratorState::Pour, this);
+  //Particle.function("pour", &KegeratorState::Pour, this);
 
-  //Particle.subscribe("hook-response/", &sunTimeHandler, MY_DEVICES);
   Particle.subscribe(
 		"hook-response/tappt_initialize-" + System.deviceID(),
 		&KegeratorState::Initialized,
+		this,
+		MY_DEVICES
+	);
+
+	Particle.subscribe(
+		"hook-response/tappt_request-pour-" + System.deviceID(),
+		&KegeratorState::Pour,
 		this,
 		MY_DEVICES
 	);
@@ -99,34 +105,21 @@ int KegeratorState::Tick()
 }
 
 void KegeratorState::Initialized(const char* event, const char* data) {
-  int resultCode;
-  jsmn_parser p;
-  jsmntok_t tokens[10]; // a number >= total number of tokens
-
-  jsmn_init(&p);
-  resultCode = jsmn_parse(&p, data, tokens, 10);
-
-  if (resultCode < 0) {
-    Serial.println("Bad initialize value.");
+  if (strlen(data) <= 0) {
     return;
   }
 
-  if (!TOKEN_STRING(data, tokens[1], "deviceId")) {
-    Serial.println("Initialize - no device ID");
-    return;
-  }
-
-  char deviceId[12];
-  memcpy(deviceId, &data[tokens[2].start], tokens[2].start - tokens[2].end);
-  deviceId[11] = '\0';
-
-  this->deviceId = String(deviceId);
-  this->nfcClient->Initialize(String(data));
+  this->deviceId = String(data);
+  this->nfcClient->Initialize(this->deviceId);
 }
 
 
-int KegeratorState::Pour(String data) {
+void KegeratorState::Pour(const char* event, const char* data) {
+	if (strlen(data) <= 0) {
+    return;
+  }
+
   this->led->SetColor(0,255,0);
-  this->flowMeter->StartPour(data);
+  this->flowMeter->StartPour(String(data));
   this->State = KegeratorState::POURING;
 }
