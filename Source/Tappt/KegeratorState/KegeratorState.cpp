@@ -23,7 +23,13 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* 
   Particle.function("pour", &KegeratorState::Pour, this);
 
   //Particle.subscribe("hook-response/", &sunTimeHandler, MY_DEVICES);
-  Particle.subscribe("hook-response/tappt_initialize", &KegeratorState::Initialized, this, MY_DEVICES);// System.deviceID());
+  Particle.subscribe(
+		"hook-response/tappt_initialize-" + System.deviceID(),
+		&KegeratorState::Initialized,
+		this,
+		MY_DEVICES
+	);
+
   Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 }
 
@@ -110,18 +116,10 @@ void KegeratorState::Initialized(const char* event, const char* data) {
     return;
   }
 
-	Serial.println(data);
-	Serial.print("start ");
-	Serial.println(tokens[2].start);
-	Serial.print("size ");
-	Serial.println(tokens[2].size);
-
   char deviceId[12];
   memcpy(deviceId, &data[tokens[2].start], tokens[2].start - tokens[2].end);
   deviceId[11] = '\0';
 
-	Serial.println(String(deviceId));
-	return;
   this->deviceId = String(deviceId);
   this->nfcClient->Initialize(String(data));
 }
