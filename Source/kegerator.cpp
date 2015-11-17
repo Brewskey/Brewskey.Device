@@ -24,9 +24,8 @@ void setup(void) {
     led = new LED();
     led->IsBreathing(true);
     led->SetColor(255, 255, 255);
-  
-    Serial.begin(115200);
 
+    Serial.begin(115200);
 
     nfcClient = new NfcClient(led);
     temperatureSensor = new Temperature();
@@ -34,10 +33,10 @@ void setup(void) {
     flowMeter = new FlowMeter(solenoid);
     state = new KegeratorState(nfcClient, flowMeter, led);
 
-  /*  while(!Serial.available()) {
+    while(!Serial.available()) {
       Spark.process();
     }
-*/
+
     Serial.println("Starting");
 }
 

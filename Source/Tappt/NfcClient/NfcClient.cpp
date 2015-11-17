@@ -1,9 +1,5 @@
 #include "NfcClient.h"
 
-void test(const char *eventName, const char *data) {
-  Serial.println("FOOOOOO");
-}
-
 NfcClient::NfcClient(LED* led) :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
