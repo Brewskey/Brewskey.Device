@@ -26,7 +26,8 @@ public:
 
 private:
   void Initialized(const char* event, const char* data);
-  void Pour(const char* event, const char* data);
+  int Pour(String data);
+  void PourResponse(const char* event, const char* data);
 
   NfcClient* nfcClient;
   FlowMeter* flowMeter;

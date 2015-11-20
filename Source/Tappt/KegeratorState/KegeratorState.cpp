@@ -20,7 +20,6 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* 
 
   // This is to reset the settings on the device via a serverside call
   //Particle.function("initialize", &KegeratorState::Initialize, this);
-  //Particle.function("pour", &KegeratorState::Pour, this);
 
   Particle.subscribe(
 		"hook-response/tappt_initialize-" + System.deviceID(),
@@ -29,9 +28,12 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* 
 		MY_DEVICES
 	);
 
+	// Called by server when user tries to pour.
+	Particle.function("pour", &KegeratorState::Pour, this);
+	// Response when token is used
 	Particle.subscribe(
 		"hook-response/tappt_request-pour-" + System.deviceID(),
-		&KegeratorState::Pour,
+		&KegeratorState::PourResponse,
 		this,
 		MY_DEVICES
 	);
@@ -113,13 +115,18 @@ void KegeratorState::Initialized(const char* event, const char* data) {
   this->nfcClient->Initialize(this->deviceId);
 }
 
+int KegeratorState::Pour(String data) {
+	if (data.length() <= 0) {
+		return -1;
+	}
 
-void KegeratorState::Pour(const char* event, const char* data) {
-	if (strlen(data) <= 0) {
-    return;
-  }
+	this->led->SetColor(0,255,0);
+	this->State = KegeratorState::POURING;
 
-  this->led->SetColor(0,255,0);
-  this->flowMeter->StartPour(String(data));
-  this->State = KegeratorState::POURING;
+	this->flowMeter->StartPour(data);
+	return 0;
+}
+
+void KegeratorState::PourResponse(const char* event, const char* data) {
+	this->Pour(String(data));
 }
