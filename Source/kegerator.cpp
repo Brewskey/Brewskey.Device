@@ -24,14 +24,14 @@ void setup(void) {
     Serial.begin(9600);
 
     led = new LED();
-    led->IsBreathing(true);
-    led->SetColor(255, 255, 255);
+    RGB.control(true);
+    RGB.color(255, 255, 255);
 
-    nfcClient = new NfcClient(led);
+    nfcClient = new NfcClient();
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
-    state = new KegeratorState(nfcClient, flowMeter, led);
+    state = new KegeratorState(nfcClient, flowMeter);
 
 /*
     while(!Serial.available()) {

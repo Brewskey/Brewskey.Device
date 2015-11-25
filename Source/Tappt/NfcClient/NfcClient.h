@@ -25,14 +25,12 @@ namespace NfcState {
 
 class NfcClient: public ITick {
 public:
-  NfcClient(LED *led);
+  NfcClient();
   virtual int Tick();
   int Initialize(String data);
 private:
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
-
-  LED *led;
 
   String deviceId;
 

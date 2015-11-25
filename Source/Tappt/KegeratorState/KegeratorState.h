@@ -8,7 +8,7 @@
 
 class KegeratorState: public ITick  {
 public:
-  KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* led);
+  KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter);
   virtual int Tick();
 
   int State = KegeratorState::INITIALIZING;
@@ -31,7 +31,6 @@ private:
 
   NfcClient* nfcClient;
   FlowMeter* flowMeter;
-  LED* led;
 
   String deviceId;
   TapptTimer getIdTimer = TapptTimer(15000);

@@ -13,10 +13,9 @@ void sunTimeHandler(const char * event, const char * data)
   Serial.println(".");
 }
 
-KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* led) {
+KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
   this->nfcClient = nfcClient;
   this->flowMeter = flowMeter;
-  this->led = led;
 
   // This is to reset the settings on the device via a serverside call
   //Particle.function("initialize", &KegeratorState::Initialize, this);
@@ -43,14 +42,14 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, LED* 
 
 int KegeratorState::Tick()
 {
-  led->Tick();
-
   switch(this->State) {
     case KegeratorState::INITIALIZING:
     {
+			this->flowMeter->StopPour();
+
       if (this->deviceId != NULL && this->deviceId.length() > 0) {
-        this->led->IsBreathing(false);
-        this->State = KegeratorState::LISTENING;
+        RGB.control(false);
+				this->State = KegeratorState::LISTENING;
       }
 
       this->getIdTimer.Tick();
@@ -74,8 +73,8 @@ int KegeratorState::Tick()
         this->State = KegeratorState::WAITING_FOR_POUR_RESPONSE;
         this->responseTimer.Reset();
 
-        this->led->IsBreathing(false);
-        this->led->SetColor(255, 255, 0);
+				RGB.control(true);
+        RGB.color(255, 255, 0);
       }
 
       break;
@@ -86,6 +85,7 @@ int KegeratorState::Tick()
       this->responseTimer.Tick();
 
       if (this->responseTimer.ShouldTrigger) {
+				RGB.control(false);
         this->State = KegeratorState::LISTENING;
       }
 
@@ -96,7 +96,8 @@ int KegeratorState::Tick()
       int isPouring = flowMeter->Tick();
 
       if (isPouring <= 0) {
-        this->State = KegeratorState::LISTENING;
+        RGB.control(false);
+				this->State = KegeratorState::LISTENING;
       }
 
       break;
@@ -120,7 +121,8 @@ int KegeratorState::Pour(String data) {
 		return -1;
 	}
 
-	this->led->SetColor(0,255,0);
+	RGB.control(true);
+	RGB.color(0, 255, 0);
 	this->State = KegeratorState::POURING;
 
 	this->flowMeter->StartPour(data);

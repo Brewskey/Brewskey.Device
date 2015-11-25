@@ -1,6 +1,6 @@
 #include "NfcClient.h"
 
-NfcClient::NfcClient(LED* led) :
+NfcClient::NfcClient() :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
 #else
@@ -8,8 +8,6 @@ NfcClient::NfcClient(LED* led) :
 #endif
   nfc(pn532spi), nfcAdapter(pn532spi)
 {
-  this->led = led;
-
   // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
 }
@@ -45,13 +43,11 @@ int NfcClient::Initialize(String data) {
 int NfcClient::Tick()
 {
   Serial.println(this->deviceId);
-  this->led->SetColor(0, 0, 255);
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
 
-  this->led->SetColor(0, 20, 255);
   return this->ReadMessage();
 }
 
