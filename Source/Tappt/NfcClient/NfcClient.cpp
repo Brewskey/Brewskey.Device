@@ -18,8 +18,7 @@ int NfcClient::Initialize(String data) {
 
   this->message = NdefMessage();
 
-  //this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "d/" + deviceId);
-  this->message.addUriRecord("tappt://"); // WP8.1 wasn't respecting launch app...
+  this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "d/" + deviceId);
   this->message.addUriRecord("https://tappt.io/d/" + deviceId);
   this->message.addApplicationRecord("com.tappt.app");
 

@@ -275,7 +275,7 @@ void NdefMessage::addLaunchApp(String application, String parameters)
     payloadString.getBytes(&payload[3], primaryLength);
     parameters.getBytes(&payload[primaryLength], parameters.length() + 1);
     payload[primaryLength - 2] = 0x00;
-    payload[primaryLength - 1] = 0x0B;
+    payload[primaryLength - 1] = 0x03;
 
     r->setPayload(payload, fullLength);
 
