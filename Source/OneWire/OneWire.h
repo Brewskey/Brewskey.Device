@@ -88,7 +88,7 @@ private:
       return GPIO_ReadInputDataBit(PIN_MAP[_pin].gpio_peripheral, PIN_MAP[_pin].gpio_pin);
     }
 
-  #elif PLATFORM_ID == 6 // Photon
+  #elif PLATFORM_ID == 6  || PLATFORM_ID == 8 // Photon or P1
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map(); // Pointer required for highest access speed
 
     inline void digitalWriteFastLow() {

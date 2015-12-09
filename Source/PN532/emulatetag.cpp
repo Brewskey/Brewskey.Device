@@ -55,7 +55,7 @@ bool EmulateTag::init() {
   if (! versiondata)
   {
       Serial.print(F("Didn't find PN53x board"));
-      while (1); // halt
+      return false;
   }
 
   Serial.print(F("Found chip PN5")); Serial.println((versiondata>>24) & 0xFF, HEX);

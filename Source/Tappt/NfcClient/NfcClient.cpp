@@ -18,7 +18,7 @@ int NfcClient::Initialize(String data) {
 
   this->message = NdefMessage();
 
-  this->message.addLaunchApp("A642F242-2F5B-4D0D-BB5A-10BFFAA9C33C", "d/" + deviceId);
+  this->message.addLaunchApp("f523005d-37d3-4375-b3e8-4f1f56704f0f", "d/" + deviceId);
   this->message.addUriRecord("https://tappt.io/d/" + deviceId);
   this->message.addApplicationRecord("com.tappt.app");
 
@@ -53,7 +53,7 @@ int NfcClient::Tick()
 NfcState::value NfcClient::ReadMessage()
 {
   // If reading authentication from a tag
-  if (!this->nfcAdapter.tagPresent(100))
+  if (!this->nfcAdapter.tagPresent(70))
   {
     Serial.println("Tag not present");
     return NfcState::NO_MESSAGE;
@@ -113,7 +113,7 @@ NfcState::value NfcClient::ReadMessage()
 NfcState::value NfcClient::SendMessage()
 {
   Serial.println("Emulated Tag");
-  if (nfc.emulate(300)) {
+  if (nfc.emulate(220)) {
     return NfcState::SENT_MESSAGE;
   }
 
