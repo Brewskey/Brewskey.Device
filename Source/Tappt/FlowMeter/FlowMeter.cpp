@@ -29,7 +29,7 @@ FlowMeter::FlowMeter(Solenoid *solenoid)
 	digitalWrite(FLOW_PIN, HIGH);
   //attachInterrupt(FLOW_PIN, &FlowMeter::FlowCounter, this, FALLING);
 
-	//this->StopPour();
+	this->StopPour();
 }
 
 int FlowMeter::StartPour(String data)

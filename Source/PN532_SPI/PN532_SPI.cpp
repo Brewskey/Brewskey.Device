@@ -245,7 +245,7 @@ int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
       if (ret >= 0) {
         break;
      }
-     delay(4);
+     delay(10);
     } while((timeout == 0) || ((millis()- start_millis ) < timeout));
 
     if (ret < 0) {

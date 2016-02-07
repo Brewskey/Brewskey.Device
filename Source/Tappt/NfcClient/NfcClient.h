@@ -35,6 +35,7 @@ private:
   String deviceId;
 
   PN532_SPI pn532spi;
+  PN532 pn532;
 
   EmulateTag nfc;
   NfcAdapter nfcAdapter;

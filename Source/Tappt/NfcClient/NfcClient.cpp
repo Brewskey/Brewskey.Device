@@ -6,7 +6,7 @@ NfcClient::NfcClient() :
 #else
   pn532spi(SCK, MISO, MOSI, SS),
 #endif
-  nfc(pn532spi), nfcAdapter(pn532spi)
+  pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
 {
   // This only needs to happen once for nfc & ndfAdapter
   nfc.init();
@@ -36,16 +36,23 @@ int NfcClient::Initialize(String data) {
   // comment out this command for no ndef message
   nfc.setNdefFile(ndefBuf, messageSize);
 
+  nfc.setTagWriteable(false);
+
   return 0;
 }
 
 int NfcClient::Tick()
 {
-  Serial.println(this->deviceId);
+//  pn532.inRelease();
+//  delay(300);
+
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
+
+//  pn532.inRelease();
+//  delay(300);
 
   return this->ReadMessage();
 }
@@ -113,7 +120,7 @@ NfcState::value NfcClient::ReadMessage()
 NfcState::value NfcClient::SendMessage()
 {
   Serial.println("Emulated Tag");
-  if (nfc.emulate(220)) {
+  if (nfc.emulate(2000)) {
     return NfcState::SENT_MESSAGE;
   }
 

@@ -19,7 +19,6 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
 
   // This is to reset the settings on the device via a serverside call
   //Particle.function("initialize", &KegeratorState::Initialize, this);
-
   Particle.subscribe(
 		"hook-response/tappt_initialize-" + System.deviceID(),
 		&KegeratorState::Initialized,
@@ -45,8 +44,6 @@ int KegeratorState::Tick()
   switch(this->State) {
     case KegeratorState::INITIALIZING:
     {
-			this->flowMeter->StopPour();
-
       if (this->deviceId != NULL && this->deviceId.length() > 0) {
         RGB.control(false);
 				this->State = KegeratorState::LISTENING;
@@ -63,6 +60,8 @@ int KegeratorState::Tick()
     }
     case KegeratorState::LISTENING:
     {
+			this->flowMeter->StopPour();
+			
       NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
       if ((

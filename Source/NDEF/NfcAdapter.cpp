@@ -185,7 +185,11 @@ unsigned int NfcAdapter::guessTagType()
 
     if (uidLength == 4)
     {
-        return TAG_TYPE_MIFARE_CLASSIC;
+        // Android will try to interact with the reader (beam???) so return
+        // unknown here.  This logic in the function should really be fleshed
+        // out instead...
+        return TAG_TYPE_UNKNOWN;
+        //return TAG_TYPE_MIFARE_CLASSIC;
     }
     else
     {

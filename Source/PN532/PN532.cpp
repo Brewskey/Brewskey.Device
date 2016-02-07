@@ -310,11 +310,20 @@ bool PN532::readPassiveTargetID(uint8_t cardbaudrate, uint8_t *uid, uint8_t *uid
     sens_res <<= 8;
     sens_res |= pn532_packetbuffer[3];
 
+    uint16_t sak = pn532_packetbuffer[4];
+
     DMSG("ATQA: 0x");  DMSG_HEX(sens_res);
-    DMSG("SAK: 0x");  DMSG_HEX(pn532_packetbuffer[4]);
+    DMSG("SAK: 0x");  DMSG_HEX(sak);
     DMSG("\r\n");
 
-    /* Card appears to be Mifare Classic */
+    /* if card is not mifare ultralight */
+    if (sens_res != 0x44 || sak != 0x0) {
+      DMSG("\r\n");
+      DMSG("Card is not mifare ultralight");
+      DMSG("\r\n");
+      return 0;
+    }
+
     *uidLength = pn532_packetbuffer[5];
 
     for (uint8_t i = 0; i < pn532_packetbuffer[5]; i++) {
