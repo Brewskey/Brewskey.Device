@@ -53,7 +53,7 @@ int KegeratorState::Tick()
 
       if (this->getIdTimer.ShouldTrigger) {
         Serial.println("Requesting DeviceId");
-        Particle.publish("tappt_initialize", (const char *)0, 5, PRIVATE);
+        Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
       }
 
       break;
@@ -61,7 +61,7 @@ int KegeratorState::Tick()
     case KegeratorState::LISTENING:
     {
 			this->flowMeter->StopPour();
-			
+
       NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
       if ((

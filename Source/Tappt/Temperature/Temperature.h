@@ -16,7 +16,7 @@ private:
   char json[64];
   void PrintAddress(DeviceAddress deviceAddress);
 
-  TapptTimer timer = TapptTimer(10000);
+  TapptTimer timer = TapptTimer(120000);
 
   DallasTemperature sensors;
 
