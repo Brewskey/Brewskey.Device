@@ -82,7 +82,6 @@ void EmulateTag::setUid(uint8_t* uid){
 }
 
 bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
-
   uint8_t command[] = {
         PN532_COMMAND_TGINITASTARGET,
         5,                  // MODE: PICC only, Passive only
@@ -100,13 +99,36 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
         0, // length of general bytes
         0  // length of historical bytes
   };
+  /*
+  uint8_t command[] = {
+      PN532_COMMAND_TGINITASTARGET,
+      0x05,                  // MODE: PICC only, Passive only
 
+      0x04, 0x00,         // SENS_RES
+      0x00, 0x00, 0x00,   // NFCID1
+      0x20,               // SEL_RES
+
+      0x01, 0xFE,
+      0xA2, 0xA3, 0xA4,
+      0xA5, 0xA6, 0xA7,
+      0xC0, 0xC1, 0xC2,
+      0xC3, 0xC4, 0xC5,
+      0xC6, 0xC7, 0xFF,
+      0xFF,
+      0xAA, 0x99, 0x88, //NFCID3t (10 bytes)
+      0x77, 0x66, 0x55, 0x44,
+      0x33, 0x22, 0x11,
+
+      0, // length of general bytes
+      0  // length of historical bytes
+  };
+  */
   if(uidPtr != 0){  // if uid is set copy 3 bytes to nfcid1
     memcpy(command + 4, uidPtr, 3);
   }
 
   if(1 != pn532.tgInitAsTarget(command,sizeof(command), tgInitAsTargetTimeout)){
-    DMSG("tgInitAsTarget failed or timed out!");
+    DMSG("tgInitAsTarget failed or timed out!\r\n");
     return false;
   }
 
@@ -135,14 +157,17 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
   tag_file currentFile = NONE_Tag_File;
   uint16_t cc_size = sizeof(compatibility_container);
   bool runLoop = true;
+  bool firstRead = true;
 
   while(runLoop){
     status = pn532.tgGetData(rwbuf, sizeof(rwbuf));
     if(status < 0){
       DMSG("tgGetData failed!\r\n");
       pn532.inRelease();
-      return true;
+      return !firstRead;
     }
+    
+    firstRead = false;
 
     uint8_t p1 = rwbuf[C_APDU_P1];
     uint8_t p2 = rwbuf[C_APDU_P2];
@@ -230,7 +255,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
     if(status < 0){
       DMSG("tgSetData failed\r\n!");
       pn532.inRelease();
-      return true;
+      return !firstRead;
     }
   }
   pn532.inRelease();

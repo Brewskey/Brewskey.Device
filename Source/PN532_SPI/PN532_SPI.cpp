@@ -100,56 +100,64 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
         /** Frame Preamble and Start Code */
         if(receive(tmp, 3, timeout)<=0){
+            DMSG("\r\nFrame Preamble and Start Code timeout\r\n");
             return PN532_TIMEOUT;
         }
         if(0 != tmp[0] || 0!= tmp[1] || 0xFF != tmp[2]){
-            DMSG("Preamble error");
+            DMSG("\r\nPreamble error");
             return PN532_INVALID_FRAME;
         }
 
         /** receive length and check */
         uint8_t length[2];
         if(receive(length, 2, timeout) <= 0){
+            DMSG("\r\nreceive length and check timeout\r\n");
            return PN532_TIMEOUT;
         }
         if( 0 != (uint8_t)(length[0] + length[1]) ){
-           DMSG("Length error");
+           DMSG("\r\nLength error");
            return PN532_INVALID_FRAME;
         }
         length[0] -= 2;
         if( length[0] > len){
-           return PN532_NO_SPACE;
+          DMSG("\r\nNo Space error\r\n");
+          return PN532_NO_SPACE;
         }
 
         /** receive command byte */
         uint8_t cmd = command + 1;               // response command
         if(receive(tmp, 2, timeout) <= 0){
+            DMSG("\r\nreceive command timeout\r\n");
             return PN532_TIMEOUT;
         }
         if( PN532_PN532TOHOST != tmp[0] || cmd != tmp[1]){
-            DMSG("Command error");
+            DMSG("\r\nCommand error");
             return PN532_INVALID_FRAME;
         }
 
-        DMSG("\r\n");
-        DMSG("read:  ");
+        DMSG(">");
         DMSG_HEX(cmd);
 
         if(receive(buf, length[0], timeout) != length[0]){
+            DMSG("\r\nTimeout???");
             return PN532_TIMEOUT;
         }
+
         uint8_t sum = PN532_PN532TOHOST + cmd;
         for(uint8_t i=0; i<length[0]; i++){
             sum += buf[i];
             DMSG_HEX(buf[i]);
         }
 
+        DMSG("\r\n");
+
         /** checksum and postamble */
         if(receive(tmp, 2, timeout) <= 0){
+            DMSG("\r\nChecksum timeout\r\n");
             return PN532_TIMEOUT;
         }
         if( 0 != (uint8_t)(sum + tmp[0]) || 0 != tmp[1] ){
-            DMSG("Checksum error");
+            DMSG("\r\nChecksum error");
             return PN532_INVALID_FRAME;
         }
 
@@ -188,7 +196,7 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
     write(PN532_HOSTTOPN532);
     uint8_t sum = PN532_HOSTTOPN532;    // sum of TFI + DATA
 
-    DMSG("write: ");
+    DMSG("<");
 
     for (uint8_t i = 0; i < hlen; i++) {
         write(header[i]);

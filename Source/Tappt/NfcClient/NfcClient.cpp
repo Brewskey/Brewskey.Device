@@ -43,16 +43,10 @@ int NfcClient::Initialize(String data) {
 
 int NfcClient::Tick()
 {
-//  pn532.inRelease();
-//  delay(300);
-
   NfcState::value output = this->SendMessage();
   if (output != NfcState::NO_MESSAGE) {
     return output;
   }
-
-//  pn532.inRelease();
-//  delay(300);
 
   return this->ReadMessage();
 }
@@ -120,7 +114,7 @@ NfcState::value NfcClient::ReadMessage()
 NfcState::value NfcClient::SendMessage()
 {
   Serial.println("Emulated Tag");
-  if (nfc.emulate(2000)) {
+  if (nfc.emulate(500)) {
     return NfcState::SENT_MESSAGE;
   }
 

@@ -115,17 +115,11 @@ int16_t PN532_I2C::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
         return PN532_NO_SPACE;  // not enough space
     }
 
-    DMSG("read:  ");
-    DMSG_HEX(cmd);
-
     uint8_t sum = PN532_PN532TOHOST + cmd;
     for (uint8_t i = 0; i < length; i++) {
         buf[i] = read();
         sum += buf[i];
-
-        DMSG_HEX(buf[i]);
     }
-    DMSG('\r\n');
 
     uint8_t checksum = read();
     if (0 != (uint8_t)(sum + checksum)) {
