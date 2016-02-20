@@ -34,11 +34,10 @@ void setup(void) {
     flowMeter = new FlowMeter(solenoid);
     state = new KegeratorState(nfcClient, flowMeter);
 
-/*
     while(!Serial.available()) {
       Spark.process();
     }
-*/
+    
     Serial.println("Starting");
 }
 

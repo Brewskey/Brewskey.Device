@@ -237,6 +237,12 @@ int8_t PN532_SPI::readAckFrame()
 
     digitalWrite(_ss, HIGH);
 
+    DMSG("\r\nACK: ");
+    for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
+        DMSG_HEX(ackBuf[i]);
+    }
+    DMSG("\r\n\r\n");
+
     return memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
 }
 
