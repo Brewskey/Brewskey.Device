@@ -9,6 +9,7 @@
 #include "NfcAdapter.h"
 
 #include "ITick.h"
+#include "Pins.h"
 #include "LED.h"
 #include "RestClient.h"
 

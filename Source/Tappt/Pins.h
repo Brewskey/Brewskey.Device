@@ -1,7 +1,10 @@
 #ifndef Pins_h
 #define Pins_h
 
-#define SPI_HW_MODE 1
+#include "application.h"
+
+#define IS_PROTOTYPE 0
+#define SPI_HW_MODE
 
 #define RED_PIN (D0)
 #define GREEN_PIN (D1)
@@ -11,9 +14,16 @@
 #define SOLENOID_PIN (D5)
 #define FLOW_PIN (D6)
 
-#define SCK  (A3)
-#define MOSI (A5)
+#if IS_PROTOTYPE == 0
 #define SS   (A2)
+#define SCK  (A3)
 #define MISO (A4)
+#define MOSI (A5)
+#else
+//#define SCK  (A3)
+//#define MOSI (A5)
+#define SS   DAC
+//#define MISO (A4)
+#endif
 
 #endif

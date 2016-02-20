@@ -26,9 +26,7 @@ PN532_SPI::PN532_SPI(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss) {
 void PN532_SPI::begin()
 {
 #ifdef SPI_HW_MODE
-    pinMode(_ss, OUTPUT);
-
-    _spi->setClockDivider(SPI_CLOCK_DIV8); // set clock 2MHz(max: 5MHz)
+    _spi->setClockDivider(SPI_CLOCK_DIV16); // set clock 2MHz(max: 5MHz)
     _spi->setDataMode(SPI_MODE0);  // PN532 only supports mode0
     _spi->setBitOrder(LSBFIRST);
     _spi->begin(_ss);
@@ -237,12 +235,6 @@ int8_t PN532_SPI::readAckFrame()
 
     digitalWrite(_ss, HIGH);
 
-    DMSG("\r\nACK: ");
-    for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
-        DMSG_HEX(ackBuf[i]);
-    }
-    DMSG("\r\n\r\n");
-
     return memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK));
 }
 
@@ -276,7 +268,7 @@ int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
 }
 
 void PN532_SPI::write(uint8_t data) {
-  #if SPI_HW_MODE
+  #ifdef SPI_HW_MODE
     SPI.transfer(data);
   #else
   #ifdef SPARK_CORE

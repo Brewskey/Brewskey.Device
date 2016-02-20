@@ -3,11 +3,8 @@
 #define __PN532_SPI_H__
 
 #include "application.h"
+#include "Pins.h"
 #include "PN532Interface.h"
-
-#if PLATFORM_ID == 6
-//#define SPI_HW_MODE 1
-#endif
 
 class PN532_SPI : public PN532Interface {
 public:
