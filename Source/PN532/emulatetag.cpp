@@ -68,8 +68,8 @@ bool EmulateTag::init() {
 
 void EmulateTag::setNdefFile(const uint8_t* ndef, const int16_t ndefLength){
   if(ndefLength >  (NDEF_MAX_LENGTH -2)){
-	DMSG("ndef file too large (> NDEF_MAX_LENGHT -2) - aborting");
-	return;
+  	DMSG("ndef file too large (> NDEF_MAX_LENGHT -2) - aborting");
+  	return;
   }
 
   ndef_file[0] = ndefLength >> 8;
@@ -158,6 +158,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
   uint16_t cc_size = sizeof(compatibility_container);
   bool runLoop = true;
   bool firstRead = true;
+  int emptyResultCount = 0;
 
   while(runLoop){
     status = pn532.tgGetData(rwbuf, sizeof(rwbuf));
@@ -166,96 +167,112 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
       pn532.inRelease();
       return !firstRead;
     }
-    
+
     firstRead = false;
+
+    if (rwbuf[C_APDU_CLA] != 0x00) {
+      DMSG("C_APDU_CLA not zero");
+      pn532.inRelease();
+      return false;
+    }
 
     uint8_t p1 = rwbuf[C_APDU_P1];
     uint8_t p2 = rwbuf[C_APDU_P2];
     uint8_t lc = rwbuf[C_APDU_LC];
     uint16_t p1p2_length = ((int16_t) p1 << 8) + p2;
 
-    switch(rwbuf[C_APDU_INS]){
-    case ISO7816_SELECT_FILE:
-      switch(p1){
-      case C_APDU_P1_SELECT_BY_ID:
-	if(p2 != 0x0c){
-	  DMSG("C_APDU_P2 != 0x0c\r\n");
-	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
-	} else if(lc == 2 && rwbuf[C_APDU_DATA] == 0xE1 && (rwbuf[C_APDU_DATA+1] == 0x03 || rwbuf[C_APDU_DATA+1] == 0x04)){
-	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
-	  if(rwbuf[C_APDU_DATA+1] == 0x03){
-	    currentFile = CC_Tag_File;
-	  } else if(rwbuf[C_APDU_DATA+1] == 0x04){
-	    currentFile = NDEF_Tag_File;
-	  }
-	} else {
-	  setResponse(TAG_NOT_FOUND, rwbuf, &sendlen);
-	}
-	break;
-      case C_APDU_P1_SELECT_BY_NAME:
-        const uint8_t ndef_tag_application_name_v2[] = {0, 0x7, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01 };
-	if(0 == memcmp(ndef_tag_application_name_v2, rwbuf + C_APDU_P2, sizeof(ndef_tag_application_name_v2))){
-	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
-	} else{
-	  DMSG("function not supported\r\n");
-	  setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
-	}
-	break;
+    // libnfc bails here but we'll look for 3 empty read binary commands since
+    // we have to constantly read from buffer.
+    if (p1p2_length < 4) {
+      emptyResultCount++;
+      if (emptyResultCount > 3) {
+        pn532.inRelease();
+        return true;
       }
-      break;
-    case ISO7816_READ_BINARY:
-      switch(currentFile){
-      case NONE_Tag_File:
-	setResponse(TAG_NOT_FOUND, rwbuf, &sendlen);
-	break;
-      case CC_Tag_File:
-	if( p1p2_length > NDEF_MAX_LENGTH){
-	  setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
-	}else {
-	  memcpy(rwbuf,compatibility_container + p1p2_length, lc);
-	  setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
-	}
-	break;
-      case NDEF_Tag_File:
-	if( p1p2_length > NDEF_MAX_LENGTH){
-	  setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
-	}else {
-	  memcpy(rwbuf, ndef_file + p1p2_length, lc);
-	  setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
-	}
-	break;
-      }
-      break;
-    case ISO7816_UPDATE_BINARY:
-      if(!tagWriteable){
-	  setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
-      } else{
-	if( p1p2_length > NDEF_MAX_LENGTH){
-	  setResponse(MEMORY_FAILURE, rwbuf, &sendlen);
-	}
-	else{
-	  memcpy(ndef_file + p1p2_length, rwbuf + C_APDU_DATA, lc);
-	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
-	  tagWrittenByInitiator = true;
-
-      uint16_t ndef_length = (ndef_file[0] << 8) + ndef_file[1];
-      if ((ndef_length > 0) && (updateNdefCallback != 0)) {
-        updateNdefCallback(ndef_file + 2, ndef_length);
-      }
-	}
-      }
-      break;
-    default:
-      DMSG("Command not supported!");
-      DMSG_HEX(rwbuf[C_APDU_INS]);
-      DMSG("\r\n");
-      setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
+    } else {
+      emptyResultCount = 0;
     }
+
+    switch(rwbuf[C_APDU_INS]) {
+      case ISO7816_SELECT_FILE:
+        switch (p1) {
+          case C_APDU_P1_SELECT_BY_ID:
+          	if(p2 != 0x0c){
+          	  DMSG("C_APDU_P2 != 0x0c\r\n");
+          	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
+          	} else if(lc == 2 && rwbuf[C_APDU_DATA] == 0xE1 && (rwbuf[C_APDU_DATA+1] == 0x03 || rwbuf[C_APDU_DATA+1] == 0x04)){
+          	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
+          	  if(rwbuf[C_APDU_DATA+1] == 0x03){
+          	    currentFile = CC_Tag_File;
+          	  } else if(rwbuf[C_APDU_DATA+1] == 0x04){
+          	    currentFile = NDEF_Tag_File;
+          	  }
+          	} else {
+          	  setResponse(TAG_NOT_FOUND, rwbuf, &sendlen);
+          	}
+          	break;
+          case C_APDU_P1_SELECT_BY_NAME:
+            const uint8_t ndef_tag_application_name_v2[] = {0, 0x7, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01 };
+          	if(0 == memcmp(ndef_tag_application_name_v2, rwbuf + C_APDU_P2, sizeof(ndef_tag_application_name_v2))){
+          	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
+          	} else{
+          	  DMSG("function not supported\r\n");
+          	  setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
+          	}
+          	break;
+        }
+        break;
+      case ISO7816_READ_BINARY:
+        if (p1p2_length > NDEF_MAX_LENGTH){
+          setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
+        }
+
+        switch(currentFile) {
+          case NONE_Tag_File:
+          	setResponse(TAG_NOT_FOUND, rwbuf, &sendlen);
+          	break;
+          case CC_Tag_File:
+        	  memcpy(rwbuf,compatibility_container + p1p2_length, lc);
+        	  setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+          	break;
+          case NDEF_Tag_File:
+        	  memcpy(rwbuf, ndef_file + p1p2_length, lc);
+        	  setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+          	break;
+        }
+
+        break;
+      case ISO7816_UPDATE_BINARY:
+        if(!tagWriteable){
+  	      setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
+        } else {
+        	if (p1p2_length > NDEF_MAX_LENGTH){
+        	  setResponse(MEMORY_FAILURE, rwbuf, &sendlen);
+        	} else{
+        	  memcpy(ndef_file + p1p2_length, rwbuf + C_APDU_DATA, lc);
+        	  setResponse(COMMAND_COMPLETE, rwbuf, &sendlen);
+        	  tagWrittenByInitiator = true;
+
+            uint16_t ndef_length = (ndef_file[0] << 8) + ndef_file[1];
+            if ((ndef_length > 0) && (updateNdefCallback != 0)) {
+              updateNdefCallback(ndef_file + 2, ndef_length);
+            }
+        	}
+        }
+        break;
+      default:
+        DMSG("Command not supported!");
+        DMSG_HEX(rwbuf[C_APDU_INS]);
+        DMSG("\r\n");
+        setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen);
+      break;
+    }
+
     status = pn532.tgSetData(rwbuf, sendlen);
-    if(status < 0){
+    if(!status){
       DMSG("tgSetData failed\r\n!");
       pn532.inRelease();
-      return !firstRead;
+      return true;
     }
   }
   pn532.inRelease();
