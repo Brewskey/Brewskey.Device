@@ -9,7 +9,12 @@ NfcClient::NfcClient() :
   pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
 {
   // This only needs to happen once for nfc & ndfAdapter
-  nfc.init();
+  if (!nfc.init()) {
+    DMSG("Error initializing PN532\r\n");
+    while (1) {
+      Spark.process();
+    }
+  }
 }
 
 int NfcClient::Initialize(String data) {
@@ -25,7 +30,7 @@ int NfcClient::Initialize(String data) {
   this->messageSize = this->message.getEncodedSize();
   if (this->messageSize > sizeof(this->ndefBuf)) {
       Serial.println("ndefBuf is too small");
-      while (1) { }
+      return -1;
   }
 
   message.encode(ndefBuf);

@@ -62,8 +62,10 @@ bool EmulateTag::init() {
   Serial.print(F("Firmware ver. ")); Serial.print((versiondata>>16) & 0xFF, DEC);
   Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
 
-  // configure board to read RFID tags
+  // configure board to read RFID tags (for some reason this returns 0 with SPI)
   pn532.SAMConfig();
+
+  return true;
 }
 
 void EmulateTag::setNdefFile(const uint8_t* ndef, const int16_t ndefLength){

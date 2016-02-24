@@ -3,6 +3,7 @@
 
 #include "PN532_SPI.h"
 #include "PN532.h"
+#include "PN532_debug.h"
 #include "emulatetag.h"
 #include "snep.h"
 #include "NdefMessage.h"
