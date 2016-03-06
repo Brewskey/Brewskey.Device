@@ -28,9 +28,9 @@ void setup(void) {
 
     Serial.println("Starting");
 
-    while(!Serial.available()) {
+    /*while(!Serial.available()) {
       Spark.process();
-    }
+    }*/
 
     nfcClient = new NfcClient();
     temperatureSensor = new Temperature();

@@ -17,10 +17,10 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
   this->nfcClient = nfcClient;
   this->flowMeter = flowMeter;
 
-  // This is to reset the settings on the device via a serverside call
-  //Particle.function("initialize", &KegeratorState::Initialize, this);
+	String deviceID = System.deviceID();
+
   Particle.subscribe(
-		"hook-response/tappt_initialize-" + System.deviceID(),
+		"hook-response/tappt_initialize-" + deviceID,
 		&KegeratorState::Initialized,
 		this,
 		MY_DEVICES
@@ -30,7 +30,7 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
 	Particle.function("pour", &KegeratorState::Pour, this);
 	// Response when token is used
 	Particle.subscribe(
-		"hook-response/tappt_request-pour-" + System.deviceID(),
+		"hook-response/tappt_request-pour-" + deviceID,
 		&KegeratorState::PourResponse,
 		this,
 		MY_DEVICES

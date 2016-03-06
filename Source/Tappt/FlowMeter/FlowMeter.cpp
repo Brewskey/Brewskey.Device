@@ -1,4 +1,5 @@
 #include "FlowMeter.h"
+#include "Pins.h"
 
 void FlowMeter::FlowCounter()
 {
@@ -43,6 +44,11 @@ int FlowMeter::StartPour(String data)
   this->waitCount = 0;
 	this->pourKey = String(data);
 	Serial.print("Start Pour");Serial.println(pourKey);
+
+#if USE_FAKE_POUR == 1
+this->flowCount = 400;
+#endif
+
 	return 0;
 }
 
