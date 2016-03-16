@@ -19,6 +19,10 @@ TOTP::TOTP(uint8_t* hmacKey, int keyLength) {
 // for the complete description of the algorithm see
 // http://tools.ietf.org/html/rfc4226#section-5.3
 char* TOTP::getCode(long timeStamp) {
+
+	// STEP 0, number of steps (one every 30 seconds) from the Epoch
+	_timeStep = timeStamp / 30;
+
 	// STEP 0, map the number of steps in a 8-bytes array (counter value)
 	_byteArray[0] = 0x00;
 	_byteArray[1] = 0x00;
