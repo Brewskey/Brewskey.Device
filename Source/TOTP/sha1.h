@@ -2,14 +2,11 @@
 #define Sha1_h
 
 #include <inttypes.h>
-#include "Print.h"
 
-#if ARDUINO < 100
-#define __WRITE_RESULT void
-#define __WRITE_RETURN(x) return;
+#ifndef SPARK
+#include "Print.h"
 #else
-#define __WRITE_RESULT size_t
-#define __WRITE_RETURN(x) return x;
+#include "application.h"
 #endif
 
 #define HASH_LENGTH 20
@@ -31,7 +28,7 @@ class Sha1Class : public Print
     void initHmac(const uint8_t* secret, int secretLength);
     uint8_t* result(void);
     uint8_t* resultHmac(void);
-    virtual __WRITE_RESULT write(uint8_t);
+    virtual size_t write(uint8_t); //virtual void write(uint8_t);
     using Print::write;
   private:
     void pad();
