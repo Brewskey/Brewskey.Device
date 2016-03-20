@@ -2,7 +2,7 @@
     "event": "tappt_initialize",
     "mydevices": true,
     "requestType": "GET",
-    "responseTemplate": "{{deviceId}}",
+    "responseTemplate": "~{{deviceId}}~{{authorizationToken}}",
     "responseTopic": "hook-response/tappt_initialize-{{SPARK_CORE_ID}}",
     "url": "https://tappt.io/api/devices/particle/{{SPARK_CORE_ID}}/id"
 }

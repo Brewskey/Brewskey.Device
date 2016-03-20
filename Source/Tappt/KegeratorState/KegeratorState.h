@@ -5,6 +5,7 @@
 #include "LED.h"
 #include "NfcClient.h"
 #include "TapptTimer.h"
+#include "TOTP.h"
 
 class KegeratorState: public ITick  {
 public:
@@ -28,11 +29,14 @@ private:
   void Initialized(const char* event, const char* data);
   int Pour(String data);
   void PourResponse(const char* event, const char* data);
+  void UpdateScreen();
 
   NfcClient* nfcClient;
   FlowMeter* flowMeter;
 
+  String authorizationToken;
   String deviceId;
+  Timer ledTimer = Timer(1000, &KegeratorState::UpdateScreen, *this);
   TapptTimer getIdTimer = TapptTimer(15000);
   TapptTimer responseTimer = TapptTimer(3000);
 };

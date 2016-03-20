@@ -313,6 +313,7 @@ bool PN532::readPassiveTargetID(uint8_t cardbaudrate, uint8_t *uid, uint8_t *uid
     uint16_t sak = pn532_packetbuffer[4];
 
     DMSG("ATQA: 0x");  DMSG_HEX(sens_res);
+    DMSG("\r\n");
     DMSG("SAK: 0x");  DMSG_HEX(sak);
     DMSG("\r\n");
 

@@ -5,7 +5,7 @@
 
 #define IS_PROTOTYPE 0
 #define SPI_HW_MODE
-#define USE_FAKE_POUR 1
+#define USE_FAKE_POUR 0
 
 #define RED_PIN (D0)
 #define GREEN_PIN (D1)

@@ -20,11 +20,6 @@ Solenoid* solenoid;
 Temperature* temperatureSensor;
 KegeratorState* state;
 
-// The shared secret is MyLegoDoor
-uint8_t hmacKey[] = {0x4d, 0x79, 0x4c, 0x65, 0x67, 0x6f, 0x44, 0x6f, 0x6f, 0x72};
-
-TOTP totp = TOTP(hmacKey, 10);
-
 void setup(void) {
     Serial.begin(115200);
 
