@@ -25,8 +25,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "application.h"
-
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include "qrencode.h"
 #include "qrinput.h"
 #include "qrspec.h"
@@ -34,6 +38,17 @@
 
 #define isdigit(__c__) ((unsigned char)((signed char)(__c__) - '0') < 10)
 #define isalnum(__c__) (QRinput_lookAnTable(__c__) >= 0)
+
+#if !HAVE_STRDUP
+#undef strdup
+char *strdup(const char *s)
+{
+	size_t len = strlen(s) + 1;
+	void *newstring = malloc(len);
+	if(newstring == NULL) return NULL;
+	return (char *)memcpy(newstring, s, len);
+}
+#endif
 
 static QRencodeMode Split_identifyMode(const char *string, QRencodeMode hint)
 {

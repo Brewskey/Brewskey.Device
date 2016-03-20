@@ -19,7 +19,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
- #include "application.h"
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include "qrencode.h"
 #include "qrspec.h"
@@ -309,7 +315,7 @@ static unsigned char QRinput_calcParity(QRinput *input)
 	list = input->head;
 	while(list != NULL) {
 		if(list->mode != QR_MODE_STRUCTURE) {
-			for(i=list->size-1; i>=0; i--) {
+			for(i = list->size-1; i >= 0; i--) {
 				parity ^= list->data[i];
 			}
 		}
@@ -359,7 +365,7 @@ static int QRinput_checkModeNum(int size, const char *data)
 {
 	int i;
 
-	for(i=0; i<size; i++) {
+	for(i = 0; i < size; i++) {
 		if(data[i] < '0' || data[i] > '9')
 			return -1;
 	}
@@ -423,7 +429,7 @@ static int QRinput_encodeModeNum(QRinput_List *entry, BitStream *bstream, int ve
 	}
 
 	words = entry->size / 3;
-	for(i=0; i<words; i++) {
+	for(i = 0; i < words; i++) {
 		val  = (entry->data[i*3  ] - '0') * 100;
 		val += (entry->data[i*3+1] - '0') * 10;
 		val += (entry->data[i*3+2] - '0');
@@ -471,7 +477,7 @@ static int QRinput_checkModeAn(int size, const char *data)
 {
 	int i;
 
-	for(i=0; i<size; i++) {
+	for(i = 0; i < size; i++) {
 		if(QRinput_lookAnTable(data[i]) < 0)
 			return -1;
 	}
@@ -530,7 +536,7 @@ static int QRinput_encodeModeAn(QRinput_List *entry, BitStream *bstream, int ver
 	}
 
 	words = entry->size / 2;
-	for(i=0; i<words; i++) {
+	for(i = 0; i < words; i++) {
 		val  = (unsigned int)QRinput_lookAnTable(entry->data[i*2  ]) * 45;
 		val += (unsigned int)QRinput_lookAnTable(entry->data[i*2+1]);
 
@@ -626,7 +632,7 @@ static int QRinput_checkModeKanji(int size, const unsigned char *data)
 	if(size & 1)
 		return -1;
 
-	for(i=0; i<size; i+=2) {
+	for(i = 0; i < size; i+=2) {
 		val = ((unsigned int)data[i] << 8) | data[i+1];
 		if(val < 0x8140 || (val > 0x9ffc && val < 0xe040) || val > 0xebbf) {
 			return -1;
@@ -667,7 +673,7 @@ static int QRinput_encodeModeKanji(QRinput_List *entry, BitStream *bstream, int 
 		if(ret < 0) return -1;
 	}
 
-	for(i=0; i<entry->size; i+=2) {
+	for(i = 0; i < entry->size; i+=2) {
 		val = ((unsigned int)entry->data[i] << 8) | entry->data[i+1];
 		if(val <= 0x9ffc) {
 			val -= 0x8140;
@@ -723,7 +729,7 @@ static int QRinput_encodeModeStructure(QRinput_List *entry, BitStream *bstream, 
  * FNC1
  *****************************************************************************/
 
-static int QRinput_checkModeFNC1Second(int size, const unsigned char *data)
+static int QRinput_checkModeFNC1Second(int size)
 {
 	if(size != 1) return -1;
 
@@ -754,7 +760,7 @@ static unsigned int QRinput_decodeECIfromByteArray(unsigned char *data)
 	unsigned int ecinum;
 
 	ecinum = 0;
-	for(i=0; i<4; i++) {
+	for(i = 0; i < 4; i++) {
 		ecinum = ecinum << 8;
 		ecinum |= data[3-i];
 	}
@@ -830,7 +836,7 @@ int QRinput_check(QRencodeMode mode, int size, const unsigned char *data)
 		case QR_MODE_FNC1FIRST:
 			return 0;
 		case QR_MODE_FNC1SECOND:
-			return QRinput_checkModeFNC1Second(size, data);
+			return QRinput_checkModeFNC1Second(size);
 		case QR_MODE_NUL:
 			break;
 	}
@@ -1155,7 +1161,7 @@ static int QRinput_appendPaddingBit(BitStream *bstream, QRinput *input)
 
 	padlen = maxwords - words;
 	if(padlen > 0) {
-		for(i=0; i<padlen; i++) {
+		for(i = 0; i < padlen; i++) {
 			ret = BitStream_appendNum(bstream, 8, (i&1)?0x11:0xec);
 			if(ret < 0) {
 				return ret;
@@ -1213,7 +1219,7 @@ static int QRinput_appendPaddingBitMQR(BitStream *bstream, QRinput *input)
 
 	padlen = maxwords - words;
 	if(padlen > 0) {
-		for(i=0; i<padlen; i++) {
+		for(i = 0; i < padlen; i++) {
 			ret = BitStream_appendNum(bstream, 8, (i&1)?0x11:0xec);
 			if(ret < 0) return ret;
 		}

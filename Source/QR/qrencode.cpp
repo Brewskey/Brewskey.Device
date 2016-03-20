@@ -18,7 +18,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "application.h"
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include "qrencode.h"
 #include "qrspec.h"
@@ -76,7 +82,7 @@ static int RSblock_init(RSblock *blocks, int spec[5], unsigned char *data, unsig
 	block = blocks;
 	dp = data;
 	ep = ecc;
-	for(i=0; i<QRspec_rsBlockNum1(spec); i++) {
+	for(i = 0; i < QRspec_rsBlockNum1(spec); i++) {
 		RSblock_initBlock(block, dl, dp, el, ep);
 		dp += dl;
 		ep += el;
@@ -87,7 +93,7 @@ static int RSblock_init(RSblock *blocks, int spec[5], unsigned char *data, unsig
 
 	dl = QRspec_rsDataCodes2(spec);
 	el = QRspec_rsEccCodes2(spec);
-	for(i=0; i<QRspec_rsBlockNum2(spec); i++) {
+	for(i = 0; i < QRspec_rsBlockNum2(spec); i++) {
 		RSblock_initBlock(block, dl, dp, el, ep);
 		dp += dl;
 		ep += el;
@@ -361,7 +367,7 @@ extern unsigned char *FrameFiller_test(int version)
 	length = QRspec_getDataLength(version, QR_ECLEVEL_L) * 8
 	       + QRspec_getECCLength(version, QR_ECLEVEL_L) * 8
 		   + QRspec_getRemainder(version);
-	for(i=0; i<length; i++) {
+	for(i = 0; i < length; i++) {
 		p = FrameFiller_next(&filler);
 		if(p == NULL) {
 			free(frame);
@@ -385,7 +391,7 @@ extern unsigned char *FrameFiller_testMQR(int version)
 	FrameFiller_set(&filler, width, frame, 1);
 	length = MQRspec_getDataLengthBit(version, QR_ECLEVEL_L)
 	       + MQRspec_getECCLength(version, QR_ECLEVEL_L) * 8;
-	for(i=0; i<length; i++) {
+	for(i = 0; i < length; i++) {
 		p = FrameFiller_next(&filler);
 		if(p == NULL) {
 			fprintf(stderr, "Frame filler run over the frame!\n");
@@ -459,10 +465,10 @@ __STATIC QRcode *QRcode_encodeMask(QRinput *input, int mask)
 	FrameFiller_set(&filler, width, frame, 0);
 
 	/* inteleaved data and ecc codes */
-	for(i=0; i<raw->dataLength + raw->eccLength; i++) {
+	for(i = 0; i < raw->dataLength + raw->eccLength; i++) {
 		code = QRraw_getCode(raw);
 		bit = 0x80;
-		for(j=0; j<8; j++) {
+		for(j = 0; j < 8; j++) {
 			p = FrameFiller_next(&filler);
 			if(p == NULL)  goto EXIT;
 			*p = 0x02 | ((bit & code) != 0);
@@ -473,7 +479,7 @@ __STATIC QRcode *QRcode_encodeMask(QRinput *input, int mask)
 	raw = NULL;
 	/* remainder bits */
 	j = QRspec_getRemainder(version);
-	for(i=0; i<j; i++) {
+	for(i = 0; i < j; i++) {
 		p = FrameFiller_next(&filler);
 		if(p == NULL)  goto EXIT;
 		*p = 0x02;
@@ -537,11 +543,11 @@ __STATIC QRcode *QRcode_encodeMaskMQR(QRinput *input, int mask)
 	FrameFiller_set(&filler, width, frame, 1);
 
 	/* inteleaved data and ecc codes */
-	for(i=0; i<raw->dataLength + raw->eccLength; i++) {
+	for(i = 0; i < raw->dataLength + raw->eccLength; i++) {
 		code = MQRraw_getCode(raw);
 		if(raw->oddbits && i == raw->dataLength - 1) {
 			bit = 1 << (raw->oddbits - 1);
-			for(j=0; j<raw->oddbits; j++) {
+			for(j = 0; j < raw->oddbits; j++) {
 				p = FrameFiller_next(&filler);
 				if(p == NULL) goto EXIT;
 				*p = 0x02 | ((bit & code) != 0);
@@ -549,7 +555,7 @@ __STATIC QRcode *QRcode_encodeMaskMQR(QRinput *input, int mask)
 			}
 		} else {
 			bit = 0x80;
-			for(j=0; j<8; j++) {
+			for(j = 0; j < 8; j++) {
 				p = FrameFiller_next(&filler);
 				if(p == NULL) goto EXIT;
 				*p = 0x02 | ((bit & code) != 0);
@@ -743,7 +749,7 @@ static unsigned char QRcode_parity(const char *str, int size)
 	unsigned char parity = 0;
 	int i;
 
-	for(i=0; i<size; i++) {
+	for(i = 0; i < size; i++) {
 		parity ^= str[i];
 	}
 

@@ -2,7 +2,8 @@
  * qrencode - QR Code encoder
  *
  * Reed solomon error correction code encoder specialized for QR code.
- * This code is based on Phil Karn's libfec and rewriten by Kentaro Fukuchi.
+ * This code is rewritten by Kentaro Fukuchi, referring to the FEC library
+ * developed by Phil Karn (KA9Q).
  *
  * Copyright (C) 2002, 2003, 2004, 2006 Phil Karn, KA9Q
  * Copyright (C) 2014 Kentaro Fukuchi <kentaro@fukuchi.org>
@@ -22,11 +23,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "application.h"
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+#include <stdlib.h>
+#include <string.h>
+#if HAVE_LIBPTHREAD
+#include <pthread.h>
+#endif
 
 #include "rsecc.h"
 
-#ifdef HAVE_LIBPTHREAD
+#if HAVE_LIBPTHREAD
 static pthread_mutex_t RSECC_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
@@ -100,24 +108,24 @@ int RSECC_encode(int data_length, int ecc_length, const unsigned char *data, uns
 	unsigned char feedback;
 	unsigned char *gen;
 
-#ifdef HAVE_LIBPTHREAD
+#if HAVE_LIBPTHREAD
 	pthread_mutex_lock(&RSECC_mutex);
 #endif
 	if(!initialized) {
 		RSECC_init();
 	}
-#ifdef HAVE_LIBPTHREAD
+#if HAVE_LIBPTHREAD
 	pthread_mutex_unlock(&RSECC_mutex);
 #endif
 
 	if(ecc_length > max_length) return -1;
 
 	memset(ecc, 0, ecc_length);
-#ifdef HAVE_LIBPTHREAD
+#if HAVE_LIBPTHREAD
 	pthread_mutex_lock(&RSECC_mutex);
 #endif
 	if(!generatorInitialized[ecc_length - min_length]) generator_init(ecc_length);
-#ifdef HAVE_LIBPTHREAD
+#if HAVE_LIBPTHREAD
 	pthread_mutex_unlock(&RSECC_mutex);
 #endif
 	gen = generator[ecc_length - min_length];
