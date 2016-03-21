@@ -5,10 +5,10 @@ void WifiSetup() {
   WiFi.on();
   WiFi.connect();
 
-  Spark.connect();
+  Particle.connect();
 
-  while (!Spark.connected()) {
-    Spark.process();
+  while (!Particle.connected()) {
+    Particle.process();
     WiFiListen();
   }
 }
@@ -28,7 +28,7 @@ void WiFiListen() {
     return;
   }
 
-  Spark.disconnect();
+  Particle.disconnect();
   WiFi.off();
   WiFi.on();
   WiFi.clearCredentials();   // if you only want one set of credentials stored
@@ -37,10 +37,10 @@ void WiFiListen() {
   WiFi.connect();
 
   while(WiFi.connecting()) {
-    Spark.process();
+    Particle.process();
   }
 
-  Spark.connect();
+  Particle.connect();
 
   Serial.println("WiFiSetupDone");
 }

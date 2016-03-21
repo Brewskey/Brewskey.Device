@@ -1,6 +1,6 @@
 #include "application.h"
 
-#define DEBUG 100
+//#define DEBUG 100
 //#define NDEF_DEBUG 1
 
 #include "Pins.h"

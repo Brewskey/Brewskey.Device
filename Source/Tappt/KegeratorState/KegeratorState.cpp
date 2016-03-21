@@ -1,5 +1,4 @@
 #include "KegeratorState.h"
-#include "qrencode.h"
 
 #define TOKEN_STRING(js, t, s) \
 	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
@@ -30,7 +29,6 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
 
   Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 }
-
 void KegeratorState::UpdateScreen() {
 	WITH_LOCK(Serial) {
 		Serial.print("Auth Token: ");
@@ -46,45 +44,38 @@ void KegeratorState::UpdateScreen() {
 		Serial.println(newCode);
 
 
-		String wifiDetails = "WIFI:S:<ssid>;T:<wep|WPDA>;P;<password>;;";
-		QRcode *qr = QRcode_encodeString(
-			wifiDetails,
-			0,
-			QR_ECLEVEL_M,
-			QR_MODE_8,
-			true
+		char json[32];
+		sprintf(
+			json,
+			"{\"d\":\"%s\",\"t\":\"%s\"}",
+			this->deviceId.c_str(),
+			newCode
 		);
 
-		Serial.println("WIDTH: ");
-		Serial.println(qr->width);
+		initeccsize(1, 32);
+		initframe();
+
+		strcpy((char *)strinbuf, json);
+
+    qrencode();
+
+		Serial.print("WIDTH: ");
+		Serial.println(WD);
 		Serial.println();
 
-		int i_qr, j_qr;
-		for (i_qr = 0; i_qr < qr->width; i_qr++) {
-		    for (j_qr = 0; j_qr < qr->width; j_qr++) {
-		        if (qr->data[(i_qr * qr->width) + j_qr] & 0x1)
-		            Serial.print("*");
-		        else
-		            Serial.print(" ");
-		    }
-		    Serial.println();
+		/* data */
+		int x, y;
+
+		Serial.println("[");
+		for (y = 0; y < WD; y++) {
+			Serial.print("[");
+			for (x = 0; x < WD; x++) {
+				Serial.printf("%d%s", QRBIT(x,y), x != WD - 1 ? "," : "");
+			}
+			Serial.println("],");
 		}
+		Serial.println("]");
 		Serial.println();
-		Serial.println();
-
-/*
-		unsigned char encoded[80];
-		memset(encoded, 0, sizeof(encoded));
-		int width = EncodeData(QR_LEVEL_M, QR_VERSION_S, newCode, 20, encoded);
-
-		Serial.print("Data length: ");
-		Serial.println(width);
-		Serial.print("Data: ");
-		for (int i = 0; i < 80; i++) {
-			Serial.print(encoded[i]);
-		}
-		Serial.println();
-		*/
   }
 }
 

@@ -6,6 +6,7 @@
 #include "NfcClient.h"
 #include "TapptTimer.h"
 #include "TOTP.h"
+#include "qrencode.h"
 
 class KegeratorState: public ITick  {
 public:
@@ -36,7 +37,7 @@ private:
 
   String authorizationToken;
   String deviceId;
-  Timer ledTimer = Timer(1000, &KegeratorState::UpdateScreen, *this);
+  Timer ledTimer = Timer(10000, &KegeratorState::UpdateScreen, *this);
   TapptTimer getIdTimer = TapptTimer(15000);
   TapptTimer responseTimer = TapptTimer(3000);
 };
