@@ -4,7 +4,12 @@
 	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
 	 && strlen(s) == (t).end - (t).start)
 
-KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
+KegeratorState::KegeratorState(
+	NfcClient* nfcClient,
+	FlowMeter* flowMeter,
+	Display* display
+) {
+	this->display = display;
   this->nfcClient = nfcClient;
   this->flowMeter = flowMeter;
 
@@ -28,7 +33,11 @@ KegeratorState::KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter) {
 	);
 
   Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
+
+	//initecc(3, 10);
+	//initframe();
 }
+
 void KegeratorState::UpdateScreen() {
 	WITH_LOCK(Serial) {
 		Serial.print("Auth Token: ");
@@ -38,22 +47,27 @@ void KegeratorState::UpdateScreen() {
 			(uint8_t*)this->authorizationToken.c_str(),
 			this->authorizationToken.length()
 		);
-		const char* newCode = totp.getCode((long)Time.now());
+	  String newCode = String(totp.getCode((long)Time.now()));
+
+		if (this->oldCode == newCode) {
+			return;
+		}
+
+		this->oldCode = newCode;
 
 		Serial.print("TOTP: ");
-		Serial.println(newCode);
+		Serial.println(newCode.c_str());
 
+		this->display->UpdateTOTP(newCode);
 
-		char json[32];
+		/*
+		char json[20];
 		sprintf(
 			json,
-			"{\"d\":\"%s\",\"t\":\"%s\"}",
-			this->deviceId.c_str(),
-			newCode
+			"%s:%s",
+			newCode.c_str(),
+			this->deviceId.c_str()
 		);
-
-		initeccsize(1, 32);
-		initframe();
 
 		strcpy((char *)strinbuf, json);
 
@@ -63,19 +77,8 @@ void KegeratorState::UpdateScreen() {
 		Serial.println(WD);
 		Serial.println();
 
-		/* data */
-		int x, y;
-
-		Serial.println("[");
-		for (y = 0; y < WD; y++) {
-			Serial.print("[");
-			for (x = 0; x < WD; x++) {
-				Serial.printf("%d%s", QRBIT(x,y), x != WD - 1 ? "," : "");
-			}
-			Serial.println("],");
-		}
-		Serial.println("]");
-		Serial.println();
+		this->display->UpdateQR();
+		*/
   }
 }
 

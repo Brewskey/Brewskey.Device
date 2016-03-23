@@ -1,16 +1,17 @@
 #ifndef KegeratorState_h
 #define KegeratorState_h
 
+#include "Display.h"
 #include "FlowMeter.h"
 #include "LED.h"
 #include "NfcClient.h"
 #include "TapptTimer.h"
 #include "TOTP.h"
-#include "qrencode.h"
+//#include "qrencode.h"
 
 class KegeratorState: public ITick  {
 public:
-  KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter);
+  KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, Display* display);
   virtual int Tick();
 
   int State = KegeratorState::INITIALIZING;
@@ -32,11 +33,13 @@ private:
   void PourResponse(const char* event, const char* data);
   void UpdateScreen();
 
+  Display* display;
   NfcClient* nfcClient;
   FlowMeter* flowMeter;
 
   String authorizationToken;
   String deviceId;
+  String oldCode;
   Timer ledTimer = Timer(10000, &KegeratorState::UpdateScreen, *this);
   TapptTimer getIdTimer = TapptTimer(15000);
   TapptTimer responseTimer = TapptTimer(3000);

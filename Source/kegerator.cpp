@@ -3,6 +3,7 @@
 //#define DEBUG 100
 //#define NDEF_DEBUG 1
 
+#include "Display.h"
 #include "Pins.h"
 #include "FlowMeter.h"
 #include "LED.h"
@@ -19,6 +20,7 @@ FlowMeter* flowMeter;
 Solenoid* solenoid;
 Temperature* temperatureSensor;
 KegeratorState* state;
+Display* display;
 
 void setup(void) {
     Serial.begin(115200);
@@ -33,14 +35,20 @@ void setup(void) {
       Spark.process();
     }*/
 
+    display = new Display();
     nfcClient = new NfcClient();
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
-    state = new KegeratorState(nfcClient, flowMeter);
+    state = new KegeratorState(nfcClient, flowMeter, display);
 }
 
 void loop(void) {
+  display->Tick();
   temperatureSensor->Tick();
   state->Tick();
+
+  uint32_t freemem = System.freeMemory();
+  Serial.print("free memory: ");
+  Serial.println(freemem);
 }
