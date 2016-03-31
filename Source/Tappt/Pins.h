@@ -7,13 +7,15 @@
 #define SPI_HW_MODE
 #define USE_FAKE_POUR 0
 
-#define RED_PIN (D0)
-#define GREEN_PIN (D1)
-#define BLUE_PIN (D2)
+// Display SDA/SDL DO/D1
 
-#define TEMPERATURE_PIN (D4)
-#define SOLENOID_PIN (D5)
+#define SOLENOID_PIN (D2)
 #define FLOW_PIN (D6)
+#define TEMPERATURE_PIN (D4)
+
+#define RED_PIN (WKP)
+#define GREEN_PIN (RX)
+#define BLUE_PIN (TX)
 
 #if IS_PROTOTYPE == 0
 #define SS   (A2)

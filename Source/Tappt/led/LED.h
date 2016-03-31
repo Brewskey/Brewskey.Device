@@ -2,18 +2,7 @@
 #define LED_h
 
 #include "application.h"
-
-#ifndef RED_PIN
-#define RED_PIN (D0)
-#endif
-
-#ifndef GREEN_PIN
-#define GREEN_PIN (D1)
-#endif
-
-#ifndef BLUE_PIN
-#define BLUE_PIN (D2)
-#endif
+#include "Pins.h"
 
 #define PULSE_EPSILON 1
 

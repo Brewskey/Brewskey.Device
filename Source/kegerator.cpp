@@ -22,6 +22,9 @@ Temperature* temperatureSensor;
 KegeratorState* state;
 Display* display;
 
+Timer* displayThread;
+void updateDisplay();
+
 void setup(void) {
     Serial.begin(115200);
 
@@ -41,14 +44,19 @@ void setup(void) {
     solenoid = new Solenoid();
     flowMeter = new FlowMeter(solenoid);
     state = new KegeratorState(nfcClient, flowMeter, display);
+
+    displayThread = new Timer(60, updateDisplay);
+    displayThread->start();
 }
 
 void loop(void) {
-  display->Tick();
   temperatureSensor->Tick();
   state->Tick();
+}
 
-  uint32_t freemem = System.freeMemory();
-  Serial.print("free memory: ");
-  Serial.println(freemem);
+const int refreshInterval  = 60; // ~16.6fps
+unsigned long lastRefreshTime;
+
+void updateDisplay() {
+  display->Tick();
 }

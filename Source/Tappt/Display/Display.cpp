@@ -77,4 +77,5 @@ void Display::RenderTOTP() {
   for (int i = 0; i < totp.length(); i++) {
     display.write(totp[i]);
   }
+  this->shouldRenderTOTP = false;
 }
