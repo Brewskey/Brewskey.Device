@@ -101,6 +101,7 @@ int KegeratorState::Tick()
 
       break;
     }
+
     case KegeratorState::LISTENING:
     {
 			this->flowMeter->StopPour();
@@ -133,6 +134,7 @@ int KegeratorState::Tick()
 
       break;
     }
+
     case KegeratorState::POURING:
     {
       int isPouring = flowMeter->Tick();
@@ -160,6 +162,11 @@ void KegeratorState::Initialized(const char* event, const char* data) {
 
   this->deviceId = String(strtok(strBuffer, "~"));
 	this->authorizationToken = String(strtok((char*)NULL, "~"));
+
+	if (this->deviceId.length() <= 0 || this->authorizationToken.length() <= 0) {
+		return;
+	}
+
   this->nfcClient->Initialize(this->deviceId);
 
 	this->ledTimer.start();

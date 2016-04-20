@@ -42,7 +42,7 @@ int FlowMeter::StartPour(String data)
   this->lastFlowCount = 0;
   this->pouring = true;
   this->waitCount = 0;
-	this->pourKey = String(data);
+	this->pourKey = data;
 	Serial.print("Start Pour");Serial.println(pourKey);
 
 #if USE_FAKE_POUR == 1
