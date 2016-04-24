@@ -14,7 +14,7 @@
 #include "Temperature.h"
 #include "WiFiSetup.h"
 
-LED* led;
+LED* led = new LED();;
 NfcClient* nfcClient;
 FlowMeter* flowMeter;
 Solenoid* solenoid;
@@ -28,7 +28,6 @@ void updateDisplay();
 void setup(void) {
     Serial.begin(115200);
 
-    led = new LED();
     RGB.control(true);
     RGB.color(255, 255, 255);
 
