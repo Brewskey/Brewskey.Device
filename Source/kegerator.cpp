@@ -44,7 +44,7 @@ void setup(void) {
     flowMeter = new FlowMeter(solenoid);
     state = new KegeratorState(nfcClient, flowMeter, display);
 
-    displayThread = new Timer(60, updateDisplay);
+    displayThread = new Timer(1000, updateDisplay);
     displayThread->start();
 }
 
@@ -52,9 +52,6 @@ void loop(void) {
   temperatureSensor->Tick();
   state->Tick();
 }
-
-const int refreshInterval  = 60; // ~16.6fps
-unsigned long lastRefreshTime;
 
 void updateDisplay() {
   display->Tick();
