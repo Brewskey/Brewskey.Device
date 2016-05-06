@@ -170,7 +170,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
     // we have to constantly read from buffer.
     if (p1p2_length < 4) {
       emptyResultCount++;
-      if (emptyResultCount > 3) {
+      if (emptyResultCount > 6) {
         pn532.inRelease();
         return true;
       }
