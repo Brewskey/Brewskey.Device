@@ -25,7 +25,7 @@ int NfcClient::Initialize(String data) {
 
   this->message.addLaunchApp("f523005d-37d3-4375-b3e8-4f1f56704f0f", "d/" + deviceId);
   this->message.addUriRecord("https://tappt.io/d/" + deviceId);
-  this->message.addApplicationRecord("com.tappt.app");
+  this->message.addApplicationRecord("com.brewskey.app");
 
   this->messageSize = this->message.getEncodedSize();
   if (this->messageSize > sizeof(this->ndefBuf)) {
@@ -119,7 +119,7 @@ NfcState::value NfcClient::ReadMessage()
 NfcState::value NfcClient::SendMessage()
 {
   Serial.println("Emulated Tag");
-  if (nfc.emulate(600)) {
+  if (nfc.emulate(700)) {
     return NfcState::SENT_MESSAGE;
   }
 
