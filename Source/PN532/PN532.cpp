@@ -766,16 +766,19 @@ int8_t PN532::tgInitAsTarget(const uint8_t* command, const uint8_t len, const ui
 
   int8_t status = HAL(writeCommand)(command, len);
     if (status < 0) {
+      DMSG("Write failed\r\n");
         return -1;
     }
 
     status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), timeout);
 
     if (status > 0) {
+      DMSG("SUCCESS\r\n");
         return 1;
     } else if (PN532_TIMEOUT == status) {
         return 0;
     } else {
+      DMSG("Read failed\r\n");
         return -2;
     }
 }
