@@ -180,7 +180,7 @@ boolean PN532_SPI::isReady()
 
 void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
     digitalWrite(_ss, LOW);
-    delay(1);               // wake up PN532
+    //delay(1);               // wake up PN532
 
     write(DATA_WRITE);
     write(PN532_PREAMBLE);
@@ -225,7 +225,7 @@ int8_t PN532_SPI::readAckFrame()
     uint8_t ackBuf[sizeof(PN532_ACK)];
 
     digitalWrite(_ss, LOW);
-    delay(1);
+    //delay(1);
     write(DATA_READ);
 
     if( receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0 ){
