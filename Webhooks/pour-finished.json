@@ -1,6 +1,6 @@
 {
     "event": "tappt_pour-finished",
-    "url": "https://tappt.io/api/pour/finish",
+    "url": "https://brewskey.com/api/pour/finish",
     "requestType": "POST",
     "json": {
     	"pourKey": "{{pourKey}}",

@@ -1,6 +1,6 @@
 {
     "event": "tappt_temperature",
-    "url": "https://tappt.io/api/temperature",
+    "url": "https://brewskey.com/api/temperature",
     "requestType": "PUT",
     "json": {
         "temperature": "{{t}}",

@@ -147,6 +147,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
 
   while(runLoop){
     status = pn532.tgGetData(rwbuf, sizeof(rwbuf));
+
     if(status < 0){
       DMSG("tgGetData failed!\r\n");
       pn532.inRelease();
@@ -168,7 +169,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
 
     // libnfc bails here but we'll look for 3 empty read binary commands since
     // we have to constantly read from buffer.
-    if (p1p2_length < 4) {
+    /*if (p1p2_length < 4) {
       emptyResultCount++;
       if (emptyResultCount > 6) {
         pn532.inRelease();
@@ -176,7 +177,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
       }
     } else {
       emptyResultCount = 0;
-    }
+    }*/
 
     switch(rwbuf[C_APDU_INS]) {
       case ISO7816_SELECT_FILE:
@@ -260,6 +261,8 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout){
       return true;
     }
   }
+
+  DMSG("Emulation finished\r\n");
   pn532.inRelease();
   return true;
 }

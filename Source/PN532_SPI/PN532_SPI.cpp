@@ -26,7 +26,7 @@ PN532_SPI::PN532_SPI(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss) {
 void PN532_SPI::begin()
 {
 #ifdef SPI_HW_MODE
-    _spi->setClockDivider(SPI_CLOCK_DIV16); // Photon runs at 120Mhz so 3.75Mhz
+    _spi->setClockDivider(SPI_CLOCK_DIV32); // Photon runs at 120Mhz so 3.75Mhz
     _spi->setDataMode(SPI_MODE0);  // PN532 only supports mode0
     _spi->setBitOrder(LSBFIRST);
     _spi->begin(_ss);
@@ -62,12 +62,12 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
     writeFrame(header, hlen, body, blen);
 
     while (!isReady()) {
-        timer+=10;
+        timer+=1;
         if (timer > PN532_ACK_WAIT_TIME){
             DMSG("Time out when waiting for ACK\r\n");
             return -2;
         }
-        delay(10);
+        delay(1);
     }
 
     if (readAckFrame()) {
@@ -89,7 +89,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     }
 
     digitalWrite(_ss, LOW);
-    delay(2);
+    //delay(2);
 
     int16_t result;
     do {
@@ -180,7 +180,7 @@ boolean PN532_SPI::isReady()
 
 void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
     digitalWrite(_ss, LOW);
-    delay(2);               // wake up PN532
+    delay(1);               // wake up PN532
 
     write(DATA_WRITE);
     write(PN532_PREAMBLE);
@@ -225,7 +225,7 @@ int8_t PN532_SPI::readAckFrame()
     uint8_t ackBuf[sizeof(PN532_ACK)];
 
     digitalWrite(_ss, LOW);
-    delay(2);
+    delay(1);
     write(DATA_READ);
 
     if( receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0 ){
@@ -251,7 +251,7 @@ int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
       if (ret >= 0) {
         break;
      }
-     delay(15);
+     delay(1);
     } while((timeout == 0) || ((millis()- start_millis ) < timeout));
 
     if (ret < 0) {

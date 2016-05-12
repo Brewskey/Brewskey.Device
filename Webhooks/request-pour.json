@@ -8,5 +8,5 @@
     "requestType": "POST",
     "responseTemplate": "{{token}}",
     "responseTopic": "hook-response/tappt_request-pour-{{SPARK_CORE_ID}}",
-    "url": "https://tappt.io/api/authorizations/pour"
+    "url": "https://brewskey.com/api/authorizations/pour"
 }
