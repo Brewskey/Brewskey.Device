@@ -26,7 +26,7 @@ PN532_SPI::PN532_SPI(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss) {
 void PN532_SPI::begin()
 {
 #ifdef SPI_HW_MODE
-    _spi->setClockDivider(SPI_CLOCK_DIV32); // Photon runs at 120Mhz so 3.75Mhz
+    _spi->setClockDivider(SPI_CLOCK_DIV16); // Photon runs at 120Mhz so 3.75Mhz
     _spi->setDataMode(SPI_MODE0);  // PN532 only supports mode0
     _spi->setBitOrder(LSBFIRST);
     _spi->begin(_ss);

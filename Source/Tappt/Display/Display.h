@@ -11,25 +11,21 @@
 #include "logo.h"
 #include "logo_text.h"
 
-class Display: public ITick {
+class Display {
 public:
   Display();
-  virtual int Tick();
 
-  void UpdateQR();
-  void UpdateTOTP(String totp);
+  void BeginBatch(bool showLogo = true);
+  void EndBatch();
+  void FillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    this->display.fillRect(x,y,w,h,color);
+  };
+
+  void SetText(String text, uint8_t x, uint8_t y, uint8_t size = 2);
 private:
-  void RenderQR();
-  void RenderTOTP();
+  void WriteString(String text);
 
   Adafruit_SSD1306 display;
-
-  bool hasChanges;
-  bool shouldAnimate;
-  bool shouldRenderQR;
-  bool shouldRenderTOTP;
-
-  String totp;
 };
 
 #endif

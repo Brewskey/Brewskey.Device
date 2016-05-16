@@ -6,6 +6,7 @@
 #define IS_PROTOTYPE 0
 #define SPI_HW_MODE
 #define USE_FAKE_POUR 0
+#define USE_INTERRUPT 1
 
 // Display SDA/SDL DO/D1
 

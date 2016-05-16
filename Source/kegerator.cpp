@@ -20,10 +20,7 @@ FlowMeter* flowMeter;
 Solenoid* solenoid;
 Temperature* temperatureSensor;
 KegeratorState* state;
-Display* display;
-
-Timer* displayThread;
-void updateDisplay();
+Display* display = new Display();
 
 void setup(void) {
     Serial.begin(115200);
@@ -37,22 +34,14 @@ void setup(void) {
       Spark.process();
     }*/
 
-    display = new Display();
     nfcClient = new NfcClient();
     temperatureSensor = new Temperature();
     solenoid = new Solenoid();
-    flowMeter = new FlowMeter(solenoid);
-    state = new KegeratorState(nfcClient, flowMeter, display);
-
-    displayThread = new Timer(1000, updateDisplay);
-    displayThread->start();
+    flowMeter = new FlowMeter(solenoid, display);
+    state = new KegeratorState(nfcClient, flowMeter, solenoid, display);
 }
 
 void loop(void) {
   temperatureSensor->Tick();
   state->Tick();
-}
-
-void updateDisplay() {
-  display->Tick();
 }
