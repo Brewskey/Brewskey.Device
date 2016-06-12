@@ -33,8 +33,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Adafruit_GFX.h"
 
+#ifndef pgm_read_byte
 #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-
+#endif
 
 static const unsigned char font[] = {
     0x00, 0x00, 0x00, 0x00, 0x00,

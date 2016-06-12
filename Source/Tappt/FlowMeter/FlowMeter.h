@@ -10,12 +10,12 @@
 
 class FlowMeter : public ITick {
 public:
-  FlowMeter(Solenoid *solenoid, Display *display);
+  FlowMeter();
   int StartPour(String data);
   void StopPour();
   virtual int Tick();
 private:
-  Solenoid *solenoid;
+  //Solenoid *solenoid;
   Display *display;
   bool pouring = false;
   byte state, waitCount;

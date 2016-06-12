@@ -1,19 +1,26 @@
 #ifndef KegeratorState_h
 #define KegeratorState_h
 
+#include "DeviceSettings.h"
 #include "Display.h"
-#include "FlowMeter.h"
-#include "Solenoid.h"
+#include "ITick.h"
+#include "IStateManager.h"
+#include "Tap.h"
 #include "LED.h"
 #include "NfcClient.h"
+#include "Sensors.h"
+#include "ServerLink.h"
 #include "TapptTimer.h"
 #include "TOTP.h"
-//#include "qrencode.h"
 
-class KegeratorState: public ITick  {
+class KegeratorState: public ITick, public IStateManager  {
 public:
-  KegeratorState(NfcClient* nfcClient, FlowMeter* flowMeter, Solenoid* solenoid, Display* display);
+  KegeratorState(NfcClient* nfcClient, Display* display);
+  virtual void TapIsPouring(ITap &tap);
   virtual int Tick();
+  void Initialize(DeviceSettings *settings);
+  int Pour(String data);
+  int Settings(String data);
 
   int State = KegeratorState::INITIALIZING;
 
@@ -29,17 +36,17 @@ public:
 
 private:
   void CleaningComplete();
-  void Initialize(const char* event, const char* data);
-  int Pour(String data);
-  void PourResponse(const char* event, const char* data);
-  int Settings(String data);
+
   void UpdateScreen();
 
-  Display* display;
-  NfcClient* nfcClient;
-  FlowMeter* flowMeter;
-  Solenoid* solenoid;
+  DeviceSettings *settings;
+  Display *display;
+  NfcClient *nfcClient;
+  Sensors *sensors;
+  ServerLink *serverLink;
+  Tap *taps;
 
+  bool canPourWithoutDeviceId = true;
   String authorizationToken;
   String deviceId;
   String oldCode;

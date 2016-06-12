@@ -3,7 +3,7 @@
 Display::Display(): display(OLED_RESET) {
   uint8_t iter;
   while (iter < 50) {
-    Spark.process();
+    Particle.process();
     delay(1);
     iter++;
   }

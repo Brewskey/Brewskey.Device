@@ -10,7 +10,6 @@
 
 // Display SDA/SDL DO/D1
 
-#define TEMPERATURE_PIN (D4)
 
 #define RED_PIN (WKP)
 #define GREEN_PIN (RX)
@@ -24,6 +23,7 @@
 
 #define SOLENOID_PIN (D2)
 #define FLOW_PIN (D6)
+#define TEMPERATURE_PIN (D4)
 
 #else
 //#define SCK  (A3)
@@ -33,6 +33,7 @@
 
 #define SOLENOID_PIN P1S1
 #define FLOW_PIN P1S0
+#define TEMPERATURE_PIN D2
 
 #endif
 

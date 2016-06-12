@@ -6,7 +6,6 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "ITick.h"
-#include "qrencode.h"
 
 #include "logo.h"
 #include "logo_text.h"

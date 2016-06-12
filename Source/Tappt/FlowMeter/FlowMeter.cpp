@@ -1,47 +1,15 @@
 #include "FlowMeter.h"
 #include "Pins.h"
 
-void FlowMeter::FlowCounter()
+
+FlowMeter::FlowMeter()
 {
-	uint8_t pin = digitalRead(FLOW_PIN);
-#ifdef USE_INTERRUPT
-	delayMicroseconds(1200);
-	if (pin == 0) {
-		flowCount++;
-	}
-#else
-	static uint8_t buffer = 0;
-
-	/*shift buffer byte by 1 */
-	buffer <<= 1;
-
-	/*SENSOR_PIN represents the pin status, if high set last bit in buffer to 1 else it will remain 0*/
-	if(pin != 0)
-	{
-		buffer |= 0x01;
-	}
-
-	/*check for 0x07 pattern (mask upper 2 bits), representing a low to high transition verified by 3 low samples followed by 3 high samples*/
-	if((buffer & 0x3F) == 0x07)
-	{
-		flowCount++;
-	}
-#endif
-}
-
-FlowMeter::FlowMeter(Solenoid *solenoid, Display *display)
-{
-  this->solenoid = solenoid;
-	this->display = display;
-
-
-
 	this->StopPour();
 }
 
 int FlowMeter::StartPour(String data)
 {
-	this->solenoid->Open();
+	//this->solenoid->Open();
 
 	this->timer.Reset();
   this->flowCount = 0;
@@ -52,27 +20,17 @@ int FlowMeter::StartPour(String data)
 	this->pourKey = data;
 	Serial.print("Start Pour");Serial.println(pourKey);
 
-	pinMode(FLOW_PIN, INPUT);
-	digitalWrite(FLOW_PIN, HIGH);
-	attachInterrupt(FLOW_PIN, &FlowMeter::FlowCounter, this, FALLING, 0);
-
 #if USE_FAKE_POUR == 1
 this->flowCount = 400;
 #endif
-
-	this->display->BeginBatch();
-	this->display->SetText("Start", 53, 15);
-	this->display->SetText("Pouring", 42, 35);
-	this->display->EndBatch();
 
 	return 0;
 }
 
 void FlowMeter::StopPour()
 {
-	detachInterrupt(FLOW_PIN);
 	this->pourKey = "";
-	this->solenoid->Close();
+	//this->solenoid->Close();
 	this->pouring = false;
 }
 

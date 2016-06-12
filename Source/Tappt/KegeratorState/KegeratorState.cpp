@@ -1,42 +1,24 @@
 #include "KegeratorState.h"
 
+#define TAP_COUNT 4
+
 #define TOKEN_STRING(js, t, s) \
 	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
 	 && strlen(s) == (t).end - (t).start)
 
 KegeratorState::KegeratorState(
 	NfcClient* nfcClient,
-	FlowMeter* flowMeter,
-	Solenoid* solenoid,
 	Display* display
 ) {
 	this->display = display;
-  this->nfcClient = nfcClient;
-  this->flowMeter = flowMeter;
+	this->nfcClient = nfcClient;
+	this->taps = new Tap[TAP_COUNT];
+	this->sensors = new Sensors(this->taps, TAP_COUNT);
+	this->serverLink = new ServerLink(this);
 
-	String deviceID = System.deviceID();
-
-  Particle.subscribe(
-		"hook-response/tappt_initialize-" + deviceID,
-		&KegeratorState::Initialize,
-		this,
-		MY_DEVICES
-	);
-
-	// Called by server when device settings are updated.
-	Particle.function("settings", &KegeratorState::Settings, this);
-
-	// Called by server when user tries to pour.
-	Particle.function("pour", &KegeratorState::Pour, this);
-	// Response when token is used
-	Particle.subscribe(
-		"hook-response/tappt_request-pour-" + deviceID,
-		&KegeratorState::PourResponse,
-		this,
-		MY_DEVICES
-	);
-
-  Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
+	for (int i = 0; i < TAP_COUNT; i++) {
+		this->taps[i].Setup(this);
+	}
 }
 
 void KegeratorState::UpdateScreen() {
@@ -88,8 +70,6 @@ int KegeratorState::Tick()
 
     case KegeratorState::LISTENING:
     {
-			this->flowMeter->StopPour();
-
       NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
       if ((
@@ -121,12 +101,14 @@ int KegeratorState::Tick()
 
     case KegeratorState::POURING:
     {
-      int isPouring = flowMeter->Tick();
+			for (uint8_t i = 0; i < TAP_COUNT; i++) {
+				if (this->taps[i].IsPouring()) {
+					break;
+				}
+			}
 
-      if (isPouring <= 0) {
-        RGB.control(false);
-				this->State = KegeratorState::LISTENING;
-      }
+      RGB.control(false);
+			this->State = KegeratorState::LISTENING;
 
       break;
     }
@@ -141,28 +123,14 @@ int KegeratorState::Tick()
   return 0;
 }
 
-void KegeratorState::Initialize(const char* event, const char* data) {
-  if (strlen(data) <= 0) {
-    return;
-  }
+void KegeratorState::Initialize(DeviceSettings *settings) {
+	this->settings = settings;
 
-	char strBuffer[90] = "";
-  String(data).toCharArray(strBuffer, 90);
+	for(int i = 0; i < TAP_COUNT; i++) {
+		this->taps[i].StopPour();
+	}
 
-  this->deviceId = String(strtok(strBuffer, "~"));
-	this->authorizationToken = String(strtok((char*)NULL, "~"));
-	String tapIds = String(strtok((char*)NULL, "~"));
-	String deviceStatus = String(strtok((char*)NULL, "~"));
-
-	Serial.print("Tap IDs: ");
-	Serial.println(tapIds);
-
-	Serial.print("Device Status: ");
-	Serial.println(deviceStatus);
-
-	this->solenoid->Close();
-
-	if (deviceStatus == "2") {
+	if (this->settings->deviceStatus == "2") {
 		this->State = KegeratorState::INACTIVE;
 
 		this->display->BeginBatch(false);
@@ -173,7 +141,7 @@ void KegeratorState::Initialize(const char* event, const char* data) {
 		RGB.control(true);
 		RGB.color(255, 0, 0);
 
-	} else if (deviceStatus == "3") {
+	} else if (this->settings->deviceStatus == "3") {
 		this->State = KegeratorState::CLEANING;
 
 		this->cleaningTimer.reset();
@@ -184,46 +152,42 @@ void KegeratorState::Initialize(const char* event, const char* data) {
 		this->display->SetText("Beer Lines", 4, 35);
 		this->display->EndBatch();
 
-		this->solenoid->Open();
+		for(int i = 0; i < TAP_COUNT; i++) {
+			this->taps[i].OpenValve();
+		}
 
 		RGB.control(true);
 		RGB.color(255, 0, 0);
 	}
 
-	if (this->deviceId.length() <= 0 || this->authorizationToken.length() <= 0) {
+	if (
+		this->settings->deviceId.length() <= 0 ||
+		this->settings->authorizationToken.length() <= 0
+	) {
 		return;
 	}
 
-  this->nfcClient->Initialize(this->deviceId);
+  this->nfcClient->Initialize(this->settings->deviceId);
 
 	this->ledTimer.start();
 }
 
 int KegeratorState::Settings(String data) {
-	Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 	this->State = KegeratorState::INITIALIZING;
 
 	return 0;
 }
 
 int KegeratorState::Pour(String data) {
-	Serial.print("Pour: ");
-	Serial.println(data);
-
-	if (data.length() <= 0) {
-		return -1;
-	}
-
 	RGB.control(true);
 	RGB.color(0, 255, 0);
 	this->State = KegeratorState::POURING;
 
-	this->flowMeter->StartPour(data);
-	return 0;
-}
+	for(int i = 0; i < TAP_COUNT; i++) {
+		this->taps[i].OpenValve();
+	}
 
-void KegeratorState::PourResponse(const char* event, const char* data) {
-	this->Pour(String(data));
+	return 0;
 }
 
 void KegeratorState::CleaningComplete() {
@@ -234,5 +198,15 @@ void KegeratorState::CleaningComplete() {
 	this->display->SetText("Disabled", 16, 35);
 	this->display->EndBatch();
 
-	this->solenoid->Close();
+	for(int i = 0; i < TAP_COUNT; i++) {
+		this->taps[i].StopPour();
+	}
+}
+
+void KegeratorState::TapIsPouring(ITap &tap) {
+	for(int i = 0; i < TAP_COUNT; i++) {
+		if (!this->taps[i].IsPouring()) {
+			this->taps[i].StopPour();
+		}
+	}
 }

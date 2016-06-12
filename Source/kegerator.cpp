@@ -4,21 +4,17 @@
 //#define NDEF_DEBUG 1
 
 #include "Display.h"
-#include "Pins.h"
-#include "FlowMeter.h"
 #include "LED.h"
 #include "KegeratorState.h"
 #include "NfcClient.h"
-#include "Solenoid.h"
+#include "Pins.h"
+#include "Sensors.h"
+#include "ServerLink.h"
 #include "TOTP.h"
-#include "Temperature.h"
 #include "WiFiSetup.h"
 
-LED* led = new LED();;
+LED* led = new LED();
 NfcClient* nfcClient;
-FlowMeter* flowMeter;
-Solenoid* solenoid;
-Temperature* temperatureSensor;
 KegeratorState* state;
 Display* display = new Display();
 
@@ -35,13 +31,9 @@ void setup(void) {
     }*/
 
     nfcClient = new NfcClient();
-    temperatureSensor = new Temperature();
-    solenoid = new Solenoid();
-    flowMeter = new FlowMeter(solenoid, display);
-    state = new KegeratorState(nfcClient, flowMeter, solenoid, display);
+    state = new KegeratorState(nfcClient, display);
 }
 
 void loop(void) {
-  temperatureSensor->Tick();
   state->Tick();
 }
