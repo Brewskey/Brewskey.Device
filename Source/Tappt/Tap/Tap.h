@@ -2,29 +2,32 @@
 #define Tap_h
 
 #include "application.h"
-#include "FlowMeter.h"
 #include "IStateManager.h"
 #include "ITick.h"
 #include "Pins.h"
-#include "Solenoid.h"
+
+#define BEFORE_POUR_TIME_PERIOD 5000
+#define AFTER_POUR_TIME_PERIOD 3000
 
 class Tap: public ITap {
 public:
   Tap();
-  void OpenValve();
+  String GetId();
   bool IsPouring();
   void Setup(IStateManager *kegeratorState);
-  void AddToFlowCount(uint8_t pulses);
+  void SetId(String tapId);
+  virtual void SetAuthToken(String authenticationKey);
+  virtual void AddToFlowCount(uint8_t pulses);
   void StopPour();
 private:
   IStateManager* kegeratorState;
-  FlowMeter* flowMeter;
-  Solenoid* solenoid;
 
-  Timer timer = Timer(5000, &Tap::StopPour, *this);
+  Timer timer = Timer(BEFORE_POUR_TIME_PERIOD, &Tap::StopPour, *this, true);
 
+  String tapId;
   bool isPouring;
   uint totalPulses;
+  String authenticationKey;
 };
 
 #endif

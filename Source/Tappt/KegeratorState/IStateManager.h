@@ -7,10 +7,11 @@
 
 class IStateManager {
 public:
-  virtual void TapIsPouring(ITap &tap) = 0;
-  void Initialize(DeviceSettings *settings);
-  int Pour(String data);
-  int Settings(String data);
+  virtual void TapStartedPouring(ITap &tap) = 0;
+  virtual void TapStoppedPouring(ITap &tap, uint totalPulses, String authenticationKey) = 0;
+  virtual void Initialize(DeviceSettings *settings) = 0;
+  virtual int StartPour(String data) = 0;
+  virtual int Settings(String data) = 0;
   virtual ~IStateManager() {}
 };
 

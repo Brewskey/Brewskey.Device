@@ -5,8 +5,9 @@
 
 class ITap {
 public:
-  virtual void StopPour() = 0;
+  virtual String GetId() = 0;
   virtual void AddToFlowCount(uint8_t pulses) = 0;
+  virtual void SetAuthToken(String authenticationKey) = 0;
   virtual ~ITap() {}
 };
 

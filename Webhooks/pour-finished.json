@@ -3,8 +3,10 @@
     "url": "https://brewskey.com/api/pour/finish",
     "requestType": "POST",
     "json": {
+    	"authToken": "{{authToken}}",
     	"pourKey": "{{pourKey}}",
-        "pulses": "{{pulses}}"
+        "pulses": "{{pulses}}",
+    	"tapId": "{{tapId}}"
     },
     "mydevices": true
 }

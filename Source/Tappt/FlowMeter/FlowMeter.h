@@ -2,7 +2,6 @@
 #define FlowMeter_h
 
 #include "Pins.h"
-#include "Solenoid.h"
 #include "Display.h"
 #include "TapptTimer.h"
 

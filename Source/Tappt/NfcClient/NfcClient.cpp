@@ -1,6 +1,6 @@
 #include "NfcClient.h"
 
-NfcClient::NfcClient() :
+NfcClient::NfcClient(ServerLink *serverLink) :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
 #else
@@ -8,6 +8,8 @@ NfcClient::NfcClient() :
 #endif
   pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
 {
+  this->serverLink = serverLink;
+
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
     DMSG("Error initializing PN532\r\n");
@@ -102,21 +104,7 @@ NfcState::value NfcClient::ReadMessage()
     return NfcState::NO_MESSAGE;
   }
 
-  Serial.println(authenticationKey);
-  Serial.println("printed");
-
-  String deviceId = this->deviceId;
-
-  sprintf(
-    json,
-    "{\"id\":\"%s\",\"tkn\":\"%s\"}",
-    deviceId.c_str(),
-    // remove \u0002 and "en"
-    authenticationKey.substring(3).c_str()
-  );
-
-  Serial.print("Request Pour");Serial.println(json);
-  Particle.publish("tappt_request-pour", json, 5, PRIVATE);
+  this->serverLink->AuthorizePour(this->deviceId, authenticationKey);
 
   return NfcState::READ_MESSAGE;
 }

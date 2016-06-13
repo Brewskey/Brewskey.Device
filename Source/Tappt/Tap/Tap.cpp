@@ -3,10 +3,11 @@
 #define PULSE_EPSILON 3
 
 Tap::Tap() {
+  this->timer.stop();
 }
 
-void Tap::OpenValve() {
-  // TODO - open solenoid
+String Tap::GetId() {
+  return this->tapId;
 }
 
 bool Tap::IsPouring() {
@@ -17,25 +18,37 @@ void Tap::Setup(IStateManager *kegeratorState) {
   this->kegeratorState = kegeratorState;
 }
 
+void Tap::SetId(String tapId) {
+  this->tapId = tapId;
+}
+
+void Tap::SetAuthToken(String authenticationKey) {
+  this->authenticationKey = authenticationKey;
+}
+
 void Tap::StopPour() {
-  if (this->totalPulses > PULSE_EPSILON) {
-    // TODO - send pour to server
-  }
+  this->isPouring = false;
+  this->kegeratorState->TapStoppedPouring(
+    *this,
+    this->totalPulses,
+    this->authenticationKey
+  );
 
   this->totalPulses = 0;
+  this->authenticationKey = "";
+  //this->timer.changePeriod(BEFORE_POUR_TIME_PERIOD);
   this->timer.stop();
-  this->timer.reset();
 }
 
 void Tap::AddToFlowCount(uint8_t pulses) {
-  this->isPouring = true;
+  this->totalPulses += pulses;
 
-  if (this->totalPulses == 0) {
+  if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
+    //this->timer.changePeriod(AFTER_POUR_TIME_PERIOD);
     this->timer.start();
+    this->isPouring = true;
+    this->kegeratorState->TapStartedPouring(*this);
   } else {
     this->timer.reset();
   }
-
-  this->totalPulses += pulses;
-  this->kegeratorState->TapIsPouring(*this);
 }

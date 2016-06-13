@@ -8,8 +8,10 @@
 class ServerLink {
 public:
   ServerLink(IStateManager *stateManager);
+  void AuthorizePour(String deviceId, String authenticationKey);
+  void SendPourToServer(String tapId, uint totalPulses, String authenticationKey);
 private:
-  void InitializeComplete(const char* event, const char* data);
+  void Initialize(const char* event, const char* data);
   int Pour(String data);
   void PourResponse(const char* event, const char* data);
   int Settings(String data);
@@ -19,6 +21,7 @@ private:
 
   DeviceSettings settings;
   Timer initializeTimer = Timer(15000, &ServerLink::CallInitialize, *this);
+  char json[128];
 };
 
 #endif

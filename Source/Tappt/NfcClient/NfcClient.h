@@ -10,10 +10,9 @@
 #include "NfcAdapter.h"
 
 #include "ITick.h"
-#include "Pins.h"
 #include "LED.h"
-#include "RestClient.h"
-
+#include "Pins.h"
+#include "ServerLink.h"
 //#define P2P 1
 
 namespace NfcState {
@@ -27,7 +26,7 @@ namespace NfcState {
 
 class NfcClient: public ITick {
 public:
-  NfcClient();
+  NfcClient(ServerLink *serverLink);
   virtual int Tick();
   int Initialize(String data);
 private:
@@ -38,7 +37,7 @@ private:
 
   PN532_SPI pn532spi;
   PN532 pn532;
-
+  ServerLink *serverLink;
   EmulateTag nfc;
   NfcAdapter nfcAdapter;
 
@@ -46,8 +45,6 @@ private:
   int messageSize;
   uint8_t ndefBuf[256];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
-
-  char json[76];
 };
 
 #endif

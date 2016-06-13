@@ -9,11 +9,11 @@
 class Sensors: public ISolenoids {
 public:
   Sensors(ITap* taps, uint8_t tapCount);
-  virtual void OpenForTap(ITap &tap);
-  virtual void CloseForTap(ITap &tap);
+  virtual void OpenSolenoids();
+  virtual void CloseSolenoid(uint8_t solenoid);
+  virtual void CloseSolenoids();
 private:
   void SingleFlowCounter();
-  int GetTapIndex(ITap &tap);
 
   Temperature* temperatureSensor;
   ITap* taps;

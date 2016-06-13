@@ -7,6 +7,12 @@ Sensors::Sensors(ITap* taps, uint8_t tapCount) {
   pinMode(FLOW_PIN, INPUT);
 	digitalWrite(FLOW_PIN, HIGH);
 	attachInterrupt(FLOW_PIN, &Sensors::SingleFlowCounter, this, FALLING, 0);
+
+  pinMode(SOLENOID_PIN, OUTPUT);
+
+  this->OpenSolenoids();
+  delay(10);
+  this->CloseSolenoids();
 }
 
 void Sensors::SingleFlowCounter()
@@ -37,20 +43,22 @@ void Sensors::SingleFlowCounter()
 #endif
 }
 
-void Sensors::OpenForTap(ITap &tap) {
-
-}
-
-void Sensors::CloseForTap(ITap &tap) {
-
-}
-
-int Sensors::GetTapIndex(ITap &tap) {
+void Sensors::CloseSolenoids() {
   for (int i = 0; i < this->tapCount; i++) {
-    if (&(this->taps[i]) == &tap) {
-      return i;
-    }
+    this->CloseSolenoid(i);
+  }
+}
+
+void Sensors::CloseSolenoid(uint8_t solenoid) {
+  if (solenoid == 0) {
+    digitalWrite(SOLENOID_PIN, LOW);
   }
 
-  return -1;
+  // TODO - Handle multiple solenoids
+}
+
+void Sensors::OpenSolenoids() {
+  digitalWrite(SOLENOID_PIN, HIGH);
+
+  // TODO - Handle multiple solenoids
 }

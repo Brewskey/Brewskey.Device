@@ -5,8 +5,9 @@
 
 class ISolenoids {
 public:
-  virtual void OpenForTap(ITap &tap) = 0;
-  virtual void CloseForTap(ITap &tap) = 0;
+  virtual void OpenSolenoids() = 0;
+  virtual void CloseSolenoid(uint8_t solenoid) = 0;
+  virtual void CloseSolenoids() = 0;
   virtual ~ISolenoids() {}
 };
 
