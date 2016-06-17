@@ -62,12 +62,12 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
     writeFrame(header, hlen, body, blen);
 
     while (!isReady()) {
-        timer+=1;
+        delay(10);
+        timer+=10;
         if (timer > PN532_ACK_WAIT_TIME){
             DMSG("Time out when waiting for ACK\r\n");
             return -2;
         }
-        delay(1);
     }
 
     if (readAckFrame()) {
@@ -81,8 +81,8 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 {
     uint16_t time = 0;
     while (!isReady()) {
-        delay(1);
-        time++;
+        delay(10);
+        time += 10;
         if (timeout > 0 && time > timeout) {
             return PN532_TIMEOUT;
         }

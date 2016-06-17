@@ -14,6 +14,7 @@ public:
   Tap();
   String GetId();
   bool IsPouring();
+  uint GetTotalPulses();
   void Setup(IStateManager *kegeratorState);
   void SetId(String tapId);
   virtual void SetAuthToken(String authenticationKey);

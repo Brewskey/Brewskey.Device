@@ -40,6 +40,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
   }
 
   this->initializeTimer.stop();
+  this->initializeTimer.dispose();
 
   char strBuffer[90] = "";
   String(data).toCharArray(strBuffer, 90);

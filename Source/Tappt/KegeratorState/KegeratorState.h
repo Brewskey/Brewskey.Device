@@ -45,6 +45,7 @@ private:
   void CleanupTapState();
 
   void UpdateScreen();
+  void SetOuncesForPulses(uint8_t tapSlot, bool hideOz = false);
   void StopPouring();
 
   DeviceSettings *settings;
@@ -58,9 +59,10 @@ private:
   int state;
   String oldCode;
   String lastAuthorizedToken;
+  char ounceString[7];
 
   // TODO - get rid of as many of these as
-  Timer ledTimer = Timer(1000, &KegeratorState::UpdateScreen, *this);
+  Timer displayTimer = Timer(100, &KegeratorState::UpdateScreen, *this);
   Timer cleaningTimer = Timer(60000 * 60, &KegeratorState::CleaningComplete, *this, true);
   Timer responseTimer = Timer(5000, &KegeratorState::Timeout, *this, true);
   TapptTimer getIdTimer = TapptTimer(15000);

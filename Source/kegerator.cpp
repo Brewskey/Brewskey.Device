@@ -22,10 +22,11 @@ void setup(void) {
 
     Serial.println("Starting");
 
+/*
     while(!Serial.available()) {
       Spark.process();
     }
-
+*/
     state = new KegeratorState(display);
 }
 

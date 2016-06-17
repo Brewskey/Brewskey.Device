@@ -10,6 +10,10 @@ String Tap::GetId() {
   return this->tapId;
 }
 
+uint Tap::GetTotalPulses() {
+  return this->totalPulses;
+}
+
 bool Tap::IsPouring() {
   return this->isPouring;
 }
