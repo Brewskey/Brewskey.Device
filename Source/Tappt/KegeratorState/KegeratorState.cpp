@@ -31,6 +31,7 @@ String lastOunces[4];
 String currentOunces[4];
 
 void KegeratorState::UpdateScreen() {
+	return;
 	switch(this->state) {
 		case KegeratorState::INITIALIZING: {
 			return;

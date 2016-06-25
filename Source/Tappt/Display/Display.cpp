@@ -2,11 +2,6 @@
 
 Display::Display(): display(OLED_RESET) {
   uint8_t iter;
-  while (iter < 50) {
-    Particle.process();
-    delay(1);
-    iter++;
-  }
   display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
   display.clearDisplay();
   display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, 1);

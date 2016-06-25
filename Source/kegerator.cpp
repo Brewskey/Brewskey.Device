@@ -15,9 +15,9 @@
 
 LED* led = new LED();
 KegeratorState* state;
-Display* display = new Display();
 
 void setup(void) {
+    Display* display = new Display();
     Serial.begin(115200);
 
     Serial.println("Starting");
@@ -31,5 +31,5 @@ void setup(void) {
 }
 
 void loop(void) {
-  state->Tick();
+  //state->Tick();
 }
