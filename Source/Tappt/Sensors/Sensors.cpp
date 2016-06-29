@@ -17,7 +17,6 @@ Sensors::Sensors(ITap* taps, uint8_t tapCount) {
 
 void Sensors::SingleFlowCounter()
 {
-  return;
 	uint8_t pin = digitalRead(FLOW_PIN);
 #ifdef USE_INTERRUPT
 	delayMicroseconds(1200);

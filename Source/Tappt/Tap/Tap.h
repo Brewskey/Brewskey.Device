@@ -18,7 +18,7 @@ public:
   void Setup(IStateManager *kegeratorState);
   void SetId(String tapId);
   virtual void SetAuthToken(String authenticationKey);
-  virtual void AddToFlowCount(uint8_t pulses);
+  virtual void AddToFlowCount(uint pulses);
   void StopPour();
 private:
   IStateManager* kegeratorState;

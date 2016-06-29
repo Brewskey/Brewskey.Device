@@ -11,6 +11,9 @@ NfcClient::NfcClient() :
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
     DMSG("Error initializing PN532\r\n");
+    RGB.control(true);
+    RGB.color(255, 128, 0);
+
     while (1) {
       Spark.process();
     }

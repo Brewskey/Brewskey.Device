@@ -4,6 +4,7 @@
 
 Tap::Tap() {
   this->timer.stop();
+  this->totalPulses = 0;
 }
 
 String Tap::GetId() {
@@ -44,7 +45,7 @@ void Tap::StopPour() {
   this->timer.stop();
 }
 
-void Tap::AddToFlowCount(uint8_t pulses) {
+void Tap::AddToFlowCount(uint pulses) {
   this->totalPulses += pulses;
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
