@@ -15,21 +15,23 @@
 
 LED* led = new LED();
 KegeratorState* state;
+Display* display;
+NfcClient* nfcClient;
 
 void setup(void) {
-    Display* display = new Display();
+    display = new Display();
     Serial.begin(115200);
 
     Serial.println("Starting");
-
 /*
     while(!Serial.available()) {
       Spark.process();
     }
 */
-    state = new KegeratorState(display);
+    nfcClient = new NfcClient();
+    state = new KegeratorState(display, nfcClient);
 }
 
 void loop(void) {
-  //state->Tick();
+  state->Tick();
 }

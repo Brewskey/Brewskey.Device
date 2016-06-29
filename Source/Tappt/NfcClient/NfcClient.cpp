@@ -1,6 +1,6 @@
 #include "NfcClient.h"
 
-NfcClient::NfcClient(ServerLink *serverLink) :
+NfcClient::NfcClient() :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
 #else
@@ -8,8 +8,6 @@ NfcClient::NfcClient(ServerLink *serverLink) :
 #endif
   pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
 {
-  this->serverLink = serverLink;
-
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
     DMSG("Error initializing PN532\r\n");
@@ -18,6 +16,11 @@ NfcClient::NfcClient(ServerLink *serverLink) :
     }
   }
 }
+
+void NfcClient::Setup(ServerLink *serverLink) {
+  this->serverLink = serverLink;
+}
+
 
 int NfcClient::Initialize(String data) {
   this->deviceId = String(data);

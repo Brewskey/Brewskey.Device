@@ -7,21 +7,25 @@
 	 && strlen(s) == (t).end - (t).start)
 
 KegeratorState::KegeratorState(
-	Display* display
+	Display* display,
+	NfcClient* nfcClient
 ) {
 	this->SetState(KegeratorState::INITIALIZING);
 
 	this->display = display;
+
 	this->serverLink = new ServerLink(this);
-	this->nfcClient = new NfcClient(this->serverLink);
+	nfcClient->Setup(this->serverLink);
+	this->nfcClient = nfcClient;
+
 	this->taps = new Tap[TAP_COUNT];
-	this->sensors = new Sensors(this->taps, TAP_COUNT);
-
-	this->displayTimer.start();
-
 	for (int i = 0; i < TAP_COUNT; i++) {
 		this->taps[i].Setup(this);
 	}
+
+	this->sensors = new Sensors(this->taps, TAP_COUNT);
+
+	this->displayTimer.start();
 }
 
 
