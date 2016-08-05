@@ -19,6 +19,8 @@ Display* display;
 NfcClient* nfcClient;
 
 void setup(void) {
+    RGB.control(true);
+    RGB.color(255, 255, 255);
     display = new Display();
     Serial.begin(115200);
 
