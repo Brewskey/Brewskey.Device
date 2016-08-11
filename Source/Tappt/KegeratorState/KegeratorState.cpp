@@ -35,7 +35,6 @@ String lastOunces[4];
 String currentOunces[4];
 
 void KegeratorState::UpdateScreen() {
-	return;
 	switch(this->state) {
 		case KegeratorState::INITIALIZING: {
 			return;
@@ -44,11 +43,12 @@ void KegeratorState::UpdateScreen() {
 		case KegeratorState::LISTENING: {
 			if (drawingState != 11) {
 				drawingState = 11;
-				this->display->BeginBatch();
-				this->display->SetText("...", 42, 35);
-				this->display->EndBatch();
+				//this->display->BeginBatch();
+				//this->display->SetText("...", 42, 35);
+				//this->display->EndBatch();
 			}
-			return;
+			// return;
+			break;
 		}
 
 		case KegeratorState::POUR_AUTHORIZED: {
@@ -57,6 +57,17 @@ void KegeratorState::UpdateScreen() {
 				this->display->BeginBatch();
 				this->display->SetText("Start", 53, 15);
 				this->display->SetText("Pouring", 42, 35);
+				this->display->EndBatch();
+			}
+
+			return;
+		}
+
+		case KegeratorState::POURING: {
+			if (drawingState != 4) {
+				drawingState = 4;
+				this->display->BeginBatch();
+				this->display->SetText("Pouring", 42, 26);
 				this->display->EndBatch();
 			}
 
@@ -87,8 +98,6 @@ void KegeratorState::UpdateScreen() {
 			return;
 		}
 	}
-
-	return;
 
 	TOTP totp = TOTP(
 		(uint8_t*)this->settings->authorizationToken.c_str(),
@@ -179,7 +188,9 @@ void KegeratorState::UpdateScreen() {
 		this->display->SetText(newCode, totpX, totpY);
 	}
 
-	this->display->EndBatch();
+	if (totpChanged || tapPouringCount > 0) {
+		this->display->EndBatch();
+	}
 }
 
 void KegeratorState::SetOuncesForPulses(uint8_t tapSlot, bool hideOz) {
@@ -250,6 +261,11 @@ void KegeratorState::SetState(e newState) {
 
 int KegeratorState::Tick()
 {
+	Serial.println();
+	Serial.print("FREE MEMORY: ");
+	Serial.println(System.freeMemory());
+	Serial.println();
+
 	NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
 	if (
@@ -333,7 +349,9 @@ void KegeratorState::TapStartedPouring(ITap &tap) {
 
 	this->responseTimer.stopFromISR();
 
-	tap.SetAuthToken(this->lastAuthorizedToken);
+	if (this->lastAuthorizedToken != NULL && this->lastAuthorizedToken.length()) {
+		tap.SetAuthToken(this->lastAuthorizedToken);
+	}
 
 	this->lastAuthorizedToken = "";
 	this->CleanupTapState();

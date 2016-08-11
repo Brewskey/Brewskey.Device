@@ -109,7 +109,9 @@ void ServerLink::SendPourToServer(
     "{\"authToken\":\"%s\",\"tapId\":\"%s\",\"pourKey\":\"%s\",\"pulses\":\"%d\"}",
     this->settings.authorizationToken.c_str(),
     tapId.c_str(),
-    authenticationKey.c_str(),
+    authenticationKey != NULL && authenticationKey.length()
+      ? authenticationKey.c_str()
+      : "",
     totalPulses
   );
 

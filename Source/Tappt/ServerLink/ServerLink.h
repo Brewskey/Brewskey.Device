@@ -21,7 +21,7 @@ private:
 
   DeviceSettings settings;
   Timer initializeTimer = Timer(15000, &ServerLink::CallInitialize, *this);
-  char json[128];
+  char json[160];
 };
 
 #endif
