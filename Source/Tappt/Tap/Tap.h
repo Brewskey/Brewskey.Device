@@ -9,7 +9,7 @@
 #define BEFORE_POUR_TIME_PERIOD 5000
 #define AFTER_POUR_TIME_PERIOD 3000
 
-class Tap: public ITap {
+class Tap: public ITap, public ITick {
 public:
   Tap();
   String GetId();
@@ -17,18 +17,17 @@ public:
   uint GetTotalPulses();
   void Setup(IStateManager *kegeratorState);
   void SetId(String tapId);
+  virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void AddToFlowCount(uint pulses);
   void StopPour();
 private:
   IStateManager* kegeratorState;
-
-  Timer timer = Timer(BEFORE_POUR_TIME_PERIOD, &Tap::StopPour, *this, true);
-
   String tapId;
   bool isPouring;
   uint totalPulses;
   String authenticationKey;
+  unsigned long pourStartTime;
 };
 
 #endif

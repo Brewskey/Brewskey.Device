@@ -3,7 +3,6 @@
 #define PULSE_EPSILON 3
 
 Tap::Tap() {
-  this->timer.stop();
   this->totalPulses = 0;
 }
 
@@ -18,7 +17,6 @@ uint Tap::GetTotalPulses() {
 bool Tap::IsPouring() {
   return this->isPouring;
 }
-
 void Tap::Setup(IStateManager *kegeratorState) {
   this->kegeratorState = kegeratorState;
 }
@@ -32,28 +30,40 @@ void Tap::SetAuthToken(String authenticationKey) {
 }
 
 void Tap::StopPour() {
+  bool isPouring = this->isPouring;
   this->isPouring = false;
-  this->kegeratorState->TapStoppedPouring(
-    *this,
-    this->totalPulses,
-    this->authenticationKey
-  );
+  if (this->totalPulses > PULSE_EPSILON && isPouring) {
+    this->kegeratorState->TapStoppedPouring(
+      *this,
+      this->totalPulses,
+      this->authenticationKey
+    );
+  }
 
   this->totalPulses = 0;
   this->authenticationKey = "";
-  //this->timer.changePeriod(BEFORE_POUR_TIME_PERIOD);
-  this->timer.stop();
+}
+
+int Tap::Tick() {
+  // handle isPouring here :)
+  if (!this->isPouring) {
+    return 0;
+  }
+
+  unsigned long delta = millis() - this->pourStartTime;
+
+  if (delta > 5000) {
+    this->StopPour();
+  }
+
+  return 0;
 }
 
 void Tap::AddToFlowCount(uint pulses) {
   this->totalPulses += pulses;
+  this->pourStartTime = millis();
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
-    //this->timer.changePeriod(AFTER_POUR_TIME_PERIOD);
-    this->timer.start();
     this->isPouring = true;
-    this->kegeratorState->TapStartedPouring(*this);
-  } else {
-    this->timer.reset();
   }
 }

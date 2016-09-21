@@ -61,7 +61,6 @@ int NfcClient::Tick()
   output = this->SendMessage();
 
   if (output != NfcState::NO_MESSAGE) {
-    delay(1000);
     return output;
   }
 

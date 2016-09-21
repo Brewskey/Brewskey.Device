@@ -43,9 +43,10 @@ private:
   void CleaningComplete();
   void Timeout();
   void CleanupTapState();
+  void NfcLoop();
 
-  void UpdateScreen();
-  void SetOuncesForPulses(uint8_t tapSlot, bool hideOz = false);
+  //void UpdateScreen();
+  //void SetOuncesForPulses(uint8_t tapSlot, bool hideOz = false);
   void StopPouring();
 
   DeviceSettings *settings;
@@ -61,10 +62,17 @@ private:
   String lastAuthorizedToken;
   char ounceString[7];
 
+  unsigned long pourResponseStartTime;
+
   // TODO - get rid of as many of these as
+  /*
   Timer displayTimer = Timer(100, &KegeratorState::UpdateScreen, *this);
   Timer cleaningTimer = Timer(60000 * 60, &KegeratorState::CleaningComplete, *this, true);
   Timer responseTimer = Timer(5000, &KegeratorState::Timeout, *this, true);
+  */
+
+  Timer nfcTimer = Timer(1, &KegeratorState::NfcLoop, *this);
+
   TapptTimer getIdTimer = TapptTimer(15000);
 };
 
