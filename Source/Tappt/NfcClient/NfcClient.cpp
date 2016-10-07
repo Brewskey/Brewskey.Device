@@ -8,6 +8,9 @@ NfcClient::NfcClient() :
 #endif
   pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
 {
+#if DISABLE_NFC == 1
+  return;
+#endif
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
     DMSG("Error initializing PN532\r\n");
@@ -26,6 +29,9 @@ void NfcClient::Setup(ServerLink *serverLink) {
 
 
 int NfcClient::Initialize(String data) {
+#if DISABLE_NFC == 1
+  return 0;
+#endif
   this->deviceId = String(data);
   Serial.print("Device ID: ");Serial.println(deviceId);
 
@@ -56,6 +62,9 @@ int NfcClient::Initialize(String data) {
 
 int NfcClient::Tick()
 {
+#if DISABLE_NFC == 1
+  return 0;
+#endif
   NfcState::value output;
 
   output = this->SendMessage();

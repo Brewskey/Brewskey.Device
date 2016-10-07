@@ -3,7 +3,8 @@
 
 #include "application.h"
 
-#define IS_PROTOTYPE 0
+#define IS_PROTOTYPE 1
+//#define DISABLE_NFC 1
 #define SPI_HW_MODE
 #define USE_FAKE_POUR 0
 #define USE_INTERRUPT 1

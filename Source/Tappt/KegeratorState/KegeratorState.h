@@ -72,8 +72,6 @@ private:
   */
 
   Timer nfcTimer = Timer(1, &KegeratorState::NfcLoop, *this);
-
-  TapptTimer getIdTimer = TapptTimer(15000);
 };
 
 #endif

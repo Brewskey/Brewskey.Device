@@ -4,6 +4,8 @@ Sensors::Sensors(ITap* taps, uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
 
+  this->temperatureSensor = new Temperature();
+
   pinMode(FLOW_PIN, INPUT);
 	digitalWrite(FLOW_PIN, HIGH);
 #if USE_INTERRUPT == 1
@@ -17,6 +19,8 @@ Sensors::Sensors(ITap* taps, uint8_t tapCount) {
 }
 
 int Sensors::Tick() {
+  this->temperatureSensor->Tick();
+
   if (this->tapCount == 1) {
 #if USE_INTERRUPT == 0
   this->SingleFlowCounter();
