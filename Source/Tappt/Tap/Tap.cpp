@@ -1,6 +1,6 @@
 #include "Tap.h"
 
-#define PULSE_EPSILON 3
+#define PULSE_EPSILON 10
 
 Tap::Tap() {
   this->totalPulses = 0;
@@ -50,9 +50,8 @@ int Tap::Tick() {
     return 0;
   }
 
-  unsigned long delta = millis() - this->pourStartTime;
-
-  if (delta > 5000) {
+  long delta = millis() - this->pourStartTime;
+  if (delta > 5000 && delta != 4294967295) {
     this->StopPour();
   }
 
@@ -65,5 +64,7 @@ void Tap::AddToFlowCount(uint pulses) {
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
     this->isPouring = true;
+
+    this->kegeratorState->TapStartedPouring(*this);
   }
 }

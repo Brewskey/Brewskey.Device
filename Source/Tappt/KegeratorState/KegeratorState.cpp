@@ -86,7 +86,7 @@ int KegeratorState::Tick()
     return 0;
   }
 
-  unsigned long pourResponseDelta = millis() - this->pourResponseStartTime;
+  long pourResponseDelta = millis() - this->pourResponseStartTime;
 
   // Only check this if waiting for the response and it's greater that 5
   // seconds
@@ -242,11 +242,6 @@ void KegeratorState::StopPouring() {
 
 void KegeratorState::Timeout() {
 	this->lastAuthorizedToken = "";
-
-	Serial.println("");
-	Serial.println("TIMEOUT");
-	Serial.println("");
-
 	this->CleanupTapState();
 }
 

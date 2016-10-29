@@ -12,7 +12,8 @@ void TapptTimer::Reset() {
 
 int TapptTimer::Tick() {
   unsigned long currentMillis = millis();
-  this->ShouldTrigger = currentMillis - this->previousMillis > this->interval;
+  this->ShouldTrigger =
+    (long)(currentMillis - this->previousMillis) > this->interval;
 
   if (this->ShouldTrigger)
   {
