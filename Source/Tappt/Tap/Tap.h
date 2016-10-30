@@ -16,8 +16,7 @@ public:
   String GetId();
   bool IsPouring();
   uint GetTotalPulses();
-  void Setup(IStateManager *kegeratorState);
-  void SetId(String tapId);
+  void Setup(IStateManager *kegeratorState, String tapId);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void AddToFlowCount(uint pulses);

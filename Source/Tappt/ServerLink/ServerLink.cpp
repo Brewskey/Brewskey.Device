@@ -2,7 +2,7 @@
 
 ServerLink::ServerLink(IStateManager *stateManager) {
   this->stateManager = stateManager;
-
+  this->settings.tapIds = NULL;
   String deviceID = System.deviceID();
 
   Particle.subscribe(
@@ -42,16 +42,54 @@ void ServerLink::Initialize(const char* event, const char* data) {
   this->initializeTimer.stop();
   this->initializeTimer.dispose();
 
-  char strBuffer[90] = "";
-  String(data).toCharArray(strBuffer, 90);
+  String response = String(data);
+  String delimeter = "~";
+  int start = 1;
+  int end = response.indexOf(delimeter, start);
 
-  this->settings.deviceId = String(strtok(strBuffer, "~"));
-  this->settings.authorizationToken = String(strtok((char*)NULL, "~"));
-  this->settings.tapIds = String(strtok((char*)NULL, "~"));
-  this->settings.deviceStatus = String(strtok((char*)NULL, "~"));
+  this->settings.deviceId = response.substring(start, end);
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
 
-  Serial.print("Tap IDs: ");
-  Serial.println(this->settings.tapIds);
+  this->settings.authorizationToken = response.substring(start, end);
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  String tapIds = response.substring(start, end);
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.deviceStatus = response.substring(start, end).toInt();
+
+  // Build out Tap IDs
+  delimeter = ",";
+  start = 0;
+  end = tapIds.indexOf(delimeter);
+  int tapCount = 0;
+
+  while (end >= 0) {
+    start = end + delimeter.length();
+    end = tapIds.indexOf(delimeter, start);
+    tapCount++;
+  }
+
+  this->settings.tapCount = tapCount;
+
+  if (this->settings.tapIds != NULL) {
+    delete[] this->settings.tapIds;
+  }
+  this->settings.tapIds = new String[tapCount];
+  start = 0;
+  end = tapIds.indexOf(delimeter);
+  int iter = 0;
+  while (end >= 0 && tapCount > 0) {
+    this->settings.tapIds[iter] = tapIds.substring(start, end - start);
+    start = end + delimeter.length();
+    end = tapIds.indexOf(delimeter, start);
+    iter++;
+  }
+
+  // End Tap IDs
 
   Serial.print("Device Status: ");
   Serial.println(this->settings.deviceStatus);

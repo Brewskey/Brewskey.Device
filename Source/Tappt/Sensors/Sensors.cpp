@@ -23,18 +23,15 @@ int iter = 0;
 int Sensors::Tick() {
   this->temperatureSensor->Tick();
 
+  // TODO: Maybe we can support 5 taps...?
   if (this->tapCount == 1) {
     this->SingleFlowCounter();
     return 0;
   }
 
-  iter++;
-  if (iter == 200) {
-    iter = 0;
-    for (int ii = 0; ii < this->tapCount; ii++) {
-      uint8_t pulses = 0; // TODO - Read from external board
-      this->taps[ii].AddToFlowCount(1 + ii);
-    }
+  for (int ii = 0; ii < this->tapCount; ii++) {
+    uint8_t pulses = 0; // TODO - Read from external board
+    this->taps[ii].AddToFlowCount(pulses);
   }
   return 0;
 }

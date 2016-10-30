@@ -1,7 +1,5 @@
 #include "KegeratorState.h"
 
-#define TAP_COUNT 4
-
 #define TOKEN_STRING(js, t, s) \
 	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
 	 && strlen(s) == (t).end - (t).start)
@@ -10,6 +8,7 @@ KegeratorState::KegeratorState(
 	Display* display,
 	NfcClient* nfcClient
 ) {
+	this->taps = NULL;
 	this->SetState(KegeratorState::INITIALIZING);
 
 	this->display = display;
@@ -18,14 +17,6 @@ KegeratorState::KegeratorState(
 	this->serverLink = new ServerLink(this);
 	nfcClient->Setup(this->serverLink);
 	this->nfcClient = nfcClient;
-
-	this->taps = new Tap[TAP_COUNT];
-	for (int i = 0; i < TAP_COUNT; i++) {
-		this->taps[i].Setup(this);
-	}
-
-	this->sensors = new Sensors(this->taps, TAP_COUNT);
-	this->pourDisplay->Setup(this->taps, TAP_COUNT);
 }
 
 void KegeratorState::SetState(e newState) {
@@ -112,15 +103,13 @@ int KegeratorState::Tick()
   // Rendering
   int changes = this->pourDisplay->Tick();
 
+
   if (changes > 0) {
-		Serial.println("Changes");
     this->display->EndBatch();
-  } else {
-		Serial.println("No Changes");
-	}
+  }
 
   // read taps and manage end-pour
-  for(int i = 0; i < TAP_COUNT; i++) {
+  for(int i = 0; i < this->settings->tapCount; i++) {
     this->taps[i].Tick();
 
     // Anonymous pour started
@@ -149,17 +138,19 @@ void KegeratorState::NfcLoop() {
 void KegeratorState::Initialize(DeviceSettings *settings) {
 	this->settings = settings;
 
-	Serial.println("STRTOK");
-	char strBuffer[60] = "";
-  String(settings->tapIds).toCharArray(strBuffer, 60);
-  char* tapId = strtok(strBuffer,",");
-	uint iter = 0;
+	// Setup taps
+	if (this->taps != NULL) {
+		delete[] this->taps;
+		delete this->sensors;
+	}
 
-  while (tapId != NULL && iter < TAP_COUNT) {
-		this->taps[iter].SetId(String(tapId));
-		iter++;
-		tapId = strtok (NULL, ",");
-  }
+	int tapCount = this->settings->tapCount;
+	this->taps = new Tap[tapCount];
+	for (int i = 0; i < tapCount; i++) {
+		this->taps[i].Setup(this, settings->tapIds[i]);
+	}
+	this->sensors = new Sensors(this->taps, tapCount);
+	this->pourDisplay->Setup(this->taps, tapCount);
 
 	this->StopPouring();
 
@@ -171,9 +162,9 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	}
 
   this->nfcTimer.stop();
-	if (this->settings->deviceStatus == "2") {
+	if (this->settings->deviceStatus == DeviceStatus::INACTIVE) {
 		this->SetState(KegeratorState::INACTIVE);
-	} else if (this->settings->deviceStatus == "3") {
+	} else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
 		this->SetState(KegeratorState::CLEANING);
 	} else {
 		this->SetState(KegeratorState::LISTENING);
@@ -243,7 +234,7 @@ void KegeratorState::TapStoppedPouring(
 }
 
 void KegeratorState::StopPouring() {
-	for(int i = 0; i < TAP_COUNT; i++) {
+	for(int i = 0; i < this->settings->tapCount; i++) {
 		if (this->taps[i].IsPouring()) {
       // TODO - Send half-pour to server.  We don't want to forget to track this
 			this->taps[i].StopPour();
@@ -261,7 +252,7 @@ void KegeratorState::CleanupTapState() {
 	this->oldCode = "";
 
 	bool allStopped = true;
-	for(int i = 0; i < TAP_COUNT; i++) {
+	for(int i = 0; i < this->settings->tapCount; i++) {
 		if (this->taps[i].IsPouring()) {
 			allStopped = false;
 		} else {

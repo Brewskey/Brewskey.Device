@@ -2,6 +2,7 @@
 #define KegeratorState_h
 
 #include "DeviceSettings.h"
+#include "DeviceStatus.h"
 #include "Display.h"
 #include "PourDisplay.h"
 #include "ITick.h"

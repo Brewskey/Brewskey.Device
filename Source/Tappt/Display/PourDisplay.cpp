@@ -47,12 +47,12 @@ int PourDisplay::Tick() {
   if (counter == 0) {
     return 0;
   }
-/*
+
   int (*textSettings)[4] = TEXT_SETTINGS_4;
   if (counter == 1) {
     textSettings = TEXT_SETTINGS_1;
   }
-*/
+
   // Render tap if there is a change;
   for(int i = 0; i < 4; i++) {
     int currentPouringTap = this->currentPouringTaps[i];

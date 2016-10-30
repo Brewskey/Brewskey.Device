@@ -18,11 +18,8 @@ uint Tap::GetTotalPulses() {
 bool Tap::IsPouring() {
   return this->isPouring;
 }
-void Tap::Setup(IStateManager *kegeratorState) {
+void Tap::Setup(IStateManager *kegeratorState, String tapId) {
   this->kegeratorState = kegeratorState;
-}
-
-void Tap::SetId(String tapId) {
   this->tapId = tapId;
 }
 

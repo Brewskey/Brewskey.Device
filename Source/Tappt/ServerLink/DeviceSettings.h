@@ -6,9 +6,9 @@
 struct DeviceSettings {
   String authorizationToken;
   String deviceId;
-  String deviceStatus;
-  bool isSingleTap;
-  String tapIds;
+  uint8_t deviceStatus;
+  String *tapIds;
+  uint8_t tapCount;
 };
 
 #endif
