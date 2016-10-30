@@ -2,14 +2,14 @@
 #define PourDisplay_h
 
 #include "ITick.h"
-#include "ITap.h"
+#include "Tap.h"
 #include "Display.h"
 
 class PourDisplay: public ITick  {
 public:
   PourDisplay(Display* display);
 
-  void Setup(ITap* taps, int tapCount);
+  void Setup(Tap* taps, int tapCount);
   virtual int Tick();
 private:
   void SetEmptySlotForTap(int tapId);
@@ -17,7 +17,7 @@ private:
 
 
   Display* display;
-  ITap* taps;
+  Tap* taps;
   int tapCount;
 
   int currentPouringTaps[4] = {-1, -1, -1, -1};

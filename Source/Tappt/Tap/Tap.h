@@ -2,6 +2,7 @@
 #define Tap_h
 
 #include "application.h"
+#include "ITap.h"
 #include "IStateManager.h"
 #include "ITick.h"
 #include "Pins.h"

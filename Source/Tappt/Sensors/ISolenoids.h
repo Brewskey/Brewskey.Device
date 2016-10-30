@@ -1,7 +1,7 @@
 #ifndef ISolenoids_h
 #define ISolenoids_h
 
-#include "ITap.h"
+#include "application.h"
 
 class ISolenoids {
 public:

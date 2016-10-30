@@ -27,7 +27,7 @@ PourDisplay::PourDisplay(Display* display) {
   this->display = display;
 }
 
-void PourDisplay::Setup(ITap* taps, int tapCount) {
+void PourDisplay::Setup(Tap* taps, int tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
 }
@@ -116,6 +116,12 @@ int PourDisplay::Tick() {
 }
 
 void PourDisplay::SetEmptySlotForTap(int tapId) {
+  // For four taps, always render in the same spot.
+  if (this->tapCount == 4) {
+    this->currentPouringTaps[tapId] = tapId;
+    return;
+  }
+
   int minPouringTaps = min(this->tapCount, 4);
 
   // Find an empty slot for the tap if one hasn't already been set for it.
@@ -146,5 +152,5 @@ int PourDisplay::GetXOffset(String text, int offsetType, int fontSize) {
     return (int)round(offsetType / 2.0);
   }
 
-  return offsetType;
+  return offset;
 }

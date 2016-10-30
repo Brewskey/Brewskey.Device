@@ -110,12 +110,15 @@ int KegeratorState::Tick()
 	this->sensors->Tick();
 
   // Rendering
-/*  int changes = this->pourDisplay->Tick();
+  int changes = this->pourDisplay->Tick();
 
   if (changes > 0) {
+		Serial.println("Changes");
     this->display->EndBatch();
-  }
-*/
+  } else {
+		Serial.println("No Changes");
+	}
+
   // read taps and manage end-pour
   for(int i = 0; i < TAP_COUNT; i++) {
     this->taps[i].Tick();

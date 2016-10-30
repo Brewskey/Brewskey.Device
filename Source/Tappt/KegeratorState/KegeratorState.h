@@ -20,7 +20,11 @@ class KegeratorState: public ITick, public IStateManager  {
 public:
   KegeratorState(Display* display, NfcClient* nfcClient);
   virtual void TapStartedPouring(ITap &tap);
-  virtual void TapStoppedPouring(ITap &tap, uint totalPulses, String authenticationKey);
+  virtual void TapStoppedPouring(
+    ITap &tap,
+    uint totalPulses,
+    String authenticationKey
+  );
   virtual int Tick();
   void Initialize(DeviceSettings *settings);
   int StartPour(String data);

@@ -1,7 +1,7 @@
 #include "Sensors.h"
 
 
-Sensors::Sensors(ITap taps[], uint8_t tapCount) {
+Sensors::Sensors(Tap taps[], uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
 
@@ -28,18 +28,12 @@ int Sensors::Tick() {
     return 0;
   }
 
-  Serial.println(this->tapCount);
-  Serial.println((unsigned int)&this->taps, HEX);
-  Serial.println((unsigned int)&this->taps[1], HEX);
-
-
   iter++;
   if (iter == 200) {
     iter = 0;
-    for (int ii = 0; ii < 2; ii++) {
+    for (int ii = 0; ii < this->tapCount; ii++) {
       uint8_t pulses = 0; // TODO - Read from external board
-      this->taps[ii].IsPouring();
-      //this->taps[ii].AddToFlowCount(1 + ii);
+      this->taps[ii].AddToFlowCount(1 + ii);
     }
   }
   return 0;

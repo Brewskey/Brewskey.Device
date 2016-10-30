@@ -3,12 +3,12 @@
 
 #include "ISolenoids.h"
 #include "ITick.h"
-#include "ITap.h"
+#include "Tap.h"
 #include "Temperature.h"
 
 class Sensors: public ISolenoids, public ITick {
 public:
-  Sensors(ITap* taps, uint8_t tapCount);
+  Sensors(Tap* taps, uint8_t tapCount);
   virtual int Tick();
   virtual void OpenSolenoids();
   virtual void CloseSolenoid(uint8_t solenoid);
@@ -17,7 +17,7 @@ private:
   void SingleFlowCounter();
 
   Temperature* temperatureSensor;
-  ITap* taps;
+  Tap* taps;
 
   uint8_t tapCount;
 };
