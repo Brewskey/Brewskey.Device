@@ -1,6 +1,6 @@
 #include "KegeratorState.h"
 
-#define TAP_COUNT 1
+#define TAP_COUNT 4
 
 #define TOKEN_STRING(js, t, s) \
 	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
@@ -13,6 +13,7 @@ KegeratorState::KegeratorState(
 	this->SetState(KegeratorState::INITIALIZING);
 
 	this->display = display;
+	this->pourDisplay = new PourDisplay(display);
 
 	this->serverLink = new ServerLink(this);
 	nfcClient->Setup(this->serverLink);
@@ -24,6 +25,7 @@ KegeratorState::KegeratorState(
 	}
 
 	this->sensors = new Sensors(this->taps, TAP_COUNT);
+	this->pourDisplay->Setup(this->taps, TAP_COUNT);
 }
 
 void KegeratorState::SetState(e newState) {
@@ -105,8 +107,15 @@ int KegeratorState::Tick()
     this->Timeout();
   }
 
-  this->sensors->Tick();
+	this->sensors->Tick();
 
+  // Rendering
+/*  int changes = this->pourDisplay->Tick();
+
+  if (changes > 0) {
+    this->display->EndBatch();
+  }
+*/
   // read taps and manage end-pour
   for(int i = 0; i < TAP_COUNT; i++) {
     this->taps[i].Tick();

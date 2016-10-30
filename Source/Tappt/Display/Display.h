@@ -1,8 +1,7 @@
 #ifndef Display_h
 #define Display_h
 
-#define OLED_RESET 4
-
+#include "Pins.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "ITick.h"
@@ -20,7 +19,15 @@ public:
     this->display.fillRect(x,y,w,h,color);
   };
 
-  void SetText(String text, uint8_t x, uint8_t y, uint8_t size = 2);
+  void ClearText(String text, uint8_t x, uint8_t y, uint8_t size = 2);
+  void SetText(
+    String text,
+    uint8_t x,
+    uint8_t y,
+    uint8_t size = 2,
+    int color = WHITE
+  );
+
 private:
   void WriteString(String text);
 

@@ -1,6 +1,12 @@
 #include "Display.h"
 
-Display::Display(): display(OLED_RESET) {
+Display::Display():
+#ifdef OLED_SPI
+display(OLED_DC, OLED_RESET, OLED_CS)
+#else
+display(OLED_RESET)
+#endif
+{
   uint8_t iter;
   display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
   display.clearDisplay();
@@ -22,15 +28,25 @@ void Display::SetText(
   String text,
   uint8_t x,
   uint8_t y,
-  uint8_t size
+  uint8_t size,
+  int color
 ) {
   display.setTextSize(size);
-  display.setTextColor(WHITE);
+  display.setTextColor(color);
   display.setCursor(x, y);
 
   for (int i = 0; i < text.length(); i++) {
     display.write(text[i]);
   }
+}
+
+void Display::ClearText(
+  String text,
+  uint8_t x,
+  uint8_t y,
+  uint8_t size
+) {
+  this->SetText(text, x, y, size, BLACK);
 }
 
 void Display::EndBatch() {

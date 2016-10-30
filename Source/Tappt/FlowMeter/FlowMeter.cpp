@@ -20,10 +20,6 @@ int FlowMeter::StartPour(String data)
 	this->pourKey = data;
 	Serial.print("Start Pour");Serial.println(pourKey);
 
-#if USE_FAKE_POUR == 1
-this->flowCount = 400;
-#endif
-
 	return 0;
 }
 

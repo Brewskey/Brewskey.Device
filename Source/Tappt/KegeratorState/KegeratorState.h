@@ -3,6 +3,7 @@
 
 #include "DeviceSettings.h"
 #include "Display.h"
+#include "PourDisplay.h"
 #include "ITick.h"
 #include "IStateManager.h"
 #include "Tap.h"
@@ -51,6 +52,7 @@ private:
 
   DeviceSettings *settings;
   Display *display;
+  PourDisplay *pourDisplay;
   NfcClient *nfcClient;
   Sensors *sensors;
   ServerLink *serverLink;
@@ -60,7 +62,6 @@ private:
   int state;
   String oldCode;
   String lastAuthorizedToken;
-  char ounceString[7];
 
   unsigned long pourResponseStartTime;
 

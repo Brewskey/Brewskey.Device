@@ -1,6 +1,7 @@
 #include "Sensors.h"
 
-Sensors::Sensors(ITap* taps, uint8_t tapCount) {
+
+Sensors::Sensors(ITap taps[], uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
 
@@ -18,21 +19,29 @@ Sensors::Sensors(ITap* taps, uint8_t tapCount) {
   this->CloseSolenoids();
 }
 
+int iter = 0;
 int Sensors::Tick() {
   this->temperatureSensor->Tick();
 
   if (this->tapCount == 1) {
-#if USE_INTERRUPT == 0
-  this->SingleFlowCounter();
-#endif
+    this->SingleFlowCounter();
     return 0;
   }
-return 0;
-  for (int ii = 0; ii < this->tapCount; ii++) {
-    uint8_t pulses = 0; // TODO - Read from external board
-    this->taps[ii].AddToFlowCount(pulses);
-  }
 
+  Serial.println(this->tapCount);
+  Serial.println((unsigned int)&this->taps, HEX);
+  Serial.println((unsigned int)&this->taps[1], HEX);
+
+
+  iter++;
+  if (iter == 200) {
+    iter = 0;
+    for (int ii = 0; ii < 2; ii++) {
+      uint8_t pulses = 0; // TODO - Read from external board
+      this->taps[ii].IsPouring();
+      //this->taps[ii].AddToFlowCount(1 + ii);
+    }
+  }
   return 0;
 }
 
@@ -42,7 +51,8 @@ void Sensors::SingleFlowCounter()
 #if USE_INTERRUPT == 1
 	delayMicroseconds(1200);
 	if (pin == 0) {
-	   this->taps[0].AddToFlowCount(1);
+    iter = 0;
+    this->taps[0].AddToFlowCount(1);
 	}
 #else
 	static uint8_t buffer = 0;

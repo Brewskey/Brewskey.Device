@@ -2,6 +2,7 @@
 
 #define PULSE_EPSILON 10
 
+
 Tap::Tap() {
   this->totalPulses = 0;
 }
@@ -59,6 +60,11 @@ int Tap::Tick() {
 }
 
 void Tap::AddToFlowCount(uint pulses) {
+  // Don't start pouring if pulses aren't being sent.
+  if (pulses <= 0) {
+    return;
+  }
+
   this->totalPulses += pulses;
   this->pourStartTime = millis();
 
