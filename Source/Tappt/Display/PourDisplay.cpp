@@ -36,6 +36,7 @@ int PourDisplay::Tick() {
   // Clean up display state.
   int changeCount = 0;
   int counter = 0;
+
   for(int i = 0; i < this->tapCount; i++) {
     if (this->taps[i].IsPouring()) {
       counter++;
@@ -43,9 +44,23 @@ int PourDisplay::Tick() {
     }
 	}
 
+  // Count the number of taps that rendered last
+  int oldCounter = 0;
+  for(int i = 0; i < 4; i++) {
+    if (this->currentPouringTaps[i] >= 0) {
+      oldCounter++;
+    }
+  }
+
   int (*textSettings)[4] = TEXT_SETTINGS_4;
   if (counter == 1) {
     textSettings = TEXT_SETTINGS_1;
+  }
+
+
+  int (*oldTextSettings)[4] = TEXT_SETTINGS_4;
+  if (oldCounter == 1) {
+    oldTextSettings = TEXT_SETTINGS_1;
   }
 
   // Render tap if there is a change;
@@ -55,13 +70,16 @@ int PourDisplay::Tick() {
       continue;
     }
 
-    int x = textSettings[i][0];
-    int y = textSettings[i][1];
-    int fontSize = textSettings[i][2];
-    int offsetType = textSettings[i][3];
+    int x = oldTextSettings[i][0];
+    int y = oldTextSettings[i][1];
+    int fontSize = oldTextSettings[i][2];
+    int offsetType = oldTextSettings[i][3];
 
     // If the tap stopped pouring, clean it up.
-    if (!this->taps[currentPouringTap].IsPouring()) {
+    if (
+      !this->taps[currentPouringTap].IsPouring() &&
+      this->currentDisplays[i].length() > 0
+    ) {
       changeCount++;
       this->display->ClearText(
         this->currentDisplays[i],
@@ -76,6 +94,11 @@ int PourDisplay::Tick() {
 
       continue;
     }
+
+    x = textSettings[i][0];
+    y = textSettings[i][1];
+    fontSize = textSettings[i][2];
+    offsetType = textSettings[i][3];
 
     uint pulses = this->taps[currentPouringTap].GetTotalPulses();
   	float ounces = (float)pulses * (float)128 / (float)10313;

@@ -18,7 +18,8 @@ NfcClient::NfcClient() :
     RGB.color(255, 128, 0);
 
     while (1) {
-      Spark.process();
+      Particle.process();
+      delay(10);
     }
   }
 }

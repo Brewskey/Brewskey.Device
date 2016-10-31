@@ -8,7 +8,11 @@ display(OLED_RESET)
 #endif
 {
   uint8_t iter;
+#ifdef OLED_SPI
+  display.begin(SSD1306_SWITCHCAPVCC);
+#else
   display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+#endif
   display.clearDisplay();
   display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, 1);
 

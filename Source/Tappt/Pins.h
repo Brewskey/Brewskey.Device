@@ -14,9 +14,9 @@
 // 1 - Photon - Adafruit NFC
 // 2 - Photon - Seeed NFC
 // 3 - P1 Redboard - Seeed NFC
-// 4 - PCB v1 - P1 + PN532 Chip
-// 5 - PCB v2 - P1 + PN532 Chip
-#define HARDWARE_CONFIG 0
+// 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
+// 5 - PCB v3 - P1 + PN532 Chip
+#define HARDWARE_CONFIG 1
 #define SPI_HW_MODE
 
 #if HARDWARE_CONFIG == 0
@@ -24,9 +24,9 @@
   #define DISABLE_NFC 1
   #define SOLENOID_PIN (D2)
   #define FLOW_PIN (D6)
-  #define TEMPERATURE_PIN (D4)
+  #define TEMPERATURE_PIN (D7)
 #elif HARDWARE_CONFIG == 1
-   #define SPI_HW_MODE
+  #define SPI_HW_MODE
   #define SS   (A2)
   #define SOLENOID_PIN (D2)
   #define FLOW_PIN (D6)
@@ -55,6 +55,7 @@
   #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
   #define SPI_HW_MODE
+  #define OLED_SPI
   #define SS   DAC
   #define SOLENOID_PIN P1S1
   #define FLOW_PIN P1S0
