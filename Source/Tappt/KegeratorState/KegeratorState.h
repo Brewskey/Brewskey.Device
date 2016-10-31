@@ -5,6 +5,7 @@
 #include "DeviceStatus.h"
 #include "Display.h"
 #include "PourDisplay.h"
+#include "TotpDisplay.h"
 #include "ITick.h"
 #include "IStateManager.h"
 #include "Tap.h"
@@ -13,7 +14,6 @@
 #include "Sensors.h"
 #include "ServerLink.h"
 #include "TapptTimer.h"
-#include "TOTP.h"
 
 #define TIME_TO_POUR =
 
@@ -50,14 +50,12 @@ private:
   void Timeout();
   void CleanupTapState();
   void NfcLoop();
-
-  //void UpdateScreen();
-  //void SetOuncesForPulses(uint8_t tapSlot, bool hideOz = false);
   void StopPouring();
 
   DeviceSettings *settings;
   Display *display;
   PourDisplay *pourDisplay;
+  TotpDisplay *totpDisplay;
   NfcClient *nfcClient;
   Sensors *sensors;
   ServerLink *serverLink;
@@ -69,13 +67,6 @@ private:
   String lastAuthorizedToken;
 
   unsigned long pourResponseStartTime;
-
-  // TODO - get rid of as many of these as
-  /*
-  Timer displayTimer = Timer(100, &KegeratorState::UpdateScreen, *this);
-  Timer cleaningTimer = Timer(60000 * 60, &KegeratorState::CleaningComplete, *this, true);
-  Timer responseTimer = Timer(5000, &KegeratorState::Timeout, *this, true);
-  */
 
   Timer nfcTimer = Timer(1, &KegeratorState::NfcLoop, *this);
 };

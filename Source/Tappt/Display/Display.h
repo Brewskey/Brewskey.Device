@@ -13,22 +13,31 @@ class Display {
 public:
   Display();
 
-  void BeginBatch(bool showLogo = true);
+  void BeginBatch();
+  void DrawIcon(int color);
   void EndBatch();
   void FillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
     this->display.fillRect(x,y,w,h,color);
   };
 
-  void ClearText(String text, uint8_t x, uint8_t y, uint8_t size = 2);
+  void ClearText(
+    String text,
+    uint8_t x,
+    uint8_t y,
+    uint8_t size = 2,
+    int offsetType = 0
+  );
   void SetText(
     String text,
     uint8_t x,
     uint8_t y,
     uint8_t size = 2,
+    int offsetType = 0,
     int color = WHITE
   );
 
 private:
+  int GetXOffset(String text, int offsetType, int fontSize);
   void WriteString(String text);
 
   Adafruit_SSD1306 display;

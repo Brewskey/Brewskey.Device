@@ -13,7 +13,6 @@ public:
   virtual int Tick();
 private:
   void SetEmptySlotForTap(int tapId);
-  int GetXOffset(String text, int offsetType, int fontSize);
 
 
   Display* display;

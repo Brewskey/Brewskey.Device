@@ -12,7 +12,7 @@
 *    2 = half text width
 */
 int TEXT_SETTINGS_1[1][4] = {
-  {0, 0, 2, 0},
+  {42, 40, 2, 0},
 };
 
 
@@ -43,11 +43,6 @@ int PourDisplay::Tick() {
     }
 	}
 
-  // No reson to do any logic if no tap is pouring
-  if (counter == 0) {
-    return 0;
-  }
-
   int (*textSettings)[4] = TEXT_SETTINGS_4;
   if (counter == 1) {
     textSettings = TEXT_SETTINGS_1;
@@ -60,19 +55,20 @@ int PourDisplay::Tick() {
       continue;
     }
 
-    int x = TEXT_SETTINGS_4[i][0];
-    int y = TEXT_SETTINGS_4[i][1];
-    int fontSize = TEXT_SETTINGS_4[i][2];
-    int offsetType = TEXT_SETTINGS_4[i][3];
+    int x = textSettings[i][0];
+    int y = textSettings[i][1];
+    int fontSize = textSettings[i][2];
+    int offsetType = textSettings[i][3];
 
     // If the tap stopped pouring, clean it up.
     if (!this->taps[currentPouringTap].IsPouring()) {
       changeCount++;
       this->display->ClearText(
         this->currentDisplays[i],
-        x - this->GetXOffset(this->currentDisplays[i], offsetType, fontSize),
+        x,
         y,
-        fontSize
+        fontSize,
+        offsetType
       );
 
       this->currentPouringTaps[i] = -1;
@@ -86,7 +82,7 @@ int PourDisplay::Tick() {
     char ounceString[12];
   	sprintf(
       ounceString,
-      "%.1f oz",
+      ounces >= 100 && counter == 1 ? "%.0f oz" : "%.1f oz",
       ounces
     );
 
@@ -98,17 +94,19 @@ int PourDisplay::Tick() {
 
     this->display->ClearText(
       this->currentDisplays[i],
-      x - this->GetXOffset(this->currentDisplays[i], offsetType, fontSize),
+      x,
       y,
-      fontSize
+      fontSize,
+      offsetType
     );
 
     this->currentDisplays[i] = ounceString;
     this->display->SetText(
       this->currentDisplays[i],
-      x - this->GetXOffset(this->currentDisplays[i], offsetType, fontSize),
+      x,
       y,
-      fontSize
+      fontSize,
+      offsetType
     );
   }
 
@@ -117,7 +115,7 @@ int PourDisplay::Tick() {
 
 void PourDisplay::SetEmptySlotForTap(int tapId) {
   // For four taps, always render in the same spot.
-  if (this->tapCount == 4) {
+  if (this->tapCount <= 4) {
     this->currentPouringTaps[tapId] = tapId;
     return;
   }
@@ -140,17 +138,4 @@ void PourDisplay::SetEmptySlotForTap(int tapId) {
     this->currentPouringTaps[i] = tapId;
     break;
   }
-}
-
-int PourDisplay::GetXOffset(String text, int offsetType, int fontSize) {
-  if (offsetType == 0) {
-    return 0;
-  }
-
-  int offset = text.length() * 6 * fontSize;
-  if (offsetType == 2) {
-    return (int)round(offsetType / 2.0);
-  }
-
-  return offset;
 }

@@ -1,6 +1,5 @@
 #include "Sensors.h"
 
-
 Sensors::Sensors(Tap taps[], uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
@@ -20,18 +19,24 @@ Sensors::Sensors(Tap taps[], uint8_t tapCount) {
 }
 
 int iter = 0;
+int counter = 0;
 int Sensors::Tick() {
   this->temperatureSensor->Tick();
-
+  if (counter < 5600) {
+    counter++;
+  iter++;
+}
   // TODO: Maybe we can support 5 taps...?
   if (this->tapCount == 1) {
     this->SingleFlowCounter();
     return 0;
   }
-
-  for (int ii = 0; ii < this->tapCount; ii++) {
-    uint8_t pulses = 0; // TODO - Read from external board
-    this->taps[ii].AddToFlowCount(pulses);
+  if (iter == 300) {
+    iter = 0;
+    for (int ii = 0; ii < this->tapCount; ii++) {
+      uint8_t pulses = 0; // TODO - Read from external board
+      this->taps[ii].AddToFlowCount(1 + ii);
+    }
   }
   return 0;
 }
@@ -41,7 +46,7 @@ void Sensors::SingleFlowCounter()
 	uint8_t pin = digitalRead(FLOW_PIN);
 #if USE_INTERRUPT == 1
 	delayMicroseconds(1200);
-	if (pin == 0) {
+	if (pin == 0 || iter == 200) {
     iter = 0;
     this->taps[0].AddToFlowCount(1);
 	}

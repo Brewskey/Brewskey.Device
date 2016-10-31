@@ -16,12 +16,12 @@ display(OLED_RESET)
   delay(1);
 }
 
-void Display::BeginBatch(bool showLogo) {
+void Display::BeginBatch() {
   display.clearDisplay();
+}
 
-  if (showLogo) {
-    display.drawBitmap(3, 12, IMG_ICON, 32, 40, 1);
-  }
+void Display::DrawIcon(int color) {
+  display.drawBitmap(3, 12, IMG_ICON, 32, 40, color);
 }
 
 void Display::SetText(
@@ -29,11 +29,13 @@ void Display::SetText(
   uint8_t x,
   uint8_t y,
   uint8_t size,
+  int offsetType,
   int color
 ) {
+  int offset = this->GetXOffset(text, offsetType, size);
   display.setTextSize(size);
   display.setTextColor(color);
-  display.setCursor(x, y);
+  display.setCursor((int)x + offset, y);
 
   for (int i = 0; i < text.length(); i++) {
     display.write(text[i]);
@@ -44,12 +46,26 @@ void Display::ClearText(
   String text,
   uint8_t x,
   uint8_t y,
-  uint8_t size
+  uint8_t size,
+  int offsetType
 ) {
-  this->SetText(text, x, y, size, BLACK);
+  this->SetText(text, x, y, size, offsetType, BLACK);
 }
 
 void Display::EndBatch() {
   display.display();
   delay(1);
+}
+
+int Display::GetXOffset(String text, int offsetType, int fontSize) {
+  if (offsetType == 0) {
+    return 0;
+  }
+
+  int offset = text.length() * 6 * fontSize;
+  if (offsetType == 2) {
+    return -(int)round(offset / 2.0);
+  }
+
+  return -offset;
 }

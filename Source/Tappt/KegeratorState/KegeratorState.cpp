@@ -13,6 +13,7 @@ KegeratorState::KegeratorState(
 
 	this->display = display;
 	this->pourDisplay = new PourDisplay(display);
+	this->totpDisplay = new TotpDisplay(display);
 
 	this->serverLink = new ServerLink(this);
 	nfcClient->Setup(this->serverLink);
@@ -102,7 +103,7 @@ int KegeratorState::Tick()
 
   // Rendering
   int changes = this->pourDisplay->Tick();
-
+	changes += this->totpDisplay->Tick();
 
   if (changes > 0) {
     this->display->EndBatch();
@@ -151,6 +152,7 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	}
 	this->sensors = new Sensors(this->taps, tapCount);
 	this->pourDisplay->Setup(this->taps, tapCount);
+	this->totpDisplay->Setup(this->settings, this->taps, tapCount);
 
 	this->StopPouring();
 
@@ -160,6 +162,9 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	) {
 		return;
 	}
+
+	this->display->BeginBatch();
+	this->display->EndBatch();
 
   this->nfcTimer.stop();
 	if (this->settings->deviceStatus == DeviceStatus::INACTIVE) {
@@ -192,10 +197,11 @@ int KegeratorState::StartPour(String data) {
 	return 0;
 }
 
+// TODO - This should fire when it goes to the inactive state..
 void KegeratorState::CleaningComplete() {
 	this->SetState(KegeratorState::INACTIVE);
 
-	this->display->BeginBatch(false);
+	this->display->BeginBatch();
 	this->display->SetText("Device", 28, 15);
 	this->display->SetText("Disabled", 16, 35);
 	this->display->EndBatch();
