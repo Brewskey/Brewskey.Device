@@ -148,7 +148,11 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	int tapCount = this->settings->tapCount;
 	this->taps = new Tap[tapCount];
 	for (int i = 0; i < tapCount; i++) {
-		this->taps[i].Setup(this, settings->tapIds[i]);
+		this->taps[i].Setup(
+			this,
+			settings->tapIds[i],
+			settings->pulsesPerGallon[i]
+		);
 	}
 	this->sensors = new Sensors(this->taps, tapCount);
 	this->pourDisplay->Setup(this->taps, tapCount);
@@ -160,6 +164,8 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 		this->settings->deviceId.length() <= 0 ||
 		this->settings->authorizationToken.length() <= 0
 	) {
+		RGB.control(true);
+    RGB.color(0, 128, 0);
 		return;
 	}
 

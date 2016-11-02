@@ -66,7 +66,10 @@ int PourDisplay::Tick() {
   // Render tap if there is a change;
   for(int i = 0; i < 4; i++) {
     int currentPouringTap = this->currentPouringTaps[i];
-    if (currentPouringTap < 0) {
+    if (
+      currentPouringTap < 0 ||
+      this->taps[currentPouringTap].GetPulsesPerGallon() < 1
+    ) {
       continue;
     }
 
@@ -101,7 +104,8 @@ int PourDisplay::Tick() {
     offsetType = textSettings[i][3];
 
     uint pulses = this->taps[currentPouringTap].GetTotalPulses();
-  	float ounces = (float)pulses * (float)128 / (float)10313;
+    int pulsesPerGallon = this->taps[currentPouringTap].GetPulsesPerGallon();
+  	float ounces = (float)pulses * (float)128 / (float)pulsesPerGallon;
     char ounceString[12];
   	sprintf(
       ounceString,

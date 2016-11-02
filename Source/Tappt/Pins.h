@@ -16,7 +16,7 @@
 // 3 - P1 Redboard - Seeed NFC
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
-#define HARDWARE_CONFIG 1
+#define HARDWARE_CONFIG 4
 #define SPI_HW_MODE
 
 #if HARDWARE_CONFIG == 0

@@ -38,7 +38,7 @@ void Sensors::SingleFlowCounter()
 {
 	uint8_t pin = digitalRead(FLOW_PIN);
 #if USE_INTERRUPT == 1
-	delayMicroseconds(1200);
+	// delayMicroseconds(1200);
 	if (pin == 0) {
     this->taps[0].AddToFlowCount(1);
 	}

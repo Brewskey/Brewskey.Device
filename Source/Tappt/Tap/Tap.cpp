@@ -11,6 +11,10 @@ String Tap::GetId() {
   return this->tapId;
 }
 
+int Tap::GetPulsesPerGallon() {
+  return this->pulsesPerGallon;
+}
+
 uint Tap::GetTotalPulses() {
   return this->totalPulses;
 }
@@ -18,9 +22,14 @@ uint Tap::GetTotalPulses() {
 bool Tap::IsPouring() {
   return this->isPouring;
 }
-void Tap::Setup(IStateManager *kegeratorState, String tapId) {
+void Tap::Setup(
+  IStateManager *kegeratorState,
+  String tapId,
+  int pulsesPerGallon
+) {
   this->kegeratorState = kegeratorState;
   this->tapId = tapId;
+  this->pulsesPerGallon = pulsesPerGallon;
 }
 
 void Tap::SetAuthToken(String authenticationKey) {

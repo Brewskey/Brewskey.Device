@@ -36,6 +36,8 @@ void ServerLink::CallInitialize() {
 
 void ServerLink::Initialize(const char* event, const char* data) {
   if (strlen(data) <= 0) {
+    RGB.control(true);
+    RGB.color(255, 0, 128);
     return;
   }
 
@@ -60,6 +62,10 @@ void ServerLink::Initialize(const char* event, const char* data) {
   end = response.indexOf(delimeter, start);
 
   this->settings.deviceStatus = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  String pulsesPerGallon = response.substring(start, end);
 
   // Build out Tap IDs
   delimeter = ",";
@@ -86,6 +92,23 @@ void ServerLink::Initialize(const char* event, const char* data) {
     this->settings.tapIds[iter] = tapIds.substring(start, end - start);
     start = end + delimeter.length();
     end = tapIds.indexOf(delimeter, start);
+    iter++;
+  }
+
+  // End Tap IDs
+
+  if (this->settings.pulsesPerGallon != NULL) {
+    delete[] this->settings.pulsesPerGallon;
+  }
+  this->settings.pulsesPerGallon = new int[tapCount];
+  start = 0;
+  end = pulsesPerGallon.indexOf(delimeter);
+  iter = 0;
+  while (end >= 0 && tapCount > 0 && iter < tapCount) {
+    this->settings.pulsesPerGallon[iter] =
+      pulsesPerGallon.substring(start, end - start).toInt();
+    start = end + delimeter.length();
+    end = pulsesPerGallon.indexOf(delimeter, start);
     iter++;
   }
 
