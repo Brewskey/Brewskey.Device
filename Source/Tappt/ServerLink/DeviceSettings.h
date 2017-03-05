@@ -9,7 +9,7 @@ struct DeviceSettings {
   uint8_t deviceStatus;
   String *tapIds;
   uint8_t tapCount;
-  int *pulsesPerGallon;
+  int pulsesPerGallon[4];
 };
 
 #endif

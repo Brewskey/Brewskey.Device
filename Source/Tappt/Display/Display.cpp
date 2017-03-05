@@ -2,6 +2,7 @@
 
 Display::Display():
 #ifdef OLED_SPI
+//display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 display(OLED_DC, OLED_RESET, OLED_CS)
 #else
 display(OLED_RESET)

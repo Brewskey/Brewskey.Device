@@ -5,19 +5,19 @@
 	 && strlen(s) == (t).end - (t).start)
 
 KegeratorState::KegeratorState(
-	Display* display,
-	NfcClient* nfcClient
+	Display* display
 ) {
-	this->taps = NULL;
+	this->serverLink = new ServerLink(this);
+
+	this->taps = (Tap*)NULL;
 	this->SetState(KegeratorState::INITIALIZING);
 
 	this->display = display;
 	this->pourDisplay = new PourDisplay(display);
 	this->totpDisplay = new TotpDisplay(display);
 
-	this->serverLink = new ServerLink(this);
+	this->nfcClient = new NfcClient();
 	nfcClient->Setup(this->serverLink);
-	this->nfcClient = nfcClient;
 }
 
 void KegeratorState::SetState(e newState) {
@@ -98,16 +98,11 @@ int KegeratorState::Tick()
   ) {
     this->Timeout();
   }
-
 	this->sensors->Tick();
 
   // Rendering
-  int changes = this->pourDisplay->Tick();
-	changes += this->totpDisplay->Tick();
-
-  if (changes > 0) {
-    this->display->EndBatch();
-  }
+  this->displayChangeCount += this->pourDisplay->Tick();
+	this->displayChangeCount += this->totpDisplay->Tick();
 
   // read taps and manage end-pour
   for(int i = 0; i < this->settings->tapCount; i++) {
@@ -125,6 +120,11 @@ int KegeratorState::Tick()
 }
 
 void KegeratorState::NfcLoop() {
+	if (this->displayChangeCount> 0) {
+		this->displayChangeCount = 0;
+		this->display->EndBatch();
+	}
+
 	NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
 	if (
@@ -154,6 +154,7 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 			settings->pulsesPerGallon[i]
 		);
 	}
+
 	this->sensors = new Sensors(this->taps, tapCount);
 	this->pourDisplay->Setup(this->taps, tapCount);
 	this->totpDisplay->Setup(this->settings, this->taps, tapCount);

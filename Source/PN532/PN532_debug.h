@@ -1,11 +1,11 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#define DEBUG 100
+#define DEBUG 0
 
 #include "application.h"
 
-#ifdef DEBUG
+#if DEBUG == 1
 #define PN532DEBUG 1
 #define DMSG(args...)       Serial.print(args)
 #define DMSG_STR(str)       Serial.println(str)

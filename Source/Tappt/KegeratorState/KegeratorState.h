@@ -10,6 +10,7 @@
 #include "IStateManager.h"
 #include "Tap.h"
 #include "LED.h"
+#include "Pins.h"
 #include "NfcClient.h"
 #include "Sensors.h"
 #include "ServerLink.h"
@@ -19,7 +20,7 @@
 
 class KegeratorState: public ITick, public IStateManager  {
 public:
-  KegeratorState(Display* display, NfcClient* nfcClient);
+  KegeratorState(Display* display);
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
     ITap &tap,
@@ -65,6 +66,7 @@ private:
   int state;
   String oldCode;
   String lastAuthorizedToken;
+  int displayChangeCount = 0;
 
   unsigned long pourResponseStartTime;
 

@@ -13,16 +13,16 @@
 #include "TOTP.h"
 #include "WiFiSetup.h"
 
-LED* led = new LED();
+LED led;
 KegeratorState* state;
 Display* display;
-NfcClient* nfcClient;
 
 void setup(void) {
     RGB.control(true);
     RGB.color(255, 255, 255);
     display = new Display();
     Serial.begin(115200);
+    Serial1.begin(19200);
 
     Serial.println("Starting");
 /*
@@ -30,8 +30,7 @@ void setup(void) {
       Spark.process();
     }
 */
-    nfcClient = new NfcClient();
-    state = new KegeratorState(display, nfcClient);
+    state = new KegeratorState(display);
 }
 
 void loop(void) {

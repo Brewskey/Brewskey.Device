@@ -35,14 +35,16 @@ void ServerLink::CallInitialize() {
 }
 
 void ServerLink::Initialize(const char* event, const char* data) {
+  Serial.println("Initializing");
+
   if (strlen(data) <= 0) {
     RGB.control(true);
-    RGB.color(255, 0, 128);
+    RGB.color(56, 56, 128);
+    Serial.println("Data Fail");
     return;
   }
 
   this->initializeTimer.stop();
-  this->initializeTimer.dispose();
 
   String response = String(data);
   String delimeter = "~";
@@ -96,14 +98,10 @@ void ServerLink::Initialize(const char* event, const char* data) {
   }
 
   // End Tap IDs
-
-  if (this->settings.pulsesPerGallon != NULL) {
-    delete[] this->settings.pulsesPerGallon;
-  }
-  this->settings.pulsesPerGallon = new int[tapCount];
   start = 0;
   end = pulsesPerGallon.indexOf(delimeter);
   iter = 0;
+
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
     this->settings.pulsesPerGallon[iter] =
       pulsesPerGallon.substring(start, end - start).toInt();
@@ -114,14 +112,13 @@ void ServerLink::Initialize(const char* event, const char* data) {
 
   // End Tap IDs
 
-  Serial.print("Device Status: ");
-  Serial.println(this->settings.deviceStatus);
-
   this->stateManager->Initialize(&this->settings);
+  Serial.println("Initialized");
 }
 
 int ServerLink::Settings(String data) {
   this->CallInitialize();
+  Serial.println("Settings");
 
 	return 0;
 }

@@ -16,8 +16,11 @@
 // 3 - P1 Redboard - Seeed NFC
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
-#define HARDWARE_CONFIG 4
+#define HARDWARE_CONFIG 5
 #define SPI_HW_MODE
+
+#define DEVICE_PRODUCT_ID 647
+#define DEVICE_PRODUCT_VERSION 1
 
 #if HARDWARE_CONFIG == 0
   #define OLED_SPI
@@ -33,7 +36,7 @@
   #define TEMPERATURE_PIN (D4)
 #elif HARDWARE_CONFIG == 2
   #define SS   (A2)
-  #define SCK  (A3)
+  #define SCK  (A5)
   #define MISO (A4)
   #define MOSI (A5)
   #define SOLENOID_PIN (D2)
@@ -54,19 +57,29 @@
   #define FLOW_PIN P1S0
   #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
+  #define EXPANSION_BOX_PIN A0
   #define SPI_HW_MODE
   #define OLED_SPI
   #define SS   DAC
   #define SOLENOID_PIN P1S1
   #define FLOW_PIN P1S0
   #define TEMPERATURE_PIN D2
+  #define OLED_DC     P1S3
+  #define OLED_CS     A2
+  #define OLED_RESET  A1
 #endif
 
+/*
 #ifdef OLED_SPI
+  // #define OLED_DC     D3
+  // #define OLED_CS     A2
+  // #define OLED_RESET  A1
   #define OLED_DC     D3
   #define OLED_CS     D4
   #define OLED_RESET  D5
 #else
   #define OLED_RESET  4
 #endif
+*/
+
 #endif
