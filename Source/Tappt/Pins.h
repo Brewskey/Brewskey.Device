@@ -17,7 +17,6 @@
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
 #define HARDWARE_CONFIG 5
-#define SPI_HW_MODE
 
 #define DEVICE_PRODUCT_ID 647
 #define DEVICE_PRODUCT_VERSION 1
@@ -57,8 +56,9 @@
   #define FLOW_PIN P1S0
   #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
+  //#define DISABLE_NFC 1
   #define EXPANSION_BOX_PIN A0
-  #define SPI_HW_MODE
+//  #define SPI_HW_MODE
   #define OLED_SPI
   #define SS   DAC
   #define SOLENOID_PIN P1S1
@@ -67,6 +67,9 @@
   #define OLED_DC     P1S3
   #define OLED_CS     A2
   #define OLED_RESET  A1
+  #define RED_PIN 29
+  #define GREEN_PIN 32
+  #define BLUE_PIN 31
 #endif
 
 /*

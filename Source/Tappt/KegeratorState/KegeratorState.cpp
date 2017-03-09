@@ -120,7 +120,7 @@ int KegeratorState::Tick()
 }
 
 void KegeratorState::NfcLoop() {
-	if (this->displayChangeCount> 0) {
+	if (this->displayChangeCount > 0) {
 		this->displayChangeCount = 0;
 		this->display->EndBatch();
 	}

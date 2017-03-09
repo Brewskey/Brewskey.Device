@@ -67,6 +67,8 @@ void Sensors::SingleFlowCounter()
 #endif
 }
 
+// If this gets called it means the pour stopped or the user changed the state
+// of the device (cleaning mode/disabled/enabled)
 void Sensors::CloseSolenoids() {
   for (int i = 0; i < this->tapCount; i++) {
     this->CloseSolenoid(i);
@@ -78,13 +80,51 @@ void Sensors::CloseSolenoid(uint8_t solenoid) {
     digitalWrite(SOLENOID_PIN, LOW);
   }
 
-  // TODO - Handle multiple solenoids
+#ifdef EXPANSION_BOX_PIN
+  switch(solenoid) {
+    case 0: {
+      this->dataPacket[4] |= 0x03;
+      break;
+    }
+    case 1: {
+      this->dataPacket[4] |= 0x0C;
+      break;
+    }
+    case 2: {
+      this->dataPacket[4] |= 0x30;
+      break;
+    }
+    case 3: {
+      this->dataPacket[4] |= 0xC0;
+      break;
+    }
+  }
+#endif
 }
 
 void Sensors::OpenSolenoids() {
   digitalWrite(SOLENOID_PIN, HIGH);
 
-  // TODO - Handle multiple solenoids
+  #ifdef EXPANSION_BOX_PIN
+    /*switch(solenoid) {
+      case 0: {
+        this->dataPacket[3] |= 0x03;
+        break;
+      }
+      case 1: {
+        this->dataPacket[3] |= 0x0C;
+        break;
+      }
+      case 2: {
+        this->dataPacket[3] |= 0x30;
+        break;
+      }
+      case 3: {
+        this->dataPacket[3] |= 0xC0;
+        break;
+      }
+    }*/
+  #endif
 }
 
 #ifdef EXPANSION_BOX_PIN
@@ -101,14 +141,17 @@ void Sensors::ReadMultitap(void)
 	digitalWrite(EXPANSION_BOX_PIN, HIGH);
 	/*transmit packet*/
   this->UartSendPacket(this->dataPacket, 6);
-	/*set RS485 direction pin LOW: receiver*/
+  /*reset packet to the original values*/
+  this->PrepareDataPacket();
+  /*set RS485 direction pin LOW: receiver*/
 	digitalWrite(EXPANSION_BOX_PIN, LOW);
 
-  delay(10);
+  delay(100);
 
 	/*read all received bytes*/
 	while (Serial1.available() > 0) {
 		data = Serial1.read();			/* Get data */
+    Serial.print(data, HEX);
 		if(data == '#' && !esc_flag)				/* If finding first escape byte */
 		{
 			esc_flag = 1;							/* Set escape byte flag */
@@ -164,6 +207,8 @@ void Sensors::ReadMultitap(void)
 			}
 		}
 	}
+  Serial.println();
+  Serial.println();
 
 	if(isValid)
 	{
