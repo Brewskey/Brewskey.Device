@@ -265,11 +265,12 @@ void KegeratorState::CleanupTapState() {
 	this->oldCode = "";
 
 	bool allStopped = true;
-	for(int i = 0; i < this->settings->tapCount; i++) {
-		if (this->taps[i].IsPouring()) {
+	for(uint8_t ii = 0; ii < this->settings->tapCount; ii++) {
+		if (this->taps[ii].IsPouring()) {
 			allStopped = false;
 		} else {
-			this->sensors->CloseSolenoid(i);
+			this->sensors->CloseSolenoid(ii);
+			this->sensors->ResetFlowSensor(ii);
 		}
 	}
 

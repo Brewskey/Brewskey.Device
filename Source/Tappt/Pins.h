@@ -67,22 +67,13 @@
   #define OLED_DC     P1S3
   #define OLED_CS     A2
   #define OLED_RESET  A1
-  #define RED_PIN 29
-  #define GREEN_PIN 32
-  #define BLUE_PIN 31
 #endif
 
-/*
-#ifdef OLED_SPI
-  // #define OLED_DC     D3
-  // #define OLED_CS     A2
-  // #define OLED_RESET  A1
+
+#ifndef OLED_RESET
   #define OLED_DC     D3
   #define OLED_CS     D4
   #define OLED_RESET  D5
-#else
-  #define OLED_RESET  4
 #endif
-*/
 
 #endif

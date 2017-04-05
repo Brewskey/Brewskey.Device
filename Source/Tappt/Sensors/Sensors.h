@@ -17,6 +17,7 @@ public:
   virtual void OpenSolenoids();
   virtual void CloseSolenoid(uint8_t solenoid);
   virtual void CloseSolenoids();
+  virtual void ResetFlowSensor(uint8_t solenoid);
 private:
   void SingleFlowCounter();
 #ifdef EXPANSION_BOX_PIN
