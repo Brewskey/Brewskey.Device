@@ -11,7 +11,6 @@
 #include "Sensors.h"
 #include "ServerLink.h"
 #include "TOTP.h"
-#include "WiFiSetup.h"
 
 LED led;
 KegeratorState* state;

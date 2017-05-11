@@ -91,7 +91,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
   end = tapIds.indexOf(delimeter);
   int iter = 0;
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
-    this->settings.tapIds[iter] = tapIds.substring(start, end - start);
+    this->settings.tapIds[iter] = tapIds.substring(start, end);
     start = end + delimeter.length();
     end = tapIds.indexOf(delimeter, start);
     iter++;
@@ -104,7 +104,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
 
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
     this->settings.pulsesPerGallon[iter] =
-      pulsesPerGallon.substring(start, end - start).toInt();
+      pulsesPerGallon.substring(start, end).toInt();
     start = end + delimeter.length();
     end = pulsesPerGallon.indexOf(delimeter, start);
     iter++;

@@ -4,6 +4,7 @@
 #define UART_SOLENOID_ON 4
 #define UART_SOLENOID_OFF 5
 #define UART_RESET_FLOW 6
+#define INCOMING_BUFFER_SIZE 21
 
 Sensors::Sensors(Tap taps[], uint8_t tapCount) {
   this->taps = taps;
@@ -108,10 +109,16 @@ void Sensors::CloseSolenoid(uint8_t solenoid) {
 }
 
 void Sensors::OpenSolenoids() {
+  for (int i = 0; i < 4; i++) {
+    this->OpenSolenoid(i);
+  }
+}
+
+void Sensors::OpenSolenoid(uint8_t solenoid) {
   digitalWrite(SOLENOID_PIN, HIGH);
 
   #ifdef EXPANSION_BOX_PIN
-    /*switch(solenoid) {
+    switch(solenoid) {
       case 0: {
         this->dataPacket[UART_SOLENOID_ON] |= 0x03;
         break;
@@ -128,7 +135,7 @@ void Sensors::OpenSolenoids() {
         this->dataPacket[UART_SOLENOID_ON] |= 0xC0;
         break;
       }
-    }*/
+    }
   #endif
 }
 
@@ -167,10 +174,12 @@ void Sensors::ReadMultitap(void)
 
   /*set RS485 direction pin HIGH: transmitter*/
 	digitalWrite(EXPANSION_BOX_PIN, HIGH);
-	/*transmit packet*/
+  /*set up checksum*/
+  this->PrepareDataPacket();
+  /*transmit packet*/
   this->UartSendPacket(this->dataPacket, UART_SEND_LENGTH);
   /*reset packet to the original values*/
-  this->PrepareDataPacket();
+  this->ResetDataPacket();
   /*set RS485 direction pin LOW: receiver*/
 	digitalWrite(EXPANSION_BOX_PIN, LOW);
 
@@ -179,7 +188,8 @@ void Sensors::ReadMultitap(void)
 	/*read all received bytes*/
 	while (Serial1.available() > 0) {
 		data = Serial1.read();			/* Get data */
-    Serial.print(data);
+    // Serial.print(data, HEX);
+    // Serial.print(" ");
 		if(data == '#' && !esc_flag)				/* If finding first escape byte */
 		{
 			esc_flag = 1;							/* Set escape byte flag */
@@ -205,7 +215,7 @@ void Sensors::ReadMultitap(void)
 				{
 					checksum = 0;					/* Reset checksum */
 
-					for(ii = 0; ii < 20; ii++)		/* Calculating checksum of packet */
+					for(ii = 0; ii < INCOMING_BUFFER_SIZE; ii++)		/* Calculating checksum of packet */
 					{
 						checksum ^= incomingBuffer[ii];
 					}
@@ -250,10 +260,8 @@ void Sensors::ReadMultitap(void)
           (incomingBuffer[FLOW_START + 4 * ii]<<24) |
           (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
           (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
-          (incomingBuffer[FLOW_START + 4 * ii + 1]);
+          (incomingBuffer[FLOW_START + 4 * ii + 3]);
 
-        Serial.print("Pulses: ");
-        Serial.println(pulses);
         // Get difference to determine if it is still pouring
         pulses -= this->taps[ii].GetTotalPulses();
         if (pulses <= 0) {
@@ -262,18 +270,18 @@ void Sensors::ReadMultitap(void)
 
         this->taps[ii].AddToFlowCount(pulses);
       }
-
+#if SHOW_OUTPUT
 			Serial.printf("SOL1: %s, PULSES1: %d, SOL2: %s, PULSES2: %d, SOL3: %s, PULSES3: %d, SOL4: %s, PULSES4: %d\n",
-				(incomingBuffer[3] & 0x01)?"ON":"OFF",	/*solenoid 1*/
+				(incomingBuffer[4] & 0x01)?"ON":"OFF",	/*solenoid 1*/
 				(incomingBuffer[5]<<24) | (incomingBuffer[6]<<16) |	(incomingBuffer[7]<<8) | (incomingBuffer[8]), /*flow 1*/
-				(incomingBuffer[3] & 0x02)?"ON":"OFF",	/*solenoid 2*/
+				(incomingBuffer[4] & 0x02)?"ON":"OFF",	/*solenoid 2*/
 				(incomingBuffer[9]<<24) | (incomingBuffer[10]<<16) |	(incomingBuffer[11]<<8) | (incomingBuffer[12]), /*flow 2*/
-				(incomingBuffer[3] & 0x04)?"ON":"OFF",	/*solenoid 3*/
+				(incomingBuffer[4] & 0x04)?"ON":"OFF",	/*solenoid 3*/
 				(incomingBuffer[13]<<24) | (incomingBuffer[14]<<16) |	(incomingBuffer[15]<<8) | (incomingBuffer[16]), /*flow 3*/
-				(incomingBuffer[3] & 0x08)?"ON":"OFF",	/*solenoid 4*/
+				(incomingBuffer[4] & 0x08)?"ON":"OFF",	/*solenoid 4*/
 				(incomingBuffer[17]<<24) | (incomingBuffer[18]<<16) |	(incomingBuffer[19]<<8) | (incomingBuffer[20])); /*flow 4*/
       Serial.println();
-
+#endif
 		}
 	}
 }
@@ -299,7 +307,8 @@ void Sensors::UartSendPacket(uint8_t* pstr, int length)
 
 		/*send data byte*/
 		Serial1.write(*str);
-
+    Serial.print(*str, HEX);
+    Serial.print(" ");
 		str++;														/* Point to next char */
 		i++;														/* Incr length index */
 	}
@@ -311,36 +320,25 @@ void Sensors::UartSendPacket(uint8_t* pstr, int length)
 	Serial1.flush();
 }
 
-/*data packet preparation*/
-void Sensors::PrepareDataPacket()
-{
+void Sensors::ResetDataPacket() {
+  /*dataPacket[4] - turn solenoid ON
+  Bits: 0x03 - solendoid 1
+  Bits: 0x0C - solendoid 2
+  Bits: 0x30 - solendoid 3
+  Bits: 0xC0 - solendoid 4
 
-	uint8_t checksum = 0;
-	uint8_t ii;
+  solendoid will turn OFF automatically when no more flow is detected*/
+  this->dataPacket[UART_SOLENOID_ON] = 0x00;
 
-	this->dataPacket[0] = 0x01;	/*destination - hardcoded 0x01*/
-	this->dataPacket[1] = 0x00;	/*source - mainboard*/
-  this->dataPacket[2] = 0x22; /*packet type - solenoid control */
-	this->dataPacket[3] = 0x01; /*mainboard packet version */
-
-	/*dataPacket[4] - turn solenoid ON
-	Bits: 0x03 - solendoid 1
-	Bits: 0x0C - solendoid 2
-	Bits: 0x30 - solendoid 3
-	Bits: 0xC0 - solendoid 4
-
-	solendoid will turn OFF automatically when no more flow is detected*/
-	this->dataPacket[UART_SOLENOID_ON] = 0x00;
-
-	/*dataPacket[5] - force solenoid OFF
-	Bits: 0x03 - solendoid 1
-	Bits: 0x0C - solendoid 2
-	Bits: 0x30 - solendoid 3
-	Bits: 0xC0 - solendoid 4
-	This can be used to override the auto-off algorithm, for example in case
+  /*dataPacket[5] - force solenoid OFF
+  Bits: 0x03 - solendoid 1
+  Bits: 0x0C - solendoid 2
+  Bits: 0x30 - solendoid 3
+  Bits: 0xC0 - solendoid 4
+  This can be used to override the auto-off algorithm, for example in case
   abnormal flow is detected (tap left open or leak)
-	*/
-	this->dataPacket[UART_SOLENOID_OFF] = 0x00;
+  */
+  this->dataPacket[UART_SOLENOID_OFF] = 0x00;
 
   /*dataPacket[6] - reset flow
   Bits: 0x03 - Flow Sensor 1
@@ -350,8 +348,19 @@ void Sensors::PrepareDataPacket()
   This is used to reset the flow sensor.
   */
   this->dataPacket[UART_RESET_FLOW] = 0x00;
+}
+/*data packet preparation*/
+void Sensors::PrepareDataPacket()
+{
+	uint8_t checksum = 0;
+	uint8_t ii;
 
-  const uint8_t checksumIndex = 7;
+	this->dataPacket[0] = 0x01;	/*destination - hardcoded 0x01*/
+	this->dataPacket[1] = 0x00;	/*source - mainboard*/
+  this->dataPacket[2] = 0x22; /*packet type - solenoid control */
+	this->dataPacket[3] = 0x01; /*mainboard packet version */
+
+  const uint8_t checksumIndex = UART_SEND_LENGTH - 1;
 	/*calculate checksum*/
 	for(ii = 0; ii < checksumIndex; ii++)
 	{
