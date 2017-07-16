@@ -21,6 +21,8 @@
 #define DEVICE_PRODUCT_ID 647
 #define DEVICE_PRODUCT_VERSION 1
 
+#define SHOW_OUTPUT 1
+
 #if HARDWARE_CONFIG == 0
   #define OLED_SPI
   #define DISABLE_NFC 1

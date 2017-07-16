@@ -307,8 +307,6 @@ void Sensors::UartSendPacket(uint8_t* pstr, int length)
 
 		/*send data byte*/
 		Serial1.write(*str);
-    Serial.print(*str, HEX);
-    Serial.print(" ");
 		str++;														/* Point to next char */
 		i++;														/* Incr length index */
 	}
