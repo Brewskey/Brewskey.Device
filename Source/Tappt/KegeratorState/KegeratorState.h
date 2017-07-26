@@ -16,7 +16,7 @@
 #include "ServerLink.h"
 #include "TapptTimer.h"
 
-#define TIME_TO_POUR =
+//#define TIME_TO_POUR =
 
 class KegeratorState: public ITick, public IStateManager  {
 public:
