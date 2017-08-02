@@ -3,6 +3,9 @@
 //#define DEBUG 100
 //#define NDEF_DEBUG 1
 
+PRODUCT_ID(1);
+PRODUCT_VERSION(2);
+
 #include "Display.h"
 #include "LED.h"
 #include "KegeratorState.h"
