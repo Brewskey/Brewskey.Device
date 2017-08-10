@@ -67,8 +67,9 @@ int Tap::Tick() {
 
 void Tap::AddToFlowCount(uint pulses) {
   // Don't start pouring if pulses aren't being sent.
-  // We use 5 here to filter out the phantom pours
-  if (pulses <= 5) {
+  // TODO - we need to find a good way to filter our phantom pours.  Maybe do
+  // an average over time and kill it that way.
+  if (pulses <= 0) {
     return;
   }
 
