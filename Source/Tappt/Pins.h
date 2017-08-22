@@ -9,6 +9,7 @@
 #define GREEN_PIN (RX)
 #define BLUE_PIN (TX)
 
+
 // Configurations
 // 0 - Photon - No NFC - OLED SPI Test
 // 1 - Photon - Adafruit NFC
@@ -16,23 +17,30 @@
 // 3 - P1 Redboard - Seeed NFC
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
-#define HARDWARE_CONFIG 5
-
+#define HARDWARE_CONFIG 0
 #define SHOW_OUTPUT 2
 
 #if HARDWARE_CONFIG == 0
+  #define BREWSKEY_PRODUCT_ID 6
+  #define BREWSKEY_PRODUCT_VERSION 1
   #define OLED_SPI
+//  #define SPI_HW_MODE
+  #define BIG_SCREEN
   #define DISABLE_NFC 1
   #define SOLENOID_PIN (D2)
   #define FLOW_PIN (D6)
   #define TEMPERATURE_PIN (D7)
 #elif HARDWARE_CONFIG == 1
+  #define BREWSKEY_PRODUCT_ID 2
+  #define BREWSKEY_PRODUCT_VERSION 1
   #define SPI_HW_MODE
   #define SS   (A2)
   #define SOLENOID_PIN (D2)
   #define FLOW_PIN (D6)
   #define TEMPERATURE_PIN (D4)
 #elif HARDWARE_CONFIG == 2
+  #define BREWSKEY_PRODUCT_ID 3
+  #define BREWSKEY_PRODUCT_VERSION 1
   #define SS   (A2)
   #define SCK  (A5)
   #define MISO (A4)
@@ -41,6 +49,8 @@
   #define FLOW_PIN (D6)
   #define TEMPERATURE_PIN (D4)
 #elif HARDWARE_CONFIG == 3
+  #define BREWSKEY_PRODUCT_ID 4
+  #define BREWSKEY_PRODUCT_VERSION 1
   #define SS   (A2)
   #define SCK  (A3)
   #define MISO (A4)
@@ -49,12 +59,16 @@
   #define FLOW_PIN (D6)
   #define TEMPERATURE_PIN (D4)
 #elif HARDWARE_CONFIG == 4
+  #define BREWSKEY_PRODUCT_ID 5
+  #define BREWSKEY_PRODUCT_VERSION 1
   #define SPI_HW_MODE
   #define SS   DAC
   #define SOLENOID_PIN P1S1
   #define FLOW_PIN P1S0
   #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
+  #define BREWSKEY_PRODUCT_ID 1
+  #define BREWSKEY_PRODUCT_VERSION 1
   //#define DISABLE_NFC 1
   #define EXPANSION_BOX_PIN A0
 //  #define SPI_HW_MODE

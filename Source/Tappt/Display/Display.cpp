@@ -1,5 +1,13 @@
 #include "Display.h"
 
+#ifdef BIG_SCREEN
+#define SWITCHCAPVCC SH1106_SWITCHCAPVCC
+#define I2C_ADDRESS SH1106_I2C_ADDRESS
+#else
+#define SWITCHCAPVCC SSD1306_SWITCHCAPVCC
+#define I2C_ADDRESS SSD1306_I2C_ADDRESS
+#endif
+
 Display::Display():
 #ifdef OLED_SPI
 #ifdef SPI_HW_MODE
@@ -13,9 +21,9 @@ display(OLED_RESET)
 {
   uint8_t iter;
 #ifdef OLED_SPI
-  display.begin(SSD1306_SWITCHCAPVCC);
+  display.begin(SWITCHCAPVCC);
 #else
-  display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+  display.begin(SWITCHCAPVCC, I2C_ADDRESS);
 #endif
   display.clearDisplay();
   display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, 1);

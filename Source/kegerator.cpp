@@ -3,9 +3,6 @@
 //#define DEBUG 100
 //#define NDEF_DEBUG 1
 
-//PRODUCT_ID(1);
-//PRODUCT_VERSION(2);
-
 #include "Display.h"
 #include "LED.h"
 #include "KegeratorState.h"
@@ -14,6 +11,10 @@
 #include "Sensors.h"
 #include "ServerLink.h"
 #include "TOTP.h"
+
+PRODUCT_ID(BREWSKEY_PRODUCT_ID);
+PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
+SYSTEM_MODE(MANUAL);
 
 LED led;
 KegeratorState* state;
