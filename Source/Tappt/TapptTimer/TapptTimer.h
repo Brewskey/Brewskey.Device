@@ -2,7 +2,7 @@
 #define Timer_h
 
 #include "application.h"
-#include "ITick.h"
+#include "Tappt/ITick.h"
 
 class TapptTimer: public ITick {
 public:

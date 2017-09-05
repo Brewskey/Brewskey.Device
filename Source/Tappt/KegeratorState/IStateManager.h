@@ -1,8 +1,8 @@
 #ifndef IStateManager_h
 #define IStateManager_h
 
-#include "DeviceSettings.h"
-#include "ITap.h"
+#include "Tappt/ServerLink/DeviceSettings.h"
+#include "Tappt/Tap/ITap.h"
 #include "application.h"
 
 class IStateManager {

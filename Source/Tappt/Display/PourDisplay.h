@@ -1,9 +1,9 @@
 #ifndef PourDisplay_h
 #define PourDisplay_h
 
-#include "ITick.h"
-#include "Tap.h"
-#include "Display.h"
+#include "Tappt/ITick.h"
+#include "Tappt/Tap/Tap.h"
+#include "Tappt/Display/Display.h"
 
 class PourDisplay: public ITick  {
 public:

@@ -1,20 +1,20 @@
 #ifndef KegeratorState_h
 #define KegeratorState_h
 
-#include "DeviceSettings.h"
-#include "DeviceStatus.h"
-#include "Display.h"
-#include "PourDisplay.h"
-#include "TotpDisplay.h"
-#include "ITick.h"
-#include "IStateManager.h"
-#include "Tap.h"
-#include "LED.h"
-#include "Pins.h"
-#include "NfcClient.h"
-#include "Sensors.h"
-#include "ServerLink.h"
-#include "TapptTimer.h"
+#include "Tappt/ServerLink/DeviceSettings.h"
+#include "Tappt/ServerLink/DeviceStatus.h"
+#include "Tappt/Display/Display.h"
+#include "Tappt/Display/PourDisplay.h"
+#include "Tappt/Display/TotpDisplay.h"
+#include "Tappt/ITick.h"
+#include "Tappt/KegeratorState/IStateManager.h"
+#include "Tappt/Tap/Tap.h"
+#include "Tappt/led/LED.h"
+#include "Tappt/Pins.h"
+#include "Tappt/NfcClient/NfcClient.h"
+#include "Tappt/Sensors/Sensors.h"
+#include "Tappt/ServerLink/ServerLink.h"
+#include "Tappt/TapptTimer/TapptTimer.h"
 
 //#define TIME_TO_POUR =
 

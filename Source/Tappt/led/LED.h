@@ -2,7 +2,7 @@
 #define LED_h
 
 #include "application.h"
-#include "Pins.h"
+#include "Tappt/Pins.h"
 
 #define PULSE_EPSILON 1
 

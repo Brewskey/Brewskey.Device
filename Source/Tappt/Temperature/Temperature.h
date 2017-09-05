@@ -2,11 +2,11 @@
 #define Temperature_h
 
 #include "application.h"
-#include "Pins.h"
-#include "OneWire.h"
-#include "DallasTemperature.h"
-#include "ITick.h"
-#include "TapptTimer.h"
+#include "Tappt/Pins.h"
+#include "OneWire/OneWire.h"
+#include "DallasTemperature/DallasTemperature.h"
+#include "Tappt/ITick.h"
+#include "Tappt/TapptTimer/TapptTimer.h"
 
 class Temperature : public ITick {
 public:

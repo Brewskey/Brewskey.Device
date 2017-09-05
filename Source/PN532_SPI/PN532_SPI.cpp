@@ -1,6 +1,6 @@
 
 #include "PN532_SPI.h"
-#include "PN532_debug.h"
+#include "PN532/PN532_debug.h"
 #include "application.h"
 
 #define STATUS_READ     2

@@ -2,10 +2,10 @@
 #define Sensors_h
 
 #include "ISolenoids.h"
-#include "Pins.h"
-#include "ITick.h"
-#include "Tap.h"
-#include "Temperature.h"
+#include "Tappt/Pins.h"
+#include "Tappt/ITick.h"
+#include "Tappt/Tap/Tap.h"
+#include "Tappt/Temperature/Temperature.h"
 
 /*maximum size of incoming packet from ext board*/
 #define PACKET_BUFFER	64

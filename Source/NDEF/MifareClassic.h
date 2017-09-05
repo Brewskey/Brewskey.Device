@@ -2,9 +2,9 @@
 #define MifareClassic_h
 
 #include "application.h"
-#include "PN532.h"
-#include "Ndef.h"
-#include "NfcTag.h"
+#include "PN532/PN532.h"
+#include "NDEF/Ndef.h"
+#include "NDEF/NfcTag.h"
 
 class MifareClassic
 {

@@ -2,10 +2,10 @@
 #define Tap_h
 
 #include "application.h"
-#include "ITap.h"
-#include "IStateManager.h"
-#include "ITick.h"
-#include "Pins.h"
+#include "Tappt/Tap/ITap.h"
+#include "Tappt/KegeratorState/IStateManager.h"
+#include "Tappt/ITick.h"
+#include "Tappt/Pins.h"
 
 #define BEFORE_POUR_TIME_PERIOD 5000
 #define AFTER_POUR_TIME_PERIOD 3000

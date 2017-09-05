@@ -2,15 +2,14 @@
 
 //#define DEBUG 100
 //#define NDEF_DEBUG 1
-
-#include "Display.h"
-#include "LED.h"
-#include "KegeratorState.h"
-#include "NfcClient.h"
-#include "Pins.h"
-#include "Sensors.h"
-#include "ServerLink.h"
-#include "TOTP.h"
+#include "Tappt/Pins.h"
+#include "Tappt/Display/Display.h"
+#include "Tappt/led/LED.h"
+#include "Tappt/KegeratorState/KegeratorState.h"
+#include "Tappt/NfcClient/NfcClient.h"
+#include "Tappt/Sensors/Sensors.h"
+#include "Tappt/ServerLink/ServerLink.h"
+#include "TOTP/TOTP.h"
 
 PRODUCT_ID(BREWSKEY_PRODUCT_ID);
 PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);

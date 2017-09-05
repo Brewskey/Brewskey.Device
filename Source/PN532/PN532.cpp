@@ -6,7 +6,7 @@
 */
 /**************************************************************************/
 
-#include "PN532.h"
+#include "PN532/PN532.h"
 #include "PN532_debug.h"
 
 #define HAL(func)   (_interface->func)

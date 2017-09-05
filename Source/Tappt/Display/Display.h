@@ -1,17 +1,17 @@
 #ifndef Display_h
 #define Display_h
 
-#include "Pins.h"
+#include "Tappt/Pins.h"
 #ifdef BIG_SCREEN
-#include "Adafruit_SH1106.h"
+#include "LCD/Adafruit_SH1106.h"
 #else
-#include "Adafruit_GFX.h"
-#include "Adafruit_SSD1306.h"
+#include "LCD/Adafruit_GFX.h"
+#include "LCD/Adafruit_SSD1306.h"
 #endif
-#include "ITick.h"
+#include "Tappt/ITick.h"
 
-#include "logo.h"
-#include "logo_text.h"
+#include "Tappt/assets/logo.h"
+#include "Tappt/assets/logo_text.h"
 
 class Display {
 public:

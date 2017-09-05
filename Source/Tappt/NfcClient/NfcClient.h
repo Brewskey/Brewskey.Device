@@ -1,18 +1,18 @@
 #ifndef NfcClient_h
 #define NfcClient_h
 
-#include "PN532_SPI.h"
-#include "PN532.h"
-#include "PN532_debug.h"
-#include "emulatetag.h"
-#include "snep.h"
-#include "NdefMessage.h"
-#include "NfcAdapter.h"
+#include "PN532_SPI/PN532_SPI.h"
+#include "PN532/PN532.h"
+#include "PN532/PN532_debug.h"
+#include "PN532/emulatetag.h"
+#include "PN532/snep.h"
+#include "NDEF/NdefMessage.h"
+#include "NDEF/NfcAdapter.h"
 
-#include "ITick.h"
-#include "LED.h"
-#include "Pins.h"
-#include "ServerLink.h"
+#include "Tappt/ITick.h"
+#include "Tappt/led/LED.h"
+#include "Tappt/Pins.h"
+#include "Tappt/ServerLink/ServerLink.h"
 //#define P2P 1
 
 namespace NfcState {

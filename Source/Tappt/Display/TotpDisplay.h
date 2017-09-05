@@ -1,11 +1,11 @@
 #ifndef TotpDisplay_h
 #define TotpDisplay_h
 
-#include "ITick.h"
-#include "Tap.h"
-#include "Display.h"
-#include "TOTP.h"
-#include "DeviceSettings.h"
+#include "Tappt/ITick.h"
+#include "Tappt/Tap/Tap.h"
+#include "Tappt/Display/Display.h"
+#include "TOTP/TOTP.h"
+#include "Tappt/ServerLink/DeviceSettings.h"
 
 class TotpDisplay: public ITick  {
 public:

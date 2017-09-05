@@ -3,8 +3,8 @@
 #define __PN532_SPI_H__
 
 #include "application.h"
-#include "Pins.h"
-#include "PN532Interface.h"
+#include "Tappt/Pins.h"
+#include "PN532/PN532Interface.h"
 
 class PN532_SPI : public PN532Interface {
 public:
