@@ -28,6 +28,7 @@ class NfcClient: public ITick {
 public:
   NfcClient();
   void Setup(ServerLink *serverLink);
+  void SendPendingMessage();
   virtual int Tick();
   int Initialize(String data);
 private:
@@ -35,6 +36,7 @@ private:
   NfcState::value SendMessage();
 
   String deviceId;
+  String readAuthenticationKey = "";
 
   PN532_SPI pn532spi;
   PN532 pn532;

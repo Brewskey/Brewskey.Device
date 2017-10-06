@@ -74,7 +74,7 @@ int NfcClient::Tick()
     return output;
   }
 
-  return output;
+//  return output;
 
   return this->ReadMessage();
 }
@@ -120,7 +120,7 @@ NfcState::value NfcClient::ReadMessage()
     return NfcState::NO_MESSAGE;
   }
 
-  this->serverLink->AuthorizePour(this->deviceId, authenticationKey);
+  this->readAuthenticationKey = authenticationKey;
 
   return NfcState::READ_MESSAGE;
 }
@@ -133,4 +133,15 @@ NfcState::value NfcClient::SendMessage()
   }
 
   return NfcState::NO_MESSAGE;
+}
+
+void NfcClient::SendPendingMessage()
+{
+  if (this->readAuthenticationKey == "")
+  {
+    return;
+  }
+
+  this->serverLink->AuthorizePour(this->deviceId, this->readAuthenticationKey);
+  this->readAuthenticationKey = "";
 }

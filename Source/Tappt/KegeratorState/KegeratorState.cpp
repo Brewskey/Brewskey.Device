@@ -34,6 +34,7 @@ void KegeratorState::SetState(e newState) {
 		}
 
 		case KegeratorState::WAITING_FOR_POUR_RESPONSE: {
+			this->nfcClient->SendPendingMessage();
 			RGB.control(true);
 			RGB.color(255, 255, 0);
 			break;

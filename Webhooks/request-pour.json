@@ -1,6 +1,7 @@
 {
     "event": "tappt_request-pour",
     "json": {
+        "authToken": "{{authToken}}",
     	"deviceId": "{{id}}",
     	"token": "{{tkn}}"
     },
