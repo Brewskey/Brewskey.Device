@@ -26,9 +26,9 @@ Sensors::Sensors(Tap taps[], uint8_t tapCount) {
   this->PrepareDataPacket();
 #endif
 
-  this->OpenSolenoids();
-  delay(10);
-  this->CloseSolenoids();
+  // this->OpenSolenoids();
+  // delay(10);
+  // this->CloseSolenoids();
 }
 
 int Sensors::Tick() {

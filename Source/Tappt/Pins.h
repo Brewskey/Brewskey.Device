@@ -17,7 +17,8 @@
 // 3 - P1 Redboard - Seeed NFC
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
-#define HARDWARE_CONFIG 5
+// 6 - PCB v3/v4 - P1 + PN532 Chip + BIG SCREEN
+#define HARDWARE_CONFIG 6
 #define SHOW_OUTPUT 2
 
 #if HARDWARE_CONFIG == 0
@@ -72,6 +73,19 @@
   //#define DISABLE_NFC 1
   #define EXPANSION_BOX_PIN A0
 //  #define SPI_HW_MODE
+  #define OLED_SPI
+  #define SS   DAC
+  #define SOLENOID_PIN P1S1
+  #define FLOW_PIN P1S0
+  #define TEMPERATURE_PIN D2
+  #define OLED_DC     P1S3
+  #define OLED_CS     A2
+  #define OLED_RESET  A1
+#elif HARDWARE_CONFIG == 6
+  #define BREWSKEY_PRODUCT_ID 1
+  #define BREWSKEY_PRODUCT_VERSION 1
+  #define BIG_SCREEN
+  #define EXPANSION_BOX_PIN A0
   #define OLED_SPI
   #define SS   DAC
   #define SOLENOID_PIN P1S1

@@ -74,7 +74,7 @@ int NfcClient::Tick()
     return output;
   }
 
-//  return output;
+  return output;
 
   return this->ReadMessage();
 }
