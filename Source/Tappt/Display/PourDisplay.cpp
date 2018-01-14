@@ -1,5 +1,7 @@
 #include "PourDisplay.h"
 
+#define MAX_DRAWING_SLOTS 4
+#define TEXT_SETTING_LENGTH 4
 /*
 * 1. Slot
 *
@@ -11,17 +13,17 @@
 *    1 = text width
 *    2 = half text width
 */
-int TEXT_SETTINGS_1[1][4] = {
+int TEXT_SETTINGS_1[1][TEXT_SETTING_LENGTH] = {
   {42, 40, 2, 0},
 };
 
-
-int TEXT_SETTINGS_4[4][4] = {
+int TEXT_SETTINGS_4[MAX_DRAWING_SLOTS][TEXT_SETTING_LENGTH] = {
   {0, 0, 1, 0},
   {128, 0, 1, 1},
   {0, 56, 1, 0},
   {128, 56, 1, 1},
 };
+
 
 PourDisplay::PourDisplay(Display* display) {
   this->display = display;
@@ -37,35 +39,35 @@ int PourDisplay::Tick() {
   int changeCount = 0;
   int counter = 0;
 
-  for(int i = 0; i < this->tapCount; i++) {
-    if (this->taps[i].IsPouring()) {
+  for(int ii = 0; ii < this->tapCount; ii++) {
+    if (this->taps[ii].IsPouring()) {
       counter++;
-      this->SetEmptySlotForTap(i);
+      this->SetEmptySlotForTap(ii);
     }
 	}
 
   // Count the number of taps that rendered last
   int oldCounter = 0;
-  for(int i = 0; i < 4; i++) {
-    if (this->currentPouringTaps[i] >= 0) {
+  for(int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
+    if (this->currentPouringTaps[ii] >= 0) {
       oldCounter++;
     }
   }
 
-  int (*textSettings)[4] = TEXT_SETTINGS_4;
+  int (*textSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
   if (counter == 1) {
     textSettings = TEXT_SETTINGS_1;
   }
 
 
-  int (*oldTextSettings)[4] = TEXT_SETTINGS_4;
+  int (*oldTextSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
   if (oldCounter == 1) {
     oldTextSettings = TEXT_SETTINGS_1;
   }
 
   // Render tap if there is a change;
-  for(int i = 0; i < 4; i++) {
-    int currentPouringTap = this->currentPouringTaps[i];
+  for(int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
+    int currentPouringTap = this->currentPouringTaps[ii];
     if (
       currentPouringTap < 0 ||
       this->taps[currentPouringTap].GetPulsesPerGallon() < 1
@@ -73,35 +75,35 @@ int PourDisplay::Tick() {
       continue;
     }
 
-    int x = oldTextSettings[i][0];
-    int y = oldTextSettings[i][1];
-    int fontSize = oldTextSettings[i][2];
-    int offsetType = oldTextSettings[i][3];
+    int x = oldTextSettings[ii][0];
+    int y = oldTextSettings[ii][1];
+    int fontSize = oldTextSettings[ii][2];
+    int offsetType = oldTextSettings[ii][3];
 
     // If the tap stopped pouring, clean it up.
     if (
       !this->taps[currentPouringTap].IsPouring() &&
-      this->currentDisplays[i].length() > 0
+      this->currentDisplays[ii].length() > 0
     ) {
       changeCount++;
       this->display->ClearText(
-        this->currentDisplays[i],
+        this->currentDisplays[ii],
         x,
         y,
         fontSize,
         offsetType
       );
 
-      this->currentPouringTaps[i] = -1;
-      this->currentDisplays[i] = "";
+      this->currentPouringTaps[ii] = -1;
+      this->currentDisplays[ii] = "";
 
       continue;
     }
 
-    x = textSettings[i][0];
-    y = textSettings[i][1];
-    fontSize = textSettings[i][2];
-    offsetType = textSettings[i][3];
+    x = textSettings[ii][0];
+    y = textSettings[ii][1];
+    fontSize = textSettings[ii][2];
+    offsetType = textSettings[ii][3];
 
     uint pulses = this->taps[currentPouringTap].GetTotalPulses();
     int pulsesPerGallon = this->taps[currentPouringTap].GetPulsesPerGallon();
@@ -113,23 +115,23 @@ int PourDisplay::Tick() {
       ounces
     );
 
-    if (String(ounceString) == this->currentDisplays[i]) {
+    if (String(ounceString) == this->currentDisplays[ii]) {
       continue;
     }
 
     changeCount++;
 
     this->display->ClearText(
-      this->currentDisplays[i],
+      this->currentDisplays[ii],
       x,
       y,
       fontSize,
       offsetType
     );
 
-    this->currentDisplays[i] = ounceString;
+    this->currentDisplays[ii] = ounceString;
     this->display->SetText(
-      this->currentDisplays[i],
+      this->currentDisplays[ii],
       x,
       y,
       fontSize,
@@ -140,14 +142,10 @@ int PourDisplay::Tick() {
   return changeCount;
 }
 
-void PourDisplay::SetEmptySlotForTap(int tapId) {
-  // For four taps, always render in the same spot.
-  if (this->tapCount <= 4) {
-    this->currentPouringTaps[tapId] = tapId;
-    return;
-  }
+void bubbleSort(int arr[], int size);
 
-  int minPouringTaps = min(this->tapCount, 4);
+void PourDisplay::SetEmptySlotForTap(int tapId) {
+  int minPouringTaps = min(this->tapCount, MAX_DRAWING_SLOTS);
 
   // Find an empty slot for the tap if one hasn't already been set for it.
   for(int i = 0; i < minPouringTaps; i++) {
@@ -164,5 +162,41 @@ void PourDisplay::SetEmptySlotForTap(int tapId) {
 
     this->currentPouringTaps[i] = tapId;
     break;
+  }
+
+  bubbleSort(this->currentPouringTaps, MAX_DRAWING_SLOTS);
+}
+
+void swapInt(int *xp, int *yp)
+{
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+// A function to implement bubble sort
+void bubbleSort(int arr[], int size)
+{
+  int ii, jj;
+  bool swapped;
+  for (ii = 0; ii < size - 1; ii++)
+  {
+    swapped = false;
+    for (jj = 0; jj < size - ii - 1; jj++)
+    {
+      // move empty slots to back of the array
+      int current = arr[jj] == -1 ? SHRT_MAX : arr[jj];
+      int next = arr[jj + 1] == -1 ? SHRT_MAX : arr[jj + 1];
+      if (current > next)
+      {
+        swapInt(&arr[jj], &arr[jj + 1]);
+        swapped = true;
+      }
+    }
+
+    if (swapped == false)
+    {
+      break;
+    }
   }
 }
