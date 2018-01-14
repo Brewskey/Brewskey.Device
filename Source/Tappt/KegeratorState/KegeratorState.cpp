@@ -41,7 +41,7 @@ void KegeratorState::SetState(e newState) {
 		}
 
 		case KegeratorState::POUR_AUTHORIZED: {
-			RGB.control(false);
+			RGB.control(true);
 			RGB.color(0, 255, 0);
 			break;
 		}
@@ -54,8 +54,15 @@ void KegeratorState::SetState(e newState) {
 
 		case KegeratorState::FREE_POUR: {
 			RGB.control(true);
-			RGB.color(0, 255, 0);
-			this->openValveTimer.Start();
+			RGB.color(0, 255, 127);
+
+			// If the box is already in free pour mode we don't want to add additional
+			// time.
+			if (!this->openValveTimer.IsRunning())
+			{
+				this->openValveTimer.Start();
+			}
+
 			break;
 		}
 
@@ -221,6 +228,13 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 
   this->nfcTimer.stop();
 	this->nfcTimer.start();
+
+	this->SetStateFromDeviceStatus();
+
+  this->nfcClient->Initialize(this->settings->deviceId);
+}
+
+void KegeratorState::SetStateFromDeviceStatus() {
 	if (this->settings->deviceStatus == DeviceStatus::INACTIVE) {
 		this->SetState(KegeratorState::INACTIVE);
 	} else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
@@ -230,8 +244,6 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	} else {
 		this->SetState(KegeratorState::LISTENING);
 	}
-
-  this->nfcClient->Initialize(this->settings->deviceId);
 }
 
 int KegeratorState::Settings(String data) {
@@ -313,6 +325,6 @@ void KegeratorState::CleanupTapState() {
 	}
 
 	if (allStopped) {
-		this->SetState(KegeratorState::LISTENING);
+		this->SetStateFromDeviceStatus();
 	}
 }

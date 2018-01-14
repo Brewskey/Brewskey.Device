@@ -17,7 +17,7 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 
 //#define TIME_TO_POUR =
-#define MILLISECONDS_IN_HOUR 10000
+#define MILLISECONDS_IN_HOUR 3600000
 
 class KegeratorState: public ITick, public IStateManager  {
 public:
@@ -56,6 +56,8 @@ private:
 
   void StartCleaning();
   void StartInactive();
+
+  void SetStateFromDeviceStatus();
 
   DeviceSettings *settings;
   Display *display;
