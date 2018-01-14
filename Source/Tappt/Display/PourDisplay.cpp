@@ -185,8 +185,8 @@ void bubbleSort(int arr[], int size)
     for (jj = 0; jj < size - ii - 1; jj++)
     {
       // move empty slots to back of the array
-      int current = arr[jj] == -1 ? SHRT_MAX : arr[jj];
-      int next = arr[jj + 1] == -1 ? SHRT_MAX : arr[jj + 1];
+      int current = arr[jj] == -1 ? INT_MAX : arr[jj];
+      int next = arr[jj + 1] == -1 ? INT_MAX : arr[jj + 1];
       if (current > next)
       {
         swapInt(&arr[jj], &arr[jj + 1]);

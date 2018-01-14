@@ -37,7 +37,7 @@ int Temperature::Tick()
 {
   this->timer.Tick();
 
-  if (!this->timer.ShouldTrigger) {
+  if (!this->timer.ShouldTrigger()) {
     return 0;
   }
 

@@ -41,9 +41,8 @@ void KegeratorState::SetState(e newState) {
 		}
 
 		case KegeratorState::POUR_AUTHORIZED: {
-			RGB.control(true);
+			RGB.control(false);
 			RGB.color(0, 255, 0);
-
 			break;
 		}
 
@@ -53,9 +52,21 @@ void KegeratorState::SetState(e newState) {
 			break;
 		}
 
+		case KegeratorState::FREE_POUR: {
+			RGB.control(true);
+			RGB.color(0, 255, 0);
+			this->openValveTimer.Start();
+			break;
+		}
+
 		case KegeratorState::INACTIVE: {
 			RGB.control(true);
 			RGB.color(255, 0, 0);
+			this->display->BeginBatch();
+			this->display->SetText("Device", 28, 15);
+			this->display->SetText("Disabled", 16, 35);
+			this->displayChangeCount++;
+
 			this->StopPouring();
 			break;
 		}
@@ -63,9 +74,12 @@ void KegeratorState::SetState(e newState) {
 		case KegeratorState::CLEANING: {
 			RGB.control(true);
 			RGB.color(255, 0, 0);
+			this->display->BeginBatch();
+			this->display->SetText("Cleaning", 16, 15);
+			this->display->SetText("Device", 28, 35);
+			this->displayChangeCount++;
 
-			// TODO - only unlock for an hour
-			this->sensors->OpenSolenoids();
+			this->openValveTimer.Start();
 
 			break;
 		}
@@ -80,6 +94,36 @@ int KegeratorState::Tick()
   if (this->state == KegeratorState::INITIALIZING) {
     return 0;
   }
+
+	if (this->openValveTimer.IsRunning())
+	{
+		this->openValveTimer.Tick();
+		if (this->openValveTimer.ShouldTrigger())
+		{
+			this->sensors->OpenSolenoids();
+		}
+
+		if (!this->openValveTimer.IsRunning())
+		{
+			if (this->state == KegeratorState::CLEANING)
+			{
+				this->SetState(KegeratorState::INACTIVE);
+			}
+			else
+			{
+				this->SetState(KegeratorState::LISTENING);
+			}
+		}
+	}
+
+	// We don't need to run the rest of the rendering logic
+	switch (this->state)
+	{
+		case KegeratorState::CLEANING:
+		case KegeratorState::INACTIVE: {
+			return 0;
+		}
+	}
 
   long pourResponseDelta = millis() - this->pourResponseStartTime;
 
@@ -121,6 +165,7 @@ int KegeratorState::Tick()
 }
 
 void KegeratorState::NfcLoop() {
+	// We end the rendering on this loop so it doesn't mess with the NFC
 	if (this->displayChangeCount > 0) {
 		this->displayChangeCount = 0;
 		this->display->EndBatch();
@@ -175,13 +220,15 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	this->display->EndBatch();
 
   this->nfcTimer.stop();
+	this->nfcTimer.start();
 	if (this->settings->deviceStatus == DeviceStatus::INACTIVE) {
 		this->SetState(KegeratorState::INACTIVE);
 	} else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
 		this->SetState(KegeratorState::CLEANING);
+	} else if (this->settings->deviceStatus == DeviceStatus::FREE) {
+		this->SetState(KegeratorState::FREE_POUR);
 	} else {
 		this->SetState(KegeratorState::LISTENING);
-    this->nfcTimer.start();
 	}
 
   this->nfcClient->Initialize(this->settings->deviceId);
@@ -203,16 +250,6 @@ int KegeratorState::StartPour(String data) {
 	this->SetState(KegeratorState::POUR_AUTHORIZED);
 
 	return 0;
-}
-
-// TODO - This should fire when it goes to the inactive state..
-void KegeratorState::CleaningComplete() {
-	this->SetState(KegeratorState::INACTIVE);
-
-	this->display->BeginBatch();
-	this->display->SetText("Device", 28, 15);
-	this->display->SetText("Disabled", 16, 35);
-	this->display->EndBatch();
 }
 
 void KegeratorState::TapStartedPouring(ITap &tap) {

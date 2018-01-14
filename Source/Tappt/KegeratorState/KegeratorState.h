@@ -17,6 +17,7 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 
 //#define TIME_TO_POUR =
+#define MILLISECONDS_IN_HOUR 10000
 
 class KegeratorState: public ITick, public IStateManager  {
 public:
@@ -42,16 +43,19 @@ public:
     POURING,
 
     CLEANING,
+    FREE_POUR,
     INACTIVE,
   };
 
 private:
   void SetState(e state);
-  void CleaningComplete();
   void Timeout();
   void CleanupTapState();
   void NfcLoop();
   void StopPouring();
+
+  void StartCleaning();
+  void StartInactive();
 
   DeviceSettings *settings;
   Display *display;
@@ -71,6 +75,9 @@ private:
   unsigned long pourResponseStartTime;
 
   Timer nfcTimer = Timer(1, &KegeratorState::NfcLoop, *this);
+
+  // Add extra delay so the server can switch this over instead of us
+  TapptTimer openValveTimer = TapptTimer(3000, MILLISECONDS_IN_HOUR + 30000);
 };
 
 #endif
