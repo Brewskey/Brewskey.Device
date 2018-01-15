@@ -11,6 +11,11 @@ void TotpDisplay::Setup(DeviceSettings *settings, Tap* taps, int tapCount) {
   this->tapCount = tapCount;
   this->settings = settings;
 }
+
+void TotpDisplay::Reset() {
+  this->currentTotp = "";
+}
+
 bool drawn = false;
 int TotpDisplay::Tick() {
   int currentPourCount = 0;

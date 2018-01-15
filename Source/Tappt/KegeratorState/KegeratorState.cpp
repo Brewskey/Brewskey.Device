@@ -225,6 +225,7 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 
 	this->display->BeginBatch();
 	this->display->EndBatch();
+	this->totpDisplay->Reset();
 
   this->nfcTimer.stop();
 	this->nfcTimer.start();

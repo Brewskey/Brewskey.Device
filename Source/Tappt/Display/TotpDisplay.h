@@ -11,6 +11,7 @@ class TotpDisplay: public ITick  {
 public:
   TotpDisplay(Display* display);
 
+  void Reset();
   void Setup(DeviceSettings* settings, Tap* taps, int tapCount);
   virtual int Tick();
 private:
