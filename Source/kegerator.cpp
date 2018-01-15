@@ -9,14 +9,18 @@
 #include "Tappt/NfcClient/NfcClient.h"
 #include "Tappt/Sensors/Sensors.h"
 #include "Tappt/ServerLink/ServerLink.h"
+#include "Tappt/TapptTimer/TapptTimer.h"
 #include "TOTP/TOTP.h"
 
 PRODUCT_ID(BREWSKEY_PRODUCT_ID);
 PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
 
+#define MILLISECONDS_IN_DAY 86400000
+
 LED led;
 KegeratorState* state;
 Display* display;
+TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
 
 void setup(void) {
     RGB.control(true);
@@ -31,9 +35,15 @@ void setup(void) {
       Spark.process();
     }
 */
+
     state = new KegeratorState(display);
 }
 
 void loop(void) {
   state->Tick();
+  timeSync.Tick();
+
+  if (timeSync.ShouldTrigger()) {
+    Particle.syncTime();
+  }
 }

@@ -82,7 +82,7 @@
   #define OLED_CS     A2
   #define OLED_RESET  A1
 #elif HARDWARE_CONFIG == 6
-  #define BREWSKEY_PRODUCT_ID 1
+  #define BREWSKEY_PRODUCT_ID 2
   #define BREWSKEY_PRODUCT_VERSION 2
   #define BIG_SCREEN
   #define EXPANSION_BOX_PIN A0

@@ -159,15 +159,8 @@ int KegeratorState::Tick()
   // read taps and manage end-pour
   for(int i = 0; i < this->settings->tapCount; i++) {
     this->taps[i].Tick();
-
-    // Anonymous pour started
-    if (
-      this->state == KegeratorState::LISTENING &&
-      this->taps[i].IsPouring()
-    ) {
-      this->SetState(KegeratorState::POURING);
-    }
 	}
+	
   return 0;
 }
 
