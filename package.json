@@ -1,0 +1,19 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "Unit tests for Brewskey.Device",
+  "scripts": {
+    "configure": "node-gyp configure",
+    "build": "node-gyp build"
+  },
+  "pre-commit": [
+    "build",
+    "test"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cppunitlite": "git+https://github.com/Brewskey/CppUnitLite.git",
+    "pre-commit": "^1.2.2"
+  }
+}
