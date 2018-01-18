@@ -12,7 +12,11 @@
 #define DMSG_HEX(num)       Serial.print(' '); Serial.print(num, HEX)
 #define DMSG_INT(num)       Serial.print(' '); Serial.print(num)
 #else
+#if defined(_WIN32) || defined(WIN32) 
+#define DMSG(...)
+#else
 #define DMSG(args...)
+#endif
 #define DMSG_STR(str)
 #define DMSG_HEX(num)
 #define DMSG_INT(num)

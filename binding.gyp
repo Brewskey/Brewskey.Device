@@ -8,11 +8,7 @@
          "Tests/Tappt/Tap/Tap__test.cpp",
       ],
       "include_dirs": [
-        "Particle",
-        "node_modules/cppunitlite"
-      ],
-      "dependencies": [
-        "node_modules/cppunitlite/binding.gyp:CppUnitLite",
+        "Tests/system",
       ],
       "conditions": [
         ['OS=="win"', {
