@@ -18,7 +18,7 @@
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
 // 6 - PCB v3/v4 - P1 + PN532 Chip + BIG SCREEN
-#define HARDWARE_CONFIG 6
+#define HARDWARE_CONFIG 5
 #define SHOW_OUTPUT 2
 
 #if HARDWARE_CONFIG == 0
@@ -69,7 +69,7 @@
   #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
   #define BREWSKEY_PRODUCT_ID 1
-  #define BREWSKEY_PRODUCT_VERSION 1
+  #define BREWSKEY_PRODUCT_VERSION 2
   //#define DISABLE_NFC 1
   #define EXPANSION_BOX_PIN A0
 //  #define SPI_HW_MODE
@@ -83,7 +83,7 @@
   #define OLED_RESET  A1
 #elif HARDWARE_CONFIG == 6
   #define BREWSKEY_PRODUCT_ID 2
-  #define BREWSKEY_PRODUCT_VERSION 2
+  #define BREWSKEY_PRODUCT_VERSION 3
   #define BIG_SCREEN
   #define EXPANSION_BOX_PIN A0
   #define OLED_SPI
