@@ -9,7 +9,7 @@ static inline SimpleString StringFrom(const std::string& value)
 
 TEST( Hello, world )
 {
-  std::string s1("Hello"), s2("Hello"), s3("world");
+  std::string s1("Hello2"), s2("Hello"), s3("world");
 
   CHECK_EQUAL(s1, s2);
   CHECK_EQUAL(s2, s1);
