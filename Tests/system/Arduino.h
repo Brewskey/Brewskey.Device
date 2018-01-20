@@ -12,10 +12,6 @@
 #define HIGH 0x1
 #define LOW  0x0
 
-#define INPUT 0x0
-#define OUTPUT 0x1
-#define INPUT_PULLUP 0x2
-
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
@@ -93,7 +89,11 @@ class Serial_CLS
       void write( const char* buffer );
       void print( int value );
       void print( double value );
-      void println( const char* buffer );
+	  void print(const char* buffer);
+	  void print(byte value, byte format);
+	  void println(const char* buffer);
+	  void println(int value);
+	  void println(byte value, byte format);
       void begin( int baudrate );
       int available();
       char read();
@@ -131,8 +131,6 @@ class Arduino_TEST
 extern Arduino_TEST ARDUINO_TEST;
 
 extern Serial_CLS Serial;
-
-typedef std::string String ;
 
 static const int A0 = 100;
 
