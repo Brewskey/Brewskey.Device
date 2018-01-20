@@ -17,7 +17,7 @@
 
 namespace NfcState {
   enum value {
-    ERROR = -1,
+    NFC_ERROR = -1,
     NO_MESSAGE,
     SENT_MESSAGE,
     READ_MESSAGE,

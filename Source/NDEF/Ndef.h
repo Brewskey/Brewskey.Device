@@ -7,7 +7,7 @@
 
 #include "application.h"
 
-#define NULL (void *)0
+#define NULL 0
 
 void PrintHex(const byte *data, const long numBytes);
 void PrintHexChar(const byte *data, const long numBytes);

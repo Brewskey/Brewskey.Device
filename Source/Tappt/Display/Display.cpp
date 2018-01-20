@@ -19,7 +19,6 @@ display(MOSI, SCK, OLED_DC, OLED_RESET, OLED_CS)
 display(OLED_RESET)
 #endif
 {
-  uint8_t iter;
 #ifdef OLED_SPI
   display.begin(SWITCHCAPVCC);
 #else

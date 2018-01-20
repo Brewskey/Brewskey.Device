@@ -50,8 +50,11 @@ NfcTag MifareClassic::read(byte *uid, unsigned int uidLength)
     // this should be nested in the message length loop
     int index = 0;
     int bufferSize = getBufferSize(messageLength);
+#if defined(IS_WINDOWS)
+	uint8_t* buffer = new uint8_t[bufferSize];
+#else
     uint8_t buffer[bufferSize];
-
+#endif
     #ifdef MIFARE_CLASSIC_DEBUG
     Serial.print(F("Message Length "));Serial.println(messageLength);
     Serial.print(F("Buffer Size "));Serial.println(bufferSize);
@@ -101,7 +104,11 @@ NfcTag MifareClassic::read(byte *uid, unsigned int uidLength)
         }
     }
 
-    return NfcTag(uid, uidLength, MIFARE_CLASSIC, &buffer[messageStartIndex], messageLength);
+	NfcTag tag = NfcTag(uid, uidLength, MIFARE_CLASSIC, &buffer[messageStartIndex], messageLength);
+#if defined(IS_WINDOWS)
+	delete[] buffer;
+#endif
+	return tag;
 }
 
 int MifareClassic::getBufferSize(int messageLength)
@@ -329,12 +336,19 @@ boolean MifareClassic::formatMifare(byte * uid, unsigned int uidLength)
 
 boolean MifareClassic::write(NdefMessage& m, byte * uid, unsigned int uidLength)
 {
-
-    uint8_t encoded[m.getEncodedSize()];
+#if defined(IS_WINDOWS)
+	uint8_t* encoded = new uint8_t[m.getEncodedSize()];
+#else
+	uint8_t encoded[m.getEncodedSize()];
+#endif
     m.encode(encoded);
 
-    uint8_t buffer[getBufferSize(sizeof(encoded))];
-    memset(buffer, 0, sizeof(buffer));
+#if defined(IS_WINDOWS)
+	uint8_t* buffer = new uint8_t[getBufferSize(sizeof(encoded))];
+#else
+	uint8_t buffer[getBufferSize(sizeof(encoded))];
+#endif
+	memset(buffer, 0, sizeof(buffer));
 
     #ifdef MIFARE_CLASSIC_DEBUG
     Serial.print(F("sizeof(encoded) "));Serial.println(sizeof(encoded));
@@ -372,6 +386,10 @@ boolean MifareClassic::write(NdefMessage& m, byte * uid, unsigned int uidLength)
             if (!success)
             {
                 Serial.print(F("Error. Block Authentication failed for "));Serial.println(currentBlock);
+#if defined(IS_WINDOWS)
+				delete[] encoded;
+				delete[] buffer;
+#endif
                 return false;
             }
         }
@@ -387,6 +405,10 @@ boolean MifareClassic::write(NdefMessage& m, byte * uid, unsigned int uidLength)
         else
         {
             Serial.print(F("Write failed "));Serial.println(currentBlock);
+#if defined(IS_WINDOWS)
+			delete[] encoded;
+			delete[] buffer;
+#endif
             return false;
         }
         index += BLOCK_SIZE;
@@ -402,6 +424,9 @@ boolean MifareClassic::write(NdefMessage& m, byte * uid, unsigned int uidLength)
         }
 
     }
-
+#if defined(IS_WINDOWS)
+	delete[] encoded;
+	delete[] buffer;
+#endif
     return true;
 }
