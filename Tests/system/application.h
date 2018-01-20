@@ -38,8 +38,6 @@
 #define digitalRead(a) 1
 #define analogWrite(a,b)
 #define digitalWrite(a,b)
-#define HEX 0
-#define DEC 0
 #define MOSI 0
 #define SCK 0
 #define MISO 0
