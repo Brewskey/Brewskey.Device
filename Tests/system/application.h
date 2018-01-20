@@ -7,6 +7,11 @@
 #include "Arduino.h"
 #include "Servo.h"
 #include "WString.h"
+#include "Print.h"
+
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
+#define IS_WINDOWS
+#endif
 
 #define PRODUCT_ID(v)
 #define PRODUCT_VERSION(v)
@@ -14,6 +19,7 @@
 #define Serial1 Serial
 #define uint unsigned int
 #define pin_t uint8_t
+#define boolean bool
 #define FALSE 0
 #define TRUE 1
 #define min(a,b) ((a)<(b)?(a):(b))
@@ -27,27 +33,73 @@
 #define SPI_CLOCK_DIV2 0
 #define SPI_CLOCK_DIV8 0
 #define shiftOut(sid, sclk, mb, d)
+#define attachInterrupt(a,b,c,d,e)
+#define pinMode(a,b)
+#define digitalRead(a) 1
+#define analogWrite(a,b)
+#define digitalWrite(a,b)
 #define HEX 0
+#define DEC 0
+#define MOSI 0
+#define SCK 0
+#define MISO 0
+#define P1S3 0
+#define A1 0
+#define A2 0
+#define DAC 0
+#define P1S1 0
+#define P1S0 0
+#define D2 0
+#define MY_DEVICES 0
+#define PRIVATE 0
 
-#if defined(_WIN32) || defined(WIN32)
+#define WKP 0
+#define RX 0
+#define TX 0
+
+
+#if defined(IS_WINDOWS)
 #define __attribute__(A)
+#include <ctime>
+template <typename T>
+extern void delay(T timeout)
+{
+	timeout += std::clock();
+	while (std::clock() < timeout) continue;
+}
+#define millis() std::clock()
 #endif
 
 class _RGB {
+typedef std::function<void(void)> callback_fn;
 public:
-	void control(bool val) {};
-	void color(char r, char g, char b) {};
+	void control(bool val) {}
+	void color(char r, char g, char b) {}
+	template <typename T>
+	void onChange(void (T::*handler)(uint8_t, uint8_t, uint8_t), T *instance) {
+	}
 };
-extern _RGB RGB;
 
 class _Particle {
 public:
-	void syncTime() {};
+	void syncTime() {}
+	void process() {}
+	template <typename T>
+	void subscribe(String s, void (T::*handler)(const char*, const char*), T *instance, byte b) {}
+	template <typename T>
+	void function(String s, int (T::*handler)(String), T *instance) {}
+	void publish(String s, const char *c, byte b, byte b2) {}
 };
 
-extern _Particle Particle;
+class _Time {
+public:
+	uint now() { return 0; }
+};
 
-class Print {
+class _System {
+public:
+	byte freeMemory() { return 0; }
+	String deviceID() { return ""; }
 };
 
 class Timer {
@@ -61,6 +113,9 @@ public:
 	Timer(unsigned period, void (T::*handler)(), T& instance, bool one_shot = false) : Timer(period, std::bind(handler, &instance), one_shot)
 	{
 	}
+
+	void start() {}
+	void stop() {}
 };
 
 typedef struct {
@@ -69,25 +124,15 @@ typedef struct {
 	uint8_t BSRRL;
 } GPIO_TypeDef;
 
-typedef enum PinMode {
-	INPUT,
-	OUTPUT,
-	INPUT_PULLUP,
-	INPUT_PULLDOWN,
-	AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
-	AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
-	AN_INPUT,           //Used internally for ADC Input
-	AN_OUTPUT,          //Used internally for DAC Output
-	PIN_MODE_NONE = 0xFF
-};
-
-typedef enum PinFunction {
+enum PinFunction {
 	PF_NONE,
 	PF_DIO,
 	PF_TIMER,
 	PF_ADC,
 	PF_DAC
 };
+
+#define PinMode byte
 
 typedef struct Pin_Info {
 	GPIO_TypeDef* gpio_peripheral;
@@ -99,7 +144,6 @@ typedef struct Pin_Info {
 	uint16_t timer_ccr;
 	int32_t user_property;
 } STM32_Pin_Info;
-extern Pin_Info PIN_MAP[];
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,32 +167,32 @@ public:
 	inline void setClock(uint32_t speed) {
 		setSpeed(speed);
 	}
-	void setSpeed(uint32_t);
-	void enableDMAMode(bool);
-	void stretchClock(bool);
-	void begin();
-	void begin(uint8_t);
-	void begin(int);
-	void beginTransmission(uint8_t);
-	void beginTransmission(int);
-	void end();
-	uint8_t endTransmission(void);
-	uint8_t endTransmission(uint8_t);
-	uint8_t requestFrom(uint8_t, uint8_t);
-	uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
-	uint8_t requestFrom(int, int);
-	uint8_t requestFrom(int, int, int);
-	virtual size_t write(uint8_t);
-	virtual size_t write(const uint8_t *, size_t);
-	virtual int available(void);
-	virtual int read(void);
-	virtual int peek(void);
-	virtual void flush(void);
-	void onReceive(void(*)(int));
-	void onRequest(void(*)(void));
+	void setSpeed(uint32_t) { }
+	void enableDMAMode(bool) { }
+	void stretchClock(bool) { }
+	void begin() { }
+	void begin(uint8_t) { }
+	void begin(int) { }
+	void beginTransmission(uint8_t) { }
+	void beginTransmission(int) { }
+	void end() { }
+	uint8_t endTransmission(void) { return 0; }
+	uint8_t endTransmission(uint8_t) { return 0; }
+	uint8_t requestFrom(uint8_t, uint8_t) { }
+	uint8_t requestFrom(uint8_t, uint8_t, uint8_t) { }
+	uint8_t requestFrom(int, int) { }
+	uint8_t requestFrom(int, int, int) { }
+	virtual size_t write(uint8_t) { return 0; }
+	virtual size_t write(const uint8_t *, size_t) { return 0; }
+	virtual int available(void) { return 1; }
+	virtual int read(void) { return 1; }
+	virtual int peek(void) { return 1; }
+	virtual void flush(void) { }
+	void onReceive(void(*)(int)) { }
+	void onRequest(void(*)(void)) { }
 
-	bool lock();
-	bool unlock();
+	bool lock() { return false; }
+	bool unlock() { return false; }
 
 	inline size_t write(unsigned long n) { return write((uint8_t)n); }
 	inline size_t write(long n) { return write((uint8_t)n); }
@@ -162,8 +206,6 @@ public:
 	*/
 	void reset();
 };
-
-extern TwoWire Wire;
 
 class SPIClass;
 
@@ -181,28 +223,28 @@ enum FrequencyScale
 	SPI_CLK_PHOTON = 60 * MHZ
 };
 
-typedef enum SPI_Mode
+enum SPI_Mode
 {
 	SPI_MODE_MASTER = 0, SPI_MODE_SLAVE = 1
 };
 
 class SPIClass {
 public:
-	SPIClass();
+	SPIClass() {}
 	virtual ~SPIClass() {};
 
-	void begin();
-	void begin(uint16_t);
-	void begin(SPI_Mode mode, uint16_t);
-	void end();
+	void begin() {}
+	void begin(uint16_t) {}
+	void begin(SPI_Mode mode, uint16_t) {}
+	void end() {}
 
-	void setBitOrder(uint8_t);
-	void setDataMode(uint8_t);
+	void setBitOrder(uint8_t) {}
+	void setDataMode(uint8_t) {}
 
 	static void usingInterrupt(uint8_t) {};
 
-	int32_t beginTransaction();
-	void endTransaction();
+	int32_t beginTransaction() { return 0; }
+	void endTransaction() {}
 
 	/**
 	* Sets the clock speed that the divider is relative to. This does not change
@@ -217,13 +259,13 @@ public:
 	*
 	* @see #setClockDivider
 	*/
-	void setClockDividerReference(unsigned value, unsigned scale = HZ);
+	void setClockDividerReference(unsigned value, unsigned scale = HZ) {}
 
 	/**
 	* Sets the clock speed as a divider relative to the clock divider reference.
 	* @param divider SPI_CLOCK_DIVx where x is a power of 2 from 2 to 256.
 	*/
-	void setClockDivider(uint8_t divider);
+	void setClockDivider(uint8_t divider) {}
 
 	/**
 	* Sets the absolute clock speed. This will select the clock divider that is no greater than
@@ -232,25 +274,25 @@ public:
 	* @param scale
 	* @return the actual clock speed set.
 	*/
-	unsigned setClockSpeed(unsigned value, unsigned scale = HZ);
+	unsigned setClockSpeed(unsigned value, unsigned scale = HZ) {}
 
 
 	/*
 	* Test method to compute the divider needed to attain a given clock frequency.
 	*/
-	static void computeClockDivider(unsigned reference, unsigned targetSpeed, uint8_t& divider, unsigned& clock);
+	static void computeClockDivider(unsigned reference, unsigned targetSpeed, uint8_t& divider, unsigned& clock) {}
 
-	byte transfer(byte _data);
-	void transfer(void* tx_buffer, void* rx_buffer, size_t length, wiring_spi_dma_transfercomplete_callback_t user_callback);
+	byte transfer(byte _data) { return 0; }
+	void transfer(void* tx_buffer, void* rx_buffer, size_t length, wiring_spi_dma_transfercomplete_callback_t user_callback) {}
 
-	void attachInterrupt();
-	void detachInterrupt();
+	// void attachInterrupt() {}
+	void detachInterrupt() {}
 
-	bool isEnabled(void);
+	bool isEnabled(void) {}
 
-	void onSelect(wiring_spi_select_callback_t user_callback);
-	void transferCancel();
-	int32_t available();
+	void onSelect(wiring_spi_select_callback_t user_callback) {}
+	void transferCancel() {}
+	int32_t available() {}
 
 	bool trylock()
 	{
@@ -266,7 +308,13 @@ public:
 	}
 };
 
-
+extern _RGB RGB;
+extern TwoWire Wire;
 extern SPIClass SPI;
+extern _Particle Particle;
+extern _Time Time;
+extern _System System;
+extern Pin_Info PIN_MAP[];
+
 
 #endif

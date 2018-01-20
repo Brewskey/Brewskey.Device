@@ -112,7 +112,7 @@
 class PN532
 {
 public:
-    PN532(PN532Interface &interface);
+    PN532(PN532Interface &pn532);
 
     void begin(void);
 

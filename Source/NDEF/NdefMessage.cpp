@@ -163,11 +163,17 @@ boolean NdefMessage::addRecord(NdefRecord& record)
 
 void NdefMessage::addMimeMediaRecord(String mimeType, String payload)
 {
-
-    byte payloadBytes[payload.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* payloadBytes = new byte[payload.length() + 1];
+#else
+	byte payloadBytes[payload.length() + 1];
+#endif
     payload.getBytes(payloadBytes, sizeof(payloadBytes));
 
     addMimeMediaRecord(mimeType, payloadBytes, payload.length());
+#if defined(IS_WINDOWS)
+	delete[] payloadBytes;
+#endif
 }
 
 void NdefMessage::addMimeMediaRecord(String mimeType, uint8_t* payload, int payloadLength)
@@ -175,13 +181,20 @@ void NdefMessage::addMimeMediaRecord(String mimeType, uint8_t* payload, int payl
     NdefRecord r = NdefRecord();
     r.setTnf(TNF_MIME_MEDIA);
 
-    byte type[mimeType.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* type = new byte[mimeType.length() + 1];
+#else
+	byte type[mimeType.length() + 1];
+#endif
     mimeType.getBytes(type, sizeof(type));
     r.setType(type, mimeType.length());
 
     r.setPayload(payload, payloadLength);
 
     addRecord(r);
+#if defined(IS_WINDOWS)
+	delete[] type;
+#endif
 }
 
 void NdefMessage::addTextRecord(String text)
@@ -201,7 +214,11 @@ void NdefMessage::addTextRecord(String text, String encoding)
     // TODO is it more efficient to build w/o string concatenation?
     String payloadString = "X" + encoding + text;
 
-    byte payload[payloadString.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* payload = new byte[payloadString.length() + 1];
+#else
+	byte payload[payloadString.length() + 1];
+#endif
     payloadString.getBytes(payload, sizeof(payload));
 
     // replace X with the real encoding length
@@ -210,6 +227,9 @@ void NdefMessage::addTextRecord(String text, String encoding)
     r.setPayload(payload, payloadString.length());
 
     addRecord(r);
+#if defined(IS_WINDOWS)
+	delete[] payload;
+#endif
 }
 
 void NdefMessage::addUriRecord(String uri)
@@ -223,7 +243,11 @@ void NdefMessage::addUriRecord(String uri)
     // X is a placeholder for identifier code
     String payloadString = "X" + uri;
 
-    byte payload[payloadString.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* payload = new byte[payloadString.length() + 1];
+#else
+	byte payload[payloadString.length() + 1];
+#endif
     payloadString.getBytes(payload, sizeof(payload));
 
     // add identifier code 0x0, meaning no prefix substitution
@@ -233,6 +257,9 @@ void NdefMessage::addUriRecord(String uri)
 
     addRecord(*r);
     delete(r);
+#if defined(IS_WINDOWS)
+	delete[] payload;
+#endif
 }
 
 void NdefMessage::addApplicationRecord(String application)
@@ -241,17 +268,29 @@ void NdefMessage::addApplicationRecord(String application)
     r->setTnf(TNF_EXTERNAL_TYPE);
 
     String mimeType = "android.com:pkg";
-    byte type[mimeType.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* type = new byte[mimeType.length() + 1];
+#else
+	byte type[mimeType.length() + 1];
+#endif
     mimeType.getBytes(type, sizeof(type));
     r->setType(type, mimeType.length());
 
-    byte payload[application.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* payload = new byte[application.length() + 1];
+#else
+	byte payload[application.length() + 1];
+#endif
     application.getBytes(payload, sizeof(payload));
 
     r->setPayload(payload, application.length());
 
     addRecord(*r);
     delete(r);
+#if defined(IS_WINDOWS)
+	delete[] type;
+	delete[] payload;
+#endif
 }
 
 void NdefMessage::addLaunchApp(String application, String parameters)
@@ -260,7 +299,11 @@ void NdefMessage::addLaunchApp(String application, String parameters)
     r->setTnf(TNF_ABSOLUTE_URI);
 
     String mimeType = "windows.com/LaunchApp";
-    byte type[mimeType.length() + 1];
+#if defined(IS_WINDOWS)
+	byte* type = new byte[mimeType.length() + 1];
+#else
+	byte type[mimeType.length() + 1];
+#endif
     mimeType.getBytes(type, sizeof(type));
     r->setType(type, mimeType.length());
 
@@ -268,7 +311,11 @@ void NdefMessage::addLaunchApp(String application, String parameters)
     uint32_t appLength = payloadString.length();
     uint32_t primaryLength = appLength + 5;
     uint32_t fullLength = primaryLength + parameters.length();
-    byte payload[fullLength];
+#if defined(IS_WINDOWS)
+	byte* payload = new byte[fullLength];
+#else
+	byte payload[fullLength];
+#endif
     payload[0] = 0x00; // start of message
     payload[1] = 0x01;
     payload[2] = 0x0C;
@@ -281,6 +328,10 @@ void NdefMessage::addLaunchApp(String application, String parameters)
 
     addRecord(*r);
     delete(r);
+#if defined(IS_WINDOWS)
+	delete[] type;
+	delete[] payload;
+#endif
 }
 
 

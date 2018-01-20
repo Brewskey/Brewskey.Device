@@ -26,6 +26,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "itoa.h"
+#include "dtostrf.h"
+
+#define PGM_P  const char *
+#define strcpy_P(dest, src) strcpy((dest), (src))
+#define strlen_P(a) strlen((a))
+
 // #include <avr/pgmspace.h>
 
 // When compiling programs with this class, the following gcc parameters

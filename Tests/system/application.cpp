@@ -21,3 +21,11 @@ void delayMicroseconds(uint ms) {}
 #ifdef __cplusplus
 }
 #endif
+
+_RGB RGB;
+TwoWire Wire;
+SPIClass SPI;
+_Particle Particle;
+_Time Time;
+_System System;
+Pin_Info PIN_MAP[];

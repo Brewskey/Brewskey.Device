@@ -42,7 +42,11 @@ NfcTag MifareUltralight::read(byte * uid, unsigned int uidLength)
     boolean success;
     uint8_t page;
     uint8_t index = 0;
-    byte buffer[bufferSize];
+#if defined(IS_WINDOWS)
+	byte* buffer = new byte[bufferSize];
+#else
+	byte buffer[bufferSize];
+#endif
     for (page = ULTRALIGHT_DATA_START_PAGE; page < ULTRALIGHT_MAX_PAGE; page++)
     {
         // read the data
@@ -71,6 +75,9 @@ NfcTag MifareUltralight::read(byte * uid, unsigned int uidLength)
     }
 
     NdefMessage ndefMessage = NdefMessage(&buffer[ndefStartIndex], messageLength);
+#if defined(IS_WINDOWS)
+	delete[] buffer;
+#endif
     return NfcTag(uid, uidLength, NFC_FORUM_TAG_TYPE_2, ndefMessage);
 
 }
@@ -182,7 +189,11 @@ boolean MifareUltralight::write(NdefMessage& m, byte * uid, unsigned int uidLeng
     	return false;
     }
 
+#if defined(IS_WINDOWS)
+	uint8_t* encoded = new uint8_t[bufferSize];
+#else
     uint8_t encoded[bufferSize];
+#endif
     uint8_t *  src = encoded;
     unsigned int position = 0;
     uint8_t page = ULTRALIGHT_DATA_START_PAGE;
@@ -214,8 +225,12 @@ boolean MifareUltralight::write(NdefMessage& m, byte * uid, unsigned int uidLeng
 
     while (position < bufferSize){ //bufferSize is always times pagesize so no "last chunk" check
         // write page
-        if (!nfc->mifareultralight_WritePage(page, src))
-            return false;
+		if (!nfc->mifareultralight_WritePage(page, src)) {
+#if defined(IS_WINDOWS)
+			delete[] encoded;
+#endif
+			return false;
+		}
 		#ifdef MIFARE_ULTRALIGHT_DEBUG
         Serial.print(F("Wrote page "));Serial.print(page);Serial.print(F(" - "));
     	nfc->PrintHex(src,ULTRALIGHT_PAGE_SIZE);
@@ -224,6 +239,9 @@ boolean MifareUltralight::write(NdefMessage& m, byte * uid, unsigned int uidLeng
         src+=ULTRALIGHT_PAGE_SIZE;
         position+=ULTRALIGHT_PAGE_SIZE;
     }
+#if defined(IS_WINDOWS)
+	delete[] encoded;
+#endif
     return true;
 }
 

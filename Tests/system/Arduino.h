@@ -6,8 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <iostream>
 
-#include "fff.h"
+#include "itoa.h"
+#include "WString.h"
 
 #define HIGH 0x1
 #define LOW  0x0
@@ -33,6 +35,11 @@
 #define DEFAULT 1
 #define EXTERNAL 0
 
+#define OUTPUT 0
+#define INPUT 1
+#define INPUT_PULLUP 2
+#define INPUT_PULLDOWN 3
+#define PIN_MODE_NONE 0xff
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #if !defined(_WIN32) && !defined(WIN32)
@@ -52,9 +59,11 @@
 #define bit(b) (1UL << (b))
 
 typedef unsigned int word;
-typedef bool boolean;
 typedef uint8_t byte;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);
@@ -64,13 +73,17 @@ unsigned long millis();
 void analogWrite(uint8_t, int);
 void delay(unsigned long);
 
-DECLARE_FAKE_VOID_FUNC( pinMode, uint8_t, uint8_t );
-DECLARE_FAKE_VOID_FUNC( digitalWrite, uint8_t, uint8_t );
-DECLARE_FAKE_VALUE_FUNC( int, digitalRead, uint8_t );
-DECLARE_FAKE_VALUE_FUNC( unsigned long, millis );
-DECLARE_FAKE_VALUE_FUNC( int, analogRead, uint8_t );
-DECLARE_FAKE_VOID_FUNC( analogWrite, uint8_t, int );
-DECLARE_FAKE_VOID_FUNC( delay, unsigned long );
+#ifdef __cplusplus
+}
+#endif
+
+//DECLARE_FAKE_VOID_FUNC( pinMode, uint8_t, uint8_t );
+//DECLARE_FAKE_VOID_FUNC( digitalWrite, uint8_t, uint8_t );
+//DECLARE_FAKE_VALUE_FUNC( int, digitalRead, uint8_t );
+//DECLARE_FAKE_VALUE_FUNC( unsigned long, millis );
+//DECLARE_FAKE_VALUE_FUNC( int, analogRead, uint8_t );
+//DECLARE_FAKE_VOID_FUNC( analogWrite, uint8_t, int );
+//DECLARE_FAKE_VOID_FUNC( delay, unsigned long );
 
 
 
@@ -81,22 +94,33 @@ DECLARE_FAKE_VOID_FUNC( delay, unsigned long );
 
 class Serial_CLS
 {
-
    typedef std::queue<std::string> Buffer;
 
    public:
-      void write( const char* buffer, int buffer_n );
-      void write( const char* buffer );
-      void print( int value );
-      void print( double value );
-	  void print(const char* buffer);
-	  void print(byte value, byte format);
-	  void println(const char* buffer);
-	  void println(int value);
-	  void println(byte value, byte format);
-      void begin( int baudrate );
-      int available();
-      char read();
+	   void write(char value) { std::cout << value; }
+	   void write( const char* buffer, int buffer_n ) { std::cout << buffer; }
+      void write( const char* buffer ) { std::cout << buffer; }
+	  void print(unsigned int value) { std::cout << value; }
+	  void print( int value ) { std::cout << value; }
+      void print( double value ) { std::cout << value; }
+	  void print(const char* buffer) { std::cout << buffer; }
+	  void print(String buffer) { std::cout << buffer; }
+	  void print(byte value, byte format) { std::cout << value; }
+	  void println(const char* buffer) { std::cout << buffer << '\n'; }
+	  void println(String buffer) { std::cout << buffer << '\n'; }
+	  void println() { std::cout << '\n'; }
+	  void println(unsigned int value) { std::cout << value << '\n'; }
+	  void println(int value) { std::cout << value << '\n'; }
+	  void println(float value) { std::cout << value << '\n'; }
+	  void println(byte value) { std::cout << value << '\n'; }
+	  void println(byte value, byte format) { std::cout << value << '\n'; }
+	  template<typename... Args>
+	  void printf(const char *fmt, Args ...args) { std::printf(fmt, args...); }
+
+      void begin( int baudrate ) {}
+	  int available() { return 0; }
+	  char read() { return 'a'; }
+	  void flush() {}
 
       // any printing will be appended to this vector
       Buffer _test_output_buffer;
@@ -108,27 +132,6 @@ class Serial_CLS
    protected:
       void _test_output_string( std::string what );
 };
-
-
-class Arduino_TEST
-{
-   public:
-     enum class  Check_mode { Full, None }; // Mode FULL for all checks (check that digital write is output and digital read is input), Defaults to FULL
-     constexpr static const int MAX_PINS = 128;
-
-     void hookup(); // Reset and hook the arduino functions (digitalRead, digitalWrite, pinMode, analogRead, analogWrite)
-     void hookdown(); // clear all values and custom hookups.
-     void set_mode( Check_mode target );
-     void check_write(uint8_t pin);
-     void check_read(uint8_t pin);
-     void check_pin(uint8_t pin);
-     int     pin_value[ MAX_PINS ];
-     uint8_t pin_mode [ MAX_PINS ];
-
-     Check_mode check_mode;
-};
-
-extern Arduino_TEST ARDUINO_TEST;
 
 extern Serial_CLS Serial;
 

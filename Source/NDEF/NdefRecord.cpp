@@ -235,10 +235,18 @@ unsigned int NdefRecord::getIdLength()
 
 String NdefRecord::getType()
 {
+#if defined(IS_WINDOWS)
+	char* type = new char[_typeLength + 1];
+#else
     char type[_typeLength + 1];
-    memcpy(type, _type, _typeLength);
+#endif
+	memcpy(type, _type, _typeLength);
     type[_typeLength] = '\0'; // null terminate
-    return String(type);
+    String output = String(type);
+#if defined(IS_WINDOWS)
+	delete[] type;
+#endif
+	return output;
 }
 
 // this assumes the caller created type correctly
@@ -279,10 +287,18 @@ void NdefRecord::setPayload(const byte * payload, const int numBytes)
 
 String NdefRecord::getId()
 {
-    char id[_idLength + 1];
+#if defined(IS_WINDOWS)
+	char* id = new char[_idLength + 1];
+#else
+	char id[_idLength + 1];
+#endif
     memcpy(id, _id, _idLength);
     id[_idLength] = '\0'; // null terminate
-    return String(id);
+	String output = String(id);
+#if defined(IS_WINDOWS)
+	delete[] id;
+#endif
+	return output;
 }
 
 void NdefRecord::getId(byte *id)
