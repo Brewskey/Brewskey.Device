@@ -5,7 +5,7 @@
 
 class ITap {
 public:
-  virtual String GetId() = 0;
+  virtual uint32_t GetId() = 0;
   virtual void AddToFlowCount(uint pulses) = 0;
   virtual uint GetTotalPulses() = 0;
   virtual bool IsPouring() = 0;

@@ -34,13 +34,17 @@ void ServerLink::CallInitialize() {
   Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
 }
 
+void SetError(String message) {
+  RGB.control(true);
+  RGB.color(56, 56, 128);
+  Serial.println(message);
+}
+
 void ServerLink::Initialize(const char* event, const char* data) {
   Serial.println("Initializing");
 
   if (strlen(data) <= 0) {
-    RGB.control(true);
-    RGB.color(56, 56, 128);
-    Serial.println("Data Fail");
+    SetError("Empty Data");
     return;
   }
 
@@ -50,6 +54,11 @@ void ServerLink::Initialize(const char* event, const char* data) {
   String delimeter = "~";
   int start = 1;
   int end = response.indexOf(delimeter, start);
+
+  if (end == -1) {
+    SetError("Bad Input");
+    return;
+  }
 
   this->settings.deviceId = response.substring(start, end);
   start = end + delimeter.length();
@@ -86,12 +95,12 @@ void ServerLink::Initialize(const char* event, const char* data) {
   if (this->settings.tapIds != NULL) {
     delete[] this->settings.tapIds;
   }
-  this->settings.tapIds = new String[tapCount];
+  this->settings.tapIds = new uint32_t[tapCount];
   start = 0;
   end = tapIds.indexOf(delimeter);
   int iter = 0;
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
-    this->settings.tapIds[iter] = tapIds.substring(start, end);
+    this->settings.tapIds[iter] = tapIds.substring(start, end).toInt();
     start = end + delimeter.length();
     end = tapIds.indexOf(delimeter, start);
     iter++;
@@ -102,6 +111,11 @@ void ServerLink::Initialize(const char* event, const char* data) {
   end = pulsesPerGallon.indexOf(delimeter);
   iter = 0;
 
+  if (this->settings.pulsesPerGallon != NULL) {
+    delete[] this->settings.pulsesPerGallon;
+  }
+
+  this->settings.pulsesPerGallon = new uint[tapCount];
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
     this->settings.pulsesPerGallon[iter] =
       pulsesPerGallon.substring(start, end).toInt();
@@ -123,15 +137,15 @@ int ServerLink::Settings(String data) {
 	return 0;
 }
 
-void ServerLink::AuthorizePour(String deviceId, String authenticationKey) {
+void ServerLink::AuthorizePour(uint32_t deviceId, String authenticationKey) {
     Serial.println(authenticationKey);
     Serial.println("printed");
 
     sprintf(
       json,
-      "{\"authToken\":\"%s\",\"id\":\"%s\",\"tkn\":\"%s\"}",
+      "{\"authToken\":\"%s\",\"id\":\"%lu\",\"tkn\":\"%s\"}",
       this->settings.authorizationToken.c_str(),
-      deviceId.c_str(),
+      deviceId,
       // remove \u0002 and "en"
       authenticationKey.substring(3).c_str()
     );
@@ -158,15 +172,15 @@ void ServerLink::PourResponse(const char* event, const char* data) {
 }
 
 void ServerLink::SendPourToServer(
-  String tapId,
+  uint32_t tapId,
   uint totalPulses,
   String authenticationKey
 ) {
   sprintf(
     json,
-    "{\"authToken\":\"%s\",\"tapId\":\"%s\",\"pourKey\":\"%s\",\"pulses\":\"%d\"}",
+    "{\"authToken\":\"%s\",\"tapId\":\"%lu\",\"pourKey\":\"%s\",\"pulses\":\"%d\"}",
     this->settings.authorizationToken.c_str(),
-    tapId.c_str(),
+    tapId,
     authenticationKey != NULL && authenticationKey.length()
       ? authenticationKey.c_str()
       : "",

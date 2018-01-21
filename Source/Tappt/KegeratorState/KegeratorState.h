@@ -6,7 +6,6 @@
 #include "Tappt/Display/Display.h"
 #include "Tappt/Display/PourDisplay.h"
 #include "Tappt/Display/TotpDisplay.h"
-#include "Tappt/ITick.h"
 #include "Tappt/KegeratorState/IStateManager.h"
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/led/LED.h"
@@ -19,9 +18,10 @@
 //#define TIME_TO_POUR =
 #define MILLISECONDS_IN_HOUR 3600000
 
-class KegeratorState: public ITick, public IStateManager  {
+class KegeratorState: public IStateManager  {
 public:
-  KegeratorState(Display* display);
+	KegeratorState(Display* display);
+	KegeratorState(Display* display, NfcClient* client);
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
     ITap &tap,

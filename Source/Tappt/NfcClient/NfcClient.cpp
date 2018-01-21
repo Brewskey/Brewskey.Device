@@ -33,7 +33,7 @@ int NfcClient::Initialize(String data) {
 #if DISABLE_NFC == 1
   return 0;
 #endif
-  this->deviceId = String(data);
+  this->deviceId = String(data).toInt();
   Serial.print("Device ID: ");Serial.println(deviceId);
 
   this->message = NdefMessage();

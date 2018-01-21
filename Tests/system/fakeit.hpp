@@ -8841,7 +8841,9 @@ namespace fakeit {
 			}
 
 		public:
-			Terminator(smart_ptr<SequenceVerificationExpectation> expectationPtr) : _expectationPtr(expectationPtr) { };
+			Terminator(smart_ptr<SequenceVerificationExpectation> expectationPtr) : _expectationPtr(expectationPtr) {
+        REQUIRE(toBool());
+      };
 
 			operator bool() {
 				return toBool();

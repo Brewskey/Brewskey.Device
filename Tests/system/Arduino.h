@@ -97,25 +97,25 @@ class Serial_CLS
    typedef std::queue<std::string> Buffer;
 
    public:
-	   void write(char value) { std::cout << value; }
-	   void write( const char* buffer, int buffer_n ) { std::cout << buffer; }
-      void write( const char* buffer ) { std::cout << buffer; }
-	  void print(unsigned int value) { std::cout << value; }
-	  void print( int value ) { std::cout << value; }
-      void print( double value ) { std::cout << value; }
-	  void print(const char* buffer) { std::cout << buffer; }
-	  void print(String buffer) { std::cout << buffer; }
-	  void print(byte value, byte format) { std::cout << value; }
-	  void println(const char* buffer) { std::cout << buffer << '\n'; }
-	  void println(String buffer) { std::cout << buffer << '\n'; }
-	  void println() { std::cout << '\n'; }
-	  void println(unsigned int value) { std::cout << value << '\n'; }
-	  void println(int value) { std::cout << value << '\n'; }
-	  void println(float value) { std::cout << value << '\n'; }
-	  void println(byte value) { std::cout << value << '\n'; }
-	  void println(byte value, byte format) { std::cout << value << '\n'; }
+	   void write(char value) { }
+	   void write( const char* buffer, int buffer_n ) { }
+      void write( const char* buffer ) { }
+	  void print(unsigned int value) { }
+	  void print( int value ) { }
+      void print( double value ) { }
+	  void print(const char* buffer) { }
+	  void print(String buffer) { }
+	  void print(byte value, byte format) { }
+	  void println(const char* buffer) { }
+	  void println(String buffer) { }
+	  void println() { }
+	  void println(unsigned int value) { }
+	  void println(int value) { }
+	  void println(float value) { }
+	  void println(byte value) { }
+	  void println(byte value, byte format) { }
 	  template<typename... Args>
-	  void printf(const char *fmt, Args ...args) { std::printf(fmt, args...); }
+	  void printf(const char *fmt, Args ...args) { }
 
       void begin( int baudrate ) {}
 	  int available() { return 0; }

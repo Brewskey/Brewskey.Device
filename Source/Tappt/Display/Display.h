@@ -41,6 +41,7 @@ public:
   );
 
 private:
+  virtual void f() {}
   int GetXOffset(String text, int offsetType, int fontSize);
   void WriteString(String text);
 

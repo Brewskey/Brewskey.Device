@@ -13,18 +13,18 @@
 class Tap: public ITap, public ITick {
 public:
   Tap();
-  String GetId();
+  uint32_t GetId();
   int GetPulsesPerGallon();
   bool IsPouring();
   uint GetTotalPulses();
-  void Setup(IStateManager *kegeratorState, String tapId, int pulsesPerGallon);
+  void Setup(IStateManager *kegeratorState, uint32_t tapId, int pulsesPerGallon);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void AddToFlowCount(uint pulses);
   void StopPour();
 private:
   IStateManager* kegeratorState;
-  String tapId;
+  uint32_t tapId;
   int pulsesPerGallon;
   bool isPouring;
   uint totalPulses;

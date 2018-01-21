@@ -35,7 +35,7 @@ private:
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
 
-  String deviceId;
+  uint32_t deviceId;
   String readAuthenticationKey = "";
 
   PN532_SPI pn532spi;

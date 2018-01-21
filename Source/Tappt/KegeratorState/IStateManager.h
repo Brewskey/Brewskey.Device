@@ -1,11 +1,12 @@
 #ifndef IStateManager_h
 #define IStateManager_h
 
+#include "application.h"
 #include "Tappt/ServerLink/DeviceSettings.h"
 #include "Tappt/Tap/ITap.h"
-#include "application.h"
+#include "Tappt/ITick.h"
 
-class IStateManager {
+class IStateManager: public ITick {
 public:
   virtual void TapStartedPouring(ITap &tap) = 0;
   virtual void TapStoppedPouring(ITap &tap, uint totalPulses, String authenticationKey) = 0;

@@ -4,10 +4,14 @@
 
 
 Tap::Tap() {
+  this->tapId = 0;
+  this->pulsesPerGallon = 0;
+  this->isPouring = false;
   this->totalPulses = 0;
+  this->pourStartTime = 0;
 }
 
-String Tap::GetId() {
+uint32_t Tap::GetId() {
   return this->tapId;
 }
 
@@ -24,7 +28,7 @@ bool Tap::IsPouring() {
 }
 void Tap::Setup(
   IStateManager *kegeratorState,
-  String tapId,
+  uint32_t tapId,
   int pulsesPerGallon
 ) {
   this->kegeratorState = kegeratorState;

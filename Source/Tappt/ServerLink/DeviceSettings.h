@@ -7,9 +7,9 @@ struct DeviceSettings {
   String authorizationToken;
   String deviceId;
   uint8_t deviceStatus;
-  String *tapIds;
+  uint32_t  *tapIds = NULL;
   uint8_t tapCount;
-  int pulsesPerGallon[4];
+  uint32_t *pulsesPerGallon = NULL;
 };
 
 #endif

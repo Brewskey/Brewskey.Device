@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const startingDirectory = path.join(__dirname, 'Source');
-
 const walkSync = function(dir, filelist) {
   const files = fs.readdirSync(dir);
   filelist = filelist || [];
@@ -17,6 +15,9 @@ const walkSync = function(dir, filelist) {
   return filelist;
 };
 
-walkSync(startingDirectory)
+walkSync(path.join(__dirname, 'Tests'))
+  .filter(file => file.endsWith('.h') || file.endsWith('.cpp'))
+  .forEach(file => console.log(file));
+walkSync(path.join(__dirname, 'Source'))
   .filter(file => file.endsWith('.h') || file.endsWith('.cpp'))
   .forEach(file => console.log(file));

@@ -6,6 +6,12 @@
 
 KegeratorState::KegeratorState(
 	Display* display
+): KegeratorState(display, new NfcClient()) {
+}
+
+KegeratorState::KegeratorState(
+	Display* display,
+	NfcClient* nfcClient
 ) {
 	this->serverLink = new ServerLink(this);
 
@@ -16,7 +22,7 @@ KegeratorState::KegeratorState(
 	this->pourDisplay = new PourDisplay(display);
 	this->totpDisplay = new TotpDisplay(display);
 
-	this->nfcClient = new NfcClient();
+	this->nfcClient = nfcClient;
 	nfcClient->Setup(this->serverLink);
 }
 
