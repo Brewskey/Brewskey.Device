@@ -76,12 +76,13 @@ void Sensors::SingleFlowCounter()
 // If this gets called it means the pour stopped or the user changed the state
 // of the device (cleaning mode/disabled/enabled)
 void Sensors::CloseSolenoids() {
-  for (int i = 0; i < this->tapCount; i++) {
-    this->CloseSolenoid(i);
+  for (int ii = 0; ii < this->tapCount; ii++) {
+    this->CloseSolenoid(ii);
   }
 }
 
 void Sensors::CloseSolenoid(uint8_t solenoid) {
+  Serial.println("CloseSolenoid");
   if (solenoid == 0) {
     digitalWrite(SOLENOID_PIN, LOW);
   }
@@ -248,30 +249,32 @@ void Sensors::ReadMultitap(void)
 
 	if(isValid)
 	{
-    Serial.println(System.freeMemory());
-    Serial.println();
-
-		/*print received data to USB*/
+    /*print received data to USB*/
 		if(incomingBuffer[0] == 0x00 && incomingBuffer[1] == 0x01 && incomingBuffer[2] == 0x33)
 		{
       const uint8_t FLOW_START = 5;
       for (ii = 0; ii < this->tapCount; ii++) {
-        unsigned long pulses =
+        uint32_t pulses =
           (incomingBuffer[FLOW_START + 4 * ii]<<24) |
           (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
           (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
           (incomingBuffer[FLOW_START + 4 * ii + 3]);
 
         // Get difference to determine if it is still pouring
-        pulses -= this->taps[ii].GetTotalPulses();
-        if (pulses <= 0) {
+        uint32_t totalPulses = this->taps[ii].GetTotalPulses();
+        if (pulses == totalPulses) {
+          continue;
+        }
+        long difference = pulses - totalPulses;
+        if (difference <= 0) {
           continue;
         }
 
-        this->taps[ii].AddToFlowCount(pulses);
+        this->taps[ii].AddToFlowCount(difference);
       }
+
 #if SHOW_OUTPUT
-			Serial.printf("SOL1: %s, PULSES1: %d, SOL2: %s, PULSES2: %d, SOL3: %s, PULSES3: %d, SOL4: %s, PULSES4: %d\n",
+			Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
 				(incomingBuffer[4] & 0x01)?"ON":"OFF",	/*solenoid 1*/
 				(incomingBuffer[5]<<24) | (incomingBuffer[6]<<16) |	(incomingBuffer[7]<<8) | (incomingBuffer[8]), /*flow 1*/
 				(incomingBuffer[4] & 0x02)?"ON":"OFF",	/*solenoid 2*/

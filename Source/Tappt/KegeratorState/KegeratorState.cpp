@@ -58,7 +58,7 @@ void KegeratorState::SetState(e newState) {
 			break;
 		}
 
-		case KegeratorState::FREE_POUR: {
+		case KegeratorState::UNLOCKED: {
 			RGB.control(true);
 			RGB.color(0, 255, 127);
 
@@ -158,15 +158,15 @@ int KegeratorState::Tick()
   }
 	this->sensors->Tick();
 
+	// read taps and manage end-pour
+	for(int i = 0; i < this->settings->tapCount; i++) {
+		this->taps[i].Tick();
+	}
+
   // Rendering
   this->displayChangeCount += this->pourDisplay->Tick();
 	this->displayChangeCount += this->totpDisplay->Tick();
 
-  // read taps and manage end-pour
-  for(int i = 0; i < this->settings->tapCount; i++) {
-    this->taps[i].Tick();
-	}
-	
   return 0;
 }
 
@@ -211,6 +211,7 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	this->pourDisplay->Setup(this->taps, tapCount);
 	this->totpDisplay->Setup(this->settings, this->taps, tapCount);
 
+Serial.println("STOP_POURING");
 	this->StopPouring();
 
 	if (
@@ -229,7 +230,9 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
   this->nfcTimer.stop();
 	this->nfcTimer.start();
 
+	this->openValveTimer.Stop();
 	this->SetStateFromDeviceStatus();
+	this->sensors->CloseSolenoids();
 
   this->nfcClient->Initialize(this->settings->deviceId);
 }
@@ -239,8 +242,8 @@ void KegeratorState::SetStateFromDeviceStatus() {
 		this->SetState(KegeratorState::INACTIVE);
 	} else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
 		this->SetState(KegeratorState::CLEANING);
-	} else if (this->settings->deviceStatus == DeviceStatus::FREE) {
-		this->SetState(KegeratorState::FREE_POUR);
+	} else if (this->settings->deviceStatus == DeviceStatus::UNLOCKED) {
+		this->SetState(KegeratorState::UNLOCKED);
 	} else {
 		this->SetState(KegeratorState::LISTENING);
 	}
@@ -278,7 +281,7 @@ void KegeratorState::TapStartedPouring(ITap &tap) {
 
 void KegeratorState::TapStoppedPouring(
 	ITap &tap,
-	uint totalPulses,
+	uint32_t totalPulses,
 	String authenticationKey
 ) {
 	Serial.println("Finished Pouring");
@@ -299,7 +302,6 @@ void KegeratorState::TapStoppedPouring(
 void KegeratorState::StopPouring() {
 	for(int i = 0; i < this->settings->tapCount; i++) {
 		if (this->taps[i].IsPouring()) {
-      // TODO - Send half-pour to server.  We don't want to forget to track this
 			this->taps[i].StopPour();
 		}
 	}

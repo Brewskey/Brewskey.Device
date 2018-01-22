@@ -25,7 +25,7 @@ public:
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
     ITap &tap,
-    uint totalPulses,
+    uint32_t totalPulses,
     String authenticationKey
   );
   virtual int Tick();
@@ -36,14 +36,14 @@ public:
   int GetState();
 
   enum e {
-    INITIALIZING,
+    INITIALIZING = 0,
     LISTENING,
     WAITING_FOR_POUR_RESPONSE,
     POUR_AUTHORIZED,
     POURING,
 
     CLEANING,
-    FREE_POUR,
+    UNLOCKED,
     INACTIVE,
   };
 

@@ -86,7 +86,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     Verify(Method(stateMock, Initialize)).Once();
   }
 
-  SECTION("multi tap input string") {
+  SECTION("2 tap input string") {
     fakeit::Mock<KegeratorState> stateMock;
     DeviceSettings s;
     s.authorizationToken = "totpKey";
@@ -104,5 +104,107 @@ TEST_CASE("ServerLink", "[Initialize]") {
 
     link.Initialize("", input.c_str());
     Verify(Method(stateMock, Initialize)).Once();
+  }
+
+  SECTION("10 tap input string") {
+    fakeit::Mock<KegeratorState> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = 0;
+    s.pulsesPerGallon = new uint[10]{ 111,222,333,444,555,6666,7777,8888,999,10000 };
+    s.tapCount = 10;
+    s.tapIds = new uint32_t[10]{ 1,2,3,4,5,6,7,8,9,10};
+
+    String input = serializeDeviceSettings(s);
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
+
+  SECTION("Device Status") {
+    SECTION("Device Status Active") {
+      fakeit::Mock<KegeratorState> stateMock;
+      DeviceSettings s;
+      s.authorizationToken = "totpKey";
+      s.deviceId = "deviceID";
+      s.deviceStatus = DeviceStatus::ACTIVE;
+      s.pulsesPerGallon = new uint[1]{ 1 };
+      s.tapCount = 1;
+      s.tapIds = new uint32_t[1]{ 1 };
+
+      String input = serializeDeviceSettings(s);
+
+      ServerLink link(&stateMock.get());
+      When(Method(stateMock, Initialize)
+        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+      link.Initialize("", input.c_str());
+      Verify(Method(stateMock, Initialize)).Once();
+    }
+
+    SECTION("Device Status Inactive") {
+      fakeit::Mock<KegeratorState> stateMock;
+      DeviceSettings s;
+      s.authorizationToken = "totpKey";
+      s.deviceId = "deviceID";
+      s.deviceStatus = DeviceStatus::INACTIVE;
+      s.pulsesPerGallon = new uint[1]{ 1 };
+      s.tapCount = 1;
+      s.tapIds = new uint32_t[1]{ 1 };
+
+      String input = serializeDeviceSettings(s);
+
+      ServerLink link(&stateMock.get());
+      When(Method(stateMock, Initialize)
+        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+      link.Initialize("", input.c_str());
+      Verify(Method(stateMock, Initialize)).Once();
+    }
+
+    SECTION("Device Status Cleaning") {
+      fakeit::Mock<KegeratorState> stateMock;
+      DeviceSettings s;
+      s.authorizationToken = "totpKey";
+      s.deviceId = "deviceID";
+      s.deviceStatus = DeviceStatus::CLEANING;
+      s.pulsesPerGallon = new uint[1]{ 1 };
+      s.tapCount = 1;
+      s.tapIds = new uint32_t[1]{ 1 };
+
+      String input = serializeDeviceSettings(s);
+
+      ServerLink link(&stateMock.get());
+      When(Method(stateMock, Initialize)
+        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+      link.Initialize("", input.c_str());
+      Verify(Method(stateMock, Initialize)).Once();
+    }
+
+    SECTION("Device Status Unlocked") {
+      fakeit::Mock<KegeratorState> stateMock;
+      DeviceSettings s;
+      s.authorizationToken = "totpKey";
+      s.deviceId = "deviceID";
+      s.deviceStatus = DeviceStatus::UNLOCKED;
+      s.pulsesPerGallon = new uint[1]{ 1 };
+      s.tapCount = 1;
+      s.tapIds = new uint32_t[1]{ 1 };
+
+      String input = serializeDeviceSettings(s);
+
+      ServerLink link(&stateMock.get());
+      When(Method(stateMock, Initialize)
+        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+      link.Initialize("", input.c_str());
+      Verify(Method(stateMock, Initialize)).Once();
+    }
   }
 }

@@ -9,7 +9,7 @@ class ServerLink {
 public:
   ServerLink(IStateManager *stateManager);
   void AuthorizePour(uint32_t deviceId, String authenticationKey);
-  void SendPourToServer(uint32_t tapId, uint totalPulses, String authenticationKey);
+  void SendPourToServer(uint32_t tapId, uint32_t totalPulses, String authenticationKey);
 
   // public for testing
   void Initialize(const char* event, const char* data);

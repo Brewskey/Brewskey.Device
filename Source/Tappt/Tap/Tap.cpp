@@ -1,8 +1,5 @@
 #include "Tap.h"
 
-#define PULSE_EPSILON 10
-
-
 Tap::Tap() {
   this->tapId = 0;
   this->pulsesPerGallon = 0;
@@ -15,11 +12,11 @@ uint32_t Tap::GetId() {
   return this->tapId;
 }
 
-int Tap::GetPulsesPerGallon() {
+uint32_t Tap::GetPulsesPerGallon() {
   return this->pulsesPerGallon;
 }
 
-uint Tap::GetTotalPulses() {
+uint32_t Tap::GetTotalPulses() {
   return this->totalPulses;
 }
 
@@ -29,7 +26,7 @@ bool Tap::IsPouring() {
 void Tap::Setup(
   IStateManager *kegeratorState,
   uint32_t tapId,
-  int pulsesPerGallon
+  uint32_t pulsesPerGallon
 ) {
   this->kegeratorState = kegeratorState;
   this->tapId = tapId;
@@ -41,6 +38,7 @@ void Tap::SetAuthToken(String authenticationKey) {
 }
 
 void Tap::StopPour() {
+  Serial.println("Tap::StopPour");
   bool isPouring = this->isPouring;
   this->isPouring = false;
   if (this->totalPulses > PULSE_EPSILON && isPouring) {
@@ -69,7 +67,7 @@ int Tap::Tick() {
   return 0;
 }
 
-void Tap::AddToFlowCount(uint pulses) {
+void Tap::AddToFlowCount(int32_t pulses) {
   // Don't start pouring if pulses aren't being sent.
   // TODO - we need to find a good way to filter our phantom pours.  Maybe do
   // an average over time and kill it that way.

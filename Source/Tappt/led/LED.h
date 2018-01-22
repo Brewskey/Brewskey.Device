@@ -4,8 +4,6 @@
 #include "application.h"
 #include "Tappt/Pins.h"
 
-#define PULSE_EPSILON 1
-
 class LED {
 public:
   LED();

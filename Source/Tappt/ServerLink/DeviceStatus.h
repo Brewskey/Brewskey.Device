@@ -6,10 +6,10 @@
 class DeviceStatus {
 public:
   enum e {
-    FREE = 0,
     ACTIVE = 1,
     INACTIVE = 2,
     CLEANING = 3,
+    UNLOCKED = 4,
   };
 };
 

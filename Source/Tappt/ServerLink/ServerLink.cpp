@@ -115,7 +115,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
     delete[] this->settings.pulsesPerGallon;
   }
 
-  this->settings.pulsesPerGallon = new uint[tapCount];
+  this->settings.pulsesPerGallon = new uint32_t[tapCount];
   while (end >= 0 && tapCount > 0 && iter < tapCount) {
     this->settings.pulsesPerGallon[iter] =
       pulsesPerGallon.substring(start, end).toInt();
@@ -173,7 +173,7 @@ void ServerLink::PourResponse(const char* event, const char* data) {
 
 void ServerLink::SendPourToServer(
   uint32_t tapId,
-  uint totalPulses,
+  uint32_t totalPulses,
   String authenticationKey
 ) {
   sprintf(
