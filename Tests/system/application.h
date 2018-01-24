@@ -305,6 +305,13 @@ public:
 	}
 };
 
+struct HAL_USB_USART_Config {
+  uint8_t* rx_buffer;
+  uint8_t* tx_buffer;
+  uint16_t rx_buffer_size;
+  uint16_t tx_buffer_size;
+};
+
 extern _RGB RGB;
 extern TwoWire Wire;
 extern SPIClass SPI;

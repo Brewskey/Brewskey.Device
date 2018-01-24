@@ -7,6 +7,10 @@
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/Temperature/Temperature.h"
 
+#ifdef EXPANSION_BOX_PIN
+#include "Tappt/Packets/StandardSendPacket.h"
+#endif
+
 /*maximum size of incoming packet from ext board*/
 #define PACKET_BUFFER	64
 
@@ -23,9 +27,6 @@ private:
   void SingleFlowCounter();
 #ifdef EXPANSION_BOX_PIN
   void ReadMultitap();
-  void UartSendPacket(uint8_t* pstr, int length);
-  void PrepareDataPacket();
-  void ResetDataPacket();
 #endif
   Temperature* temperatureSensor;
   Tap* taps;
@@ -33,8 +34,7 @@ private:
   uint8_t tapCount;
 
 #ifdef EXPANSION_BOX_PIN
-  /*array for outging packet*/
-  uint8_t dataPacket[16];
+  StandardSendPacket sendPacket = StandardSendPacket(0x01, true);
 
   /*array for incoming packet*/
   uint8_t incomingBuffer[PACKET_BUFFER];

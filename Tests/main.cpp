@@ -5,5 +5,6 @@
 using namespace fakeit;
 
 #include "src/KegeratorState__test.h"
+#include "src/PacketBase__test.h"
 #include "src/ServerLink__test.h"
 #include "src/Tap__test.h"

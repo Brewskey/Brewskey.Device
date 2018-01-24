@@ -211,7 +211,6 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	this->pourDisplay->Setup(this->taps, tapCount);
 	this->totpDisplay->Setup(this->settings, this->taps, tapCount);
 
-Serial.println("STOP_POURING");
 	this->StopPouring();
 
 	if (

@@ -23,7 +23,6 @@ Sensors::Sensors(Tap taps[], uint8_t tapCount) {
   /*RS485 direction pin*/
 	pinMode(EXPANSION_BOX_PIN, OUTPUT);
 
-  this->PrepareDataPacket();
 #endif
 
   // this->OpenSolenoids();
@@ -82,30 +81,12 @@ void Sensors::CloseSolenoids() {
 }
 
 void Sensors::CloseSolenoid(uint8_t solenoid) {
-  Serial.println("CloseSolenoid");
   if (solenoid == 0) {
     digitalWrite(SOLENOID_PIN, LOW);
   }
 
 #ifdef EXPANSION_BOX_PIN
-  switch(solenoid) {
-    case 0: {
-      this->dataPacket[UART_SOLENOID_OFF] |= 0x03;
-      break;
-    }
-    case 1: {
-      this->dataPacket[UART_SOLENOID_OFF] |= 0x0C;
-      break;
-    }
-    case 2: {
-      this->dataPacket[UART_SOLENOID_OFF] |= 0x30;
-      break;
-    }
-    case 3: {
-      this->dataPacket[UART_SOLENOID_OFF] |= 0xC0;
-      break;
-    }
-  }
+  this->sendPacket.CloseSolenoid(solenoid);
 #endif
 }
 
@@ -117,49 +98,14 @@ void Sensors::OpenSolenoids() {
 
 void Sensors::OpenSolenoid(uint8_t solenoid) {
   digitalWrite(SOLENOID_PIN, HIGH);
-
-  #ifdef EXPANSION_BOX_PIN
-    switch(solenoid) {
-      case 0: {
-        this->dataPacket[UART_SOLENOID_ON] |= 0x03;
-        break;
-      }
-      case 1: {
-        this->dataPacket[UART_SOLENOID_ON] |= 0x0C;
-        break;
-      }
-      case 2: {
-        this->dataPacket[UART_SOLENOID_ON] |= 0x30;
-        break;
-      }
-      case 3: {
-        this->dataPacket[UART_SOLENOID_ON] |= 0xC0;
-        break;
-      }
-    }
-  #endif
+#ifdef EXPANSION_BOX_PIN
+  this->sendPacket.OpenSolenoid(solenoid);
+#endif
 }
 
 void Sensors::ResetFlowSensor(uint8_t solenoid) {
 #ifdef EXPANSION_BOX_PIN
-  switch(solenoid) {
-    case 0: {
-      this->dataPacket[UART_RESET_FLOW] |= 0x03;
-      break;
-    }
-    case 1: {
-      this->dataPacket[UART_RESET_FLOW] |= 0x0C;
-      break;
-    }
-    case 2: {
-      this->dataPacket[UART_RESET_FLOW] |= 0x30;
-      break;
-    }
-    case 3: {
-      this->dataPacket[UART_RESET_FLOW] |= 0xC0;
-      break;
-    }
-  }
+  this->sendPacket.ResetFlowSensor(solenoid);
 #endif
 }
 
@@ -173,24 +119,12 @@ void Sensors::ReadMultitap(void)
     esc_flag = 0,
     isValid =0;
 
-  /*set RS485 direction pin HIGH: transmitter*/
-	digitalWrite(EXPANSION_BOX_PIN, HIGH);
-  /*set up checksum*/
-  this->PrepareDataPacket();
-  /*transmit packet*/
-  this->UartSendPacket(this->dataPacket, UART_SEND_LENGTH);
-  /*reset packet to the original values*/
-  this->ResetDataPacket();
-  /*set RS485 direction pin LOW: receiver*/
-	digitalWrite(EXPANSION_BOX_PIN, LOW);
-
+  this->sendPacket.Send();
   delay(100);
 
 	/*read all received bytes*/
 	while (Serial1.available() > 0) {
 		data = Serial1.read();			/* Get data */
-    // Serial.print(data, HEX);
-    // Serial.print(" ");
 		if(data == '#' && !esc_flag)				/* If finding first escape byte */
 		{
 			esc_flag = 1;							/* Set escape byte flag */
@@ -253,12 +187,22 @@ void Sensors::ReadMultitap(void)
 		if(incomingBuffer[0] == 0x00 && incomingBuffer[1] == 0x01 && incomingBuffer[2] == 0x33)
 		{
       const uint8_t FLOW_START = 5;
-      for (ii = 0; ii < this->tapCount; ii++) {
+      uint8_t tapsInBox = this->tapCount % 4;
+      for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
         uint32_t pulses =
           (incomingBuffer[FLOW_START + 4 * ii]<<24) |
           (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
           (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
           (incomingBuffer[FLOW_START + 4 * ii + 3]);
+
+        if (ii > tapsInBox) {
+          if (pulses > 0) {
+            Serial.print("Pour occurred on tap that isn't set up: ");
+            Serial.print(ii);
+            Serial.println();
+          }
+          continue;
+        }
 
         // Get difference to determine if it is still pouring
         uint32_t totalPulses = this->taps[ii].GetTotalPulses();
@@ -287,88 +231,6 @@ void Sensors::ReadMultitap(void)
 #endif
 		}
 	}
-}
-
-/*process and send packet*/
-void Sensors::UartSendPacket(uint8_t* pstr, int length)
-{
-	uint8_t * str = pstr;  //.. str = pstr
-	int i = 0;
-
-	/*packet needs to start with the start-of-packet byte (ASCII '+' value)*/
-	Serial1.write('+');
-
-	while(i < length) /* Loop through the packet data bytes */
-	{
-
-		/*if any of the special bytes are found, escape them by sending ASCII '#'
-      before the byte*/
-		if(*str == '*' || *str == '+' || *str == '-' || *str == '#')
-		{
-			Serial1.write('#');
-		}
-
-		/*send data byte*/
-		Serial1.write(*str);
-		str++;														/* Point to next char */
-		i++;														/* Incr length index */
-	}
-
-	/*packet needs to end with the end-of-packet byte (ASCII '-' value)*/
-	Serial1.write('-');
-
-	/*wait for serial data to be transfered*/
-	Serial1.flush();
-}
-
-void Sensors::ResetDataPacket() {
-  /*dataPacket[4] - turn solenoid ON
-  Bits: 0x03 - solendoid 1
-  Bits: 0x0C - solendoid 2
-  Bits: 0x30 - solendoid 3
-  Bits: 0xC0 - solendoid 4
-
-  solendoid will turn OFF automatically when no more flow is detected*/
-  this->dataPacket[UART_SOLENOID_ON] = 0x00;
-
-  /*dataPacket[5] - force solenoid OFF
-  Bits: 0x03 - solendoid 1
-  Bits: 0x0C - solendoid 2
-  Bits: 0x30 - solendoid 3
-  Bits: 0xC0 - solendoid 4
-  This can be used to override the auto-off algorithm, for example in case
-  abnormal flow is detected (tap left open or leak)
-  */
-  this->dataPacket[UART_SOLENOID_OFF] = 0x00;
-
-  /*dataPacket[6] - reset flow
-  Bits: 0x03 - Flow Sensor 1
-  Bits: 0x0C - Flow Sensor 2
-  Bits: 0x30 - Flow Sensor 3
-  Bits: 0xC0 - Flow Sensor 4
-  This is used to reset the flow sensor.
-  */
-  this->dataPacket[UART_RESET_FLOW] = 0x00;
-}
-/*data packet preparation*/
-void Sensors::PrepareDataPacket()
-{
-	uint8_t checksum = 0;
-	uint8_t ii;
-
-	this->dataPacket[0] = 0x01;	/*destination - hardcoded 0x01*/
-	this->dataPacket[1] = 0x00;	/*source - mainboard*/
-  this->dataPacket[2] = 0x22; /*packet type - solenoid control */
-	this->dataPacket[3] = 0x01; /*mainboard packet version */
-
-  const uint8_t checksumIndex = UART_SEND_LENGTH - 1;
-	/*calculate checksum*/
-	for(ii = 0; ii < checksumIndex; ii++)
-	{
-		checksum ^= dataPacket[ii];
-	}
-
-	dataPacket[checksumIndex] = 255 - checksum;
 }
 
 #endif

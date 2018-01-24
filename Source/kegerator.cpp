@@ -47,3 +47,26 @@ void loop(void) {
     Particle.syncTime();
   }
 }
+
+// Override the Serial1 buffer we use to communicate with expansion boxes
+#define SERIA1_BUFFER_SIZE 129
+HAL_USB_USART_Config acquireUSBSerial1Buffer()
+{
+  HAL_USB_USART_Config conf = {0};
+
+  // The usable buffer size will be 128
+  static uint8_t usbserial1_rx_buffer[SERIA1_BUFFER_SIZE];
+  static uint8_t usbserial1_tx_buffer[SERIA1_BUFFER_SIZE];
+
+  conf.rx_buffer = usbserial1_rx_buffer;
+  conf.tx_buffer = usbserial1_tx_buffer;
+  conf.rx_buffer_size = SERIA1_BUFFER_SIZE;
+  conf.tx_buffer_size = SERIA1_BUFFER_SIZE;
+
+  return conf;
+}
+
+void serialEvent1()
+{
+    Serial.print("Data available");
+}

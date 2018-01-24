@@ -16,8 +16,14 @@ const walkSync = function(dir, filelist) {
 };
 
 walkSync(path.join(__dirname, 'Tests'))
-  .filter(file => file.endsWith('.h') || file.endsWith('.cpp'))
+  .filter(
+    file =>
+      file.endsWith('.h') || file.endsWith('.cpp') || file.endsWith('.hpp'),
+  )
   .forEach(file => console.log(file));
 walkSync(path.join(__dirname, 'Source'))
-  .filter(file => file.endsWith('.h') || file.endsWith('.cpp'))
+  .filter(
+    file =>
+      file.endsWith('.h') || file.endsWith('.cpp') || file.endsWith('.hpp'),
+  )
   .forEach(file => console.log(file));

@@ -19,7 +19,9 @@
 // 5 - PCB v3 - P1 + PN532 Chip
 // 6 - PCB v3/v4 - P1 + PN532 Chip + BIG SCREEN
 #define HARDWARE_CONFIG 6
-//#define SHOW_OUTPUT 2
+#define SHOW_OUTPUT 2
+
+#define MAX_TAP_COUNT_PER_BOX 4
 
 #if HARDWARE_CONFIG == 0
   #define BREWSKEY_PRODUCT_ID 6
