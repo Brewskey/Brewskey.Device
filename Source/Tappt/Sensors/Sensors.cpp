@@ -6,28 +6,28 @@
 #define UART_RESET_FLOW 6
 #define INCOMING_BUFFER_SIZE 21
 
-Sensors::Sensors(Tap taps[], uint8_t tapCount) {
-  this->taps = taps;
-  this->tapCount = tapCount;
-
-  this->temperatureSensor = new Temperature();
-
+Sensors::Sensors()
+{
   pinMode(FLOW_PIN, INPUT);
-	digitalWrite(FLOW_PIN, HIGH);
+  digitalWrite(FLOW_PIN, HIGH);
 #if USE_INTERRUPT == 1
-	attachInterrupt(FLOW_PIN, &Sensors::SingleFlowCounter, this, FALLING, 0);
+  attachInterrupt(FLOW_PIN, &Sensors::SingleFlowCounter, this, FALLING, 0);
 #endif
   pinMode(SOLENOID_PIN, OUTPUT);
 
 #ifdef EXPANSION_BOX_PIN
   /*RS485 direction pin*/
-	pinMode(EXPANSION_BOX_PIN, OUTPUT);
+  pinMode(EXPANSION_BOX_PIN, OUTPUT);
 
 #endif
+}
 
-  // this->OpenSolenoids();
-  // delay(10);
-  // this->CloseSolenoids();
+void Sensors::Setup(Tap taps[], uint8_t tapCount) {
+  if (this->temperatureSensor == NULL) {
+    this->temperatureSensor = new Temperature();
+  }
+  this->taps = taps;
+  this->tapCount = tapCount;
 }
 
 int Sensors::Tick() {

@@ -61,7 +61,7 @@ void StandardSendPacket::ResetDataPacket()
   Bits: 0xC0 - solendoid 4
 
   solendoid will turn OFF automatically when no more flow is detected*/
-  this->dataPacket[SOLENOID_ON_INDEX] = 0x00;
+  this->dataPacket[SOLENOID_ON_INDEX + this->offset] = 0x00;
 
   /* force solenoid OFF
   Bits: 0x03 - solendoid 1
@@ -72,7 +72,7 @@ void StandardSendPacket::ResetDataPacket()
   This can be used to override the auto-off algorithm, for example in case
   abnormal flow is detected (tap left open or leak)
   */
-  this->dataPacket[SOLENOID_OFF_INDEX] = 0x00;
+  this->dataPacket[SOLENOID_OFF_INDEX + this->offset] = 0x00;
 
   /* reset flow sensors
   Bits: 0x03 - Flow Sensor 1
@@ -82,5 +82,5 @@ void StandardSendPacket::ResetDataPacket()
 
   This is used to reset the flow sensor.
   */
-  this->dataPacket[RESET_FLOW_INDEX] = 0x00;
+  this->dataPacket[RESET_FLOW_INDEX + this->offset] = 0x00;
 }

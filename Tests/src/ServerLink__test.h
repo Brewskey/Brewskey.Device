@@ -48,9 +48,18 @@ TEST_CASE("ServerLink", "[Initialize]") {
 
     String tapIDs;
     String pulses;
-    for (int ii = 0; ii < s.tapCount; ii++) {
-      tapIDs += String(s.tapIds[ii]) + ",";
-      pulses += String(s.pulsesPerGallon[ii]) + ",";
+
+    if (s.tapCount == 0) 
+    {
+      tapIDs = ",";
+      pulses = ",";
+    }
+    else 
+    {
+      for (int ii = 0; ii < s.tapCount; ii++) {
+        tapIDs += String(s.tapIds[ii]) + ",";
+        pulses += String(s.pulsesPerGallon[ii]) + ",";
+      }
     }
 
     snprintf(
@@ -65,6 +74,26 @@ TEST_CASE("ServerLink", "[Initialize]") {
     );
     return String(input);
   };
+
+  SECTION("zero tap input string") {
+    fakeit::Mock<KegeratorState> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = 0;
+    s.pulsesPerGallon = new uint[0];
+    s.tapCount = 0;
+    s.tapIds = new uint32_t[0];
+
+    String input = serializeDeviceSettings(s);
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
 
   SECTION("single tap input string") {
     fakeit::Mock<KegeratorState> stateMock;

@@ -20,8 +20,7 @@
 
 class KegeratorState: public IStateManager  {
 public:
-	KegeratorState(Display* display);
-	KegeratorState(Display* display, NfcClient* client);
+	KegeratorState(Display* display, NfcClient* client, Sensors* sensors);
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
     ITap &tap,

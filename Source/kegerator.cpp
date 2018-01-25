@@ -17,9 +17,11 @@ PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
 
 #define MILLISECONDS_IN_DAY 86400000
 
+Display* display;
 LED led;
 KegeratorState* state;
-Display* display;
+NfcClient* nfcClient;
+Sensors sensors;
 TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
 
 void setup(void) {
@@ -35,8 +37,8 @@ void setup(void) {
       Spark.process();
     }
 */
-
-    state = new KegeratorState(display);
+    nfcClient = new NfcClient();
+    state = new KegeratorState(display, nfcClient, &sensors);
 }
 
 void loop(void) {

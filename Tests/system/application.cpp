@@ -6,8 +6,12 @@ extern "C" {
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction) { return PF_NONE; }
 
-STM32_Pin_Info* pinInfo = new STM32_Pin_Info();
-STM32_Pin_Info* HAL_Pin_Map(void) { return pinInfo; }
+STM32_Pin_Info pinInfo[1];
+STM32_Pin_Info* HAL_Pin_Map(void) { 
+  GPIO_TypeDef peripheral;
+  pinInfo[0].gpio_peripheral = &peripheral; 
+  return pinInfo; 
+}
 
 void HAL_Pin_Mode(pin_t pin, PinMode mode) {}
 PinMode HAL_Get_Pin_Mode(pin_t pin) { return PIN_MODE_NONE;  }

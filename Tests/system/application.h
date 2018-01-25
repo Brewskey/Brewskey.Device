@@ -318,7 +318,7 @@ extern SPIClass SPI;
 extern _Particle Particle;
 extern _Time Time;
 extern _System System;
-extern Pin_Info PIN_MAP[];
+extern Pin_Info PIN_MAP[1];
 
 
 #endif

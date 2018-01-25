@@ -16,7 +16,8 @@
 
 class Sensors: public ISolenoids, public ITick {
 public:
-  Sensors(Tap* taps, uint8_t tapCount);
+  Sensors();
+  void Setup(Tap* taps, uint8_t tapCount);
   virtual int Tick();
   virtual void OpenSolenoid(uint8_t solenoid);
   virtual void OpenSolenoids();

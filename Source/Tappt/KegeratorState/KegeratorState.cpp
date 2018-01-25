@@ -5,13 +5,9 @@
 	 && strlen(s) == (t).end - (t).start)
 
 KegeratorState::KegeratorState(
-	Display* display
-): KegeratorState(display, new NfcClient()) {
-}
-
-KegeratorState::KegeratorState(
 	Display* display,
-	NfcClient* nfcClient
+	NfcClient* nfcClient,
+  Sensors* sensors
 ) {
 	this->serverLink = new ServerLink(this);
 
@@ -22,7 +18,8 @@ KegeratorState::KegeratorState(
 	this->pourDisplay = new PourDisplay(display);
 	this->totpDisplay = new TotpDisplay(display);
 
-	this->nfcClient = nfcClient;
+  this->nfcClient = nfcClient;
+  this->sensors = sensors;
 	nfcClient->Setup(this->serverLink);
 }
 
@@ -194,7 +191,6 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 	// Setup taps
 	if (this->taps != NULL) {
 		delete[] this->taps;
-		delete this->sensors;
 	}
 
 	int tapCount = this->settings->tapCount;
@@ -207,7 +203,7 @@ void KegeratorState::Initialize(DeviceSettings *settings) {
 		);
 	}
 
-	this->sensors = new Sensors(this->taps, tapCount);
+	this->sensors->Setup(this->taps, tapCount);
 	this->pourDisplay->Setup(this->taps, tapCount);
 	this->totpDisplay->Setup(this->settings, this->taps, tapCount);
 

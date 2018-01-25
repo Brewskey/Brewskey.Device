@@ -84,7 +84,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
   end = tapIds.indexOf(delimeter);
   int tapCount = 0;
 
-  while (end >= 0) {
+  while (end > 0) {
     start = end + delimeter.length();
     end = tapIds.indexOf(delimeter, start);
     tapCount++;
@@ -124,7 +124,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
     iter++;
   }
 
-  // End Tap IDs
+  // End pulsesPerGallon IDs
 
   this->stateManager->Initialize(&this->settings);
   Serial.println("Initialized");

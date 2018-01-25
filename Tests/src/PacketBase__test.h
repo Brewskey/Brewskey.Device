@@ -50,10 +50,4 @@ TEST_CASE("PacketBase::PrepareDataPacket", "[PacketBase]") {
     uint8_t checksum = data[5];
     REQUIRE(checksum == 254);
   }
-  /*
-  SECTION("tap ID is equal") {
-    Tap tap;
-    tap.Setup(&mock.get(), 123, 0);
-    REQUIRE(tap.GetId() == 123);
-  }*/
 }
