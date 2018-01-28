@@ -1,12 +1,6 @@
 #include "Sensors.h"
 
-#define UART_SEND_LENGTH 8
-#define UART_SOLENOID_ON 4
-#define UART_SOLENOID_OFF 5
-#define UART_RESET_FLOW 6
-#define INCOMING_BUFFER_SIZE 21
-
-Sensors::Sensors()
+Sensors::Sensors(PacketReader &packetReader): reader(packetReader)
 {
   pinMode(FLOW_PIN, INPUT);
   digitalWrite(FLOW_PIN, HIGH);
@@ -18,7 +12,8 @@ Sensors::Sensors()
 #ifdef EXPANSION_BOX_PIN
   /*RS485 direction pin*/
   pinMode(EXPANSION_BOX_PIN, OUTPUT);
-
+  /*set RS485 direction pin LOW: receiver*/
+  digitalWrite(EXPANSION_BOX_PIN, LOW);
 #endif
 }
 
@@ -28,6 +23,9 @@ void Sensors::Setup(Tap taps[], uint8_t tapCount) {
   }
   this->taps = taps;
   this->tapCount = tapCount;
+
+  this->isWaitingForResponse = false;
+  this->packetResponseTimer.Start();
 }
 
 int Sensors::Tick() {
@@ -37,7 +35,16 @@ int Sensors::Tick() {
   this->SingleFlowCounter();
 #endif
 #ifdef EXPANSION_BOX_PIN
-  this->ReadMultitap();
+  this->packetResponseTimer.Tick();
+  if (this->packetResponseTimer.ShouldTrigger()) {
+    Serial.println("Reset");
+    this->isWaitingForResponse = false;
+  }
+  if (!this->isWaitingForResponse) {
+    Serial.println("Sending");
+    this->sendPacket.Send();
+    this->isWaitingForResponse = true;
+  }
 #endif
   return 0;
 }
@@ -112,124 +119,81 @@ void Sensors::ResetFlowSensor(uint8_t solenoid) {
 #ifdef EXPANSION_BOX_PIN
 void Sensors::ReadMultitap(void)
 {
-	uint8_t ii,
-    count = 0,
-    checksum = 0,
-    data = 0,
-    esc_flag = 0,
-    isValid =0;
+  if (!this->isWaitingForResponse) {
+    return;
+  }
+  this->reader.Read();
 
-  this->sendPacket.Send();
-  delay(100);
+  if (!this->reader.IsPacketReady()) {
+    return;
+  }
 
-	/*read all received bytes*/
-	while (Serial1.available() > 0) {
-		data = Serial1.read();			/* Get data */
-		if(data == '#' && !esc_flag)				/* If finding first escape byte */
-		{
-			esc_flag = 1;							/* Set escape byte flag */
-		}
-		else
-		{
-      /* Escape byte not set */
-			if(!esc_flag)
-			{
-        /* Getting sync byte of packet, since no escape byte beore it */
-				if(data == '+')
-				{
-					count = 0;						/* Reset Counter - since start of packet */
-					for(ii = 0; ii < PACKET_BUFFER; ii++)
-					{
-						incomingBuffer[ii] = 0;	/* Clearing packet buffer */
-					}
+  this->isWaitingForResponse = false;
 
-					continue;
-				}
+  bool isValid = this->reader.IsValid();
+  this->reader.Reset();
+  if (!isValid) {
+    return;
+  }
 
-				if(data == '-')						/* End of packet */
-				{
-					checksum = 0;					/* Reset checksum */
+  uint8_t destination = this->reader.GetDestination();
+  uint8_t source = this->reader.GetSource();
+  uint8_t packetType = this->reader.GetPacketType();
 
-					for(ii = 0; ii < INCOMING_BUFFER_SIZE; ii++)		/* Calculating checksum of packet */
-					{
-						checksum ^= incomingBuffer[ii];
-					}
-
-					checksum = 255 - checksum;
-
-					if(checksum == incomingBuffer[count - 1])
-					{
-						isValid = 1;	/*packet is valid*/
-					}
-					else
-					{
-						isValid = 0;			/* packet invalid */
-					}
-				}
-			}
-			else
-			{
-				esc_flag = 0;
-			}
-
-      /* If count still less than packet buffer size */
-			if(count < PACKET_BUFFER)
-			{
-				incomingBuffer[count] = data;	/* Store data in buffer */
-				count++;									/* Increment counter */
-			}
-		}
-	}
-
-	if(isValid)
+  /*print received data to USB*/
+	if(destination == 0x00 && source == 0x01 && packetType == POUR_PACKET_TYPE)
 	{
-    /*print received data to USB*/
-		if(incomingBuffer[0] == 0x00 && incomingBuffer[1] == 0x01 && incomingBuffer[2] == 0x33)
-		{
-      const uint8_t FLOW_START = 5;
-      uint8_t tapsInBox = this->tapCount % 4;
-      for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
-        uint32_t pulses =
-          (incomingBuffer[FLOW_START + 4 * ii]<<24) |
-          (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
-          (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
-          (incomingBuffer[FLOW_START + 4 * ii + 3]);
+    uint8_t* incomingBuffer = this->reader.GetDataBuffer();
+    uint8_t ii;
+    for (ii = 0; ii < this->reader.GetDataBufferSize() + 1; ii++) {
+      Serial.print(incomingBuffer[ii], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
 
-        if (ii > tapsInBox) {
-          if (pulses > 0) {
-            Serial.print("Pour occurred on tap that isn't set up: ");
-            Serial.print(ii);
-            Serial.println();
-          }
-          continue;
-        }
+    const uint8_t FLOW_START = 1;
+    uint8_t tapsInBox = this->tapCount % 4;
+    for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
+      uint32_t pulses =
+        (incomingBuffer[FLOW_START + 4 * ii]<<24) |
+        (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
+        (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
+        (incomingBuffer[FLOW_START + 4 * ii + 3]);
 
-        // Get difference to determine if it is still pouring
-        uint32_t totalPulses = this->taps[ii].GetTotalPulses();
-        if (pulses == totalPulses) {
-          continue;
+      if (ii >= this->tapCount) {
+        if (pulses > 0) {
+          Serial.print("Pour occurred on tap that isn't set up: ");
+          Serial.print(ii);
+          Serial.println();
         }
-        long difference = pulses - totalPulses;
-        if (difference <= 0) {
-          continue;
-        }
-
-        this->taps[ii].AddToFlowCount(difference);
+        continue;
       }
 
+      // Get difference to determine if it is still pouring
+      uint32_t totalPulses = this->taps[ii].GetTotalPulses();
+      if (pulses == totalPulses) {
+        continue;
+      }
+      long difference = pulses - totalPulses;
+      if (difference <= 0) {
+        continue;
+      }
+
+      this->taps[ii].AddToFlowCount(difference);
+    }
+
 #if SHOW_OUTPUT
-			Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
-				(incomingBuffer[4] & 0x01)?"ON":"OFF",	/*solenoid 1*/
-				(incomingBuffer[5]<<24) | (incomingBuffer[6]<<16) |	(incomingBuffer[7]<<8) | (incomingBuffer[8]), /*flow 1*/
-				(incomingBuffer[4] & 0x02)?"ON":"OFF",	/*solenoid 2*/
-				(incomingBuffer[9]<<24) | (incomingBuffer[10]<<16) |	(incomingBuffer[11]<<8) | (incomingBuffer[12]), /*flow 2*/
-				(incomingBuffer[4] & 0x04)?"ON":"OFF",	/*solenoid 3*/
-				(incomingBuffer[13]<<24) | (incomingBuffer[14]<<16) |	(incomingBuffer[15]<<8) | (incomingBuffer[16]), /*flow 3*/
-				(incomingBuffer[4] & 0x08)?"ON":"OFF",	/*solenoid 4*/
-				(incomingBuffer[17]<<24) | (incomingBuffer[18]<<16) |	(incomingBuffer[19]<<8) | (incomingBuffer[20])); /*flow 4*/
-      Serial.println();
+		Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
+			(incomingBuffer[0] & 0x03)?"ON":"OFF",	/*solenoid 1*/
+			(incomingBuffer[1]<<24) | (incomingBuffer[2]<<16) |	(incomingBuffer[3]<<8) | (incomingBuffer[4]), /*flow 1*/
+			(incomingBuffer[0] & 0x0C)?"ON":"OFF",	/*solenoid 2*/
+			(incomingBuffer[5]<<24) | (incomingBuffer[6]<<16) |	(incomingBuffer[7]<<8) | (incomingBuffer[8]), /*flow 2*/
+			(incomingBuffer[0] & 0x30)?"ON":"OFF",	/*solenoid 3*/
+			(incomingBuffer[9]<<24) | (incomingBuffer[10]<<16) |	(incomingBuffer[11]<<8) | (incomingBuffer[12]), /*flow 3*/
+			(incomingBuffer[0] & 0xC0)?"ON":"OFF",	/*solenoid 4*/
+			(incomingBuffer[13]<<24) | (incomingBuffer[14]<<16) |	(incomingBuffer[15]<<8) | (incomingBuffer[16])); /*flow 4*/
+    Serial.println();
 #endif
-		}
 	}
 }
 

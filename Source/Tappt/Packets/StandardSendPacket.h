@@ -5,7 +5,7 @@
 
 class StandardSendPacket: public PacketBase {
 public:
-  StandardSendPacket(uint8_t destination, bool hasVersionBit = false);
+  StandardSendPacket(uint8_t destination);
 
   void CloseSolenoids();
   void OpenSolenoids();
@@ -14,7 +14,4 @@ public:
   void ResetFlowSensor(uint8_t solenoid);
 
   virtual void ResetDataPacket();
-
-private:
-  uint8_t offset = 0;
 };

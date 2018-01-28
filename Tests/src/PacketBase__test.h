@@ -28,7 +28,7 @@ TEST_CASE("PacketBase::SetDestination", "[PacketBase]") {
     PacketTestImpl packet;
     uint8_t destination = 0xFF;
     packet.SetDestination(destination);
-    REQUIRE(packet.GetDataArray()[DESTINATION_INDEX] == destination);
+    REQUIRE(packet.GetDataArray()[PACKET_DESTINATION_INDEX] == destination);
   }
 };
 

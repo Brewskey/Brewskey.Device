@@ -8842,7 +8842,10 @@ namespace fakeit {
 
 		public:
 			Terminator(smart_ptr<SequenceVerificationExpectation> expectationPtr) : _expectationPtr(expectationPtr) {
-        REQUIRE(toBool());
+        bool result = toBool();
+        if (result) {
+          REQUIRE(true);
+        }
       };
 
 			operator bool() {

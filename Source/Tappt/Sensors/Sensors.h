@@ -9,14 +9,13 @@
 
 #ifdef EXPANSION_BOX_PIN
 #include "Tappt/Packets/StandardSendPacket.h"
-#endif
+#include "Tappt/Packets/PacketReader.h"
 
-/*maximum size of incoming packet from ext board*/
-#define PACKET_BUFFER	64
+#endif
 
 class Sensors: public ISolenoids, public ITick {
 public:
-  Sensors();
+  Sensors(PacketReader &packetReader);
   void Setup(Tap* taps, uint8_t tapCount);
   virtual int Tick();
   virtual void OpenSolenoid(uint8_t solenoid);
@@ -24,21 +23,24 @@ public:
   virtual void CloseSolenoid(uint8_t solenoid);
   virtual void CloseSolenoids();
   virtual void ResetFlowSensor(uint8_t solenoid);
-private:
-  void SingleFlowCounter();
 #ifdef EXPANSION_BOX_PIN
   void ReadMultitap();
 #endif
-  Temperature* temperatureSensor;
-  Tap* taps;
+private:
+  void SingleFlowCounter();
+
+  Temperature* temperatureSensor = NULL;
+  Tap* taps = NULL;
 
   uint8_t tapCount;
 
 #ifdef EXPANSION_BOX_PIN
-  StandardSendPacket sendPacket = StandardSendPacket(0x01, true);
+  StandardSendPacket sendPacket = StandardSendPacket(0x01);
+  PacketReader &reader;
 
-  /*array for incoming packet*/
-  uint8_t incomingBuffer[PACKET_BUFFER];
+  // start true so we wait to send first packet
+  bool isWaitingForResponse = true;
+  TapptTimer packetResponseTimer = TapptTimer(300);
 #endif
 };
 

@@ -22,7 +22,7 @@ PacketBase::~PacketBase() {
 
 void PacketBase::SetDestination(uint8_t destination)
 {
-  this->dataPacket[DESTINATION_INDEX] = destination;
+  this->dataPacket[PACKET_DESTINATION_INDEX] = destination;
 }
 
 void PacketBase::PrepareDataPacket()

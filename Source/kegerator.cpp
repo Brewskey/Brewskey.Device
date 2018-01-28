@@ -21,7 +21,8 @@ Display* display;
 LED led;
 KegeratorState* state;
 NfcClient* nfcClient;
-Sensors sensors;
+PacketReader reader;
+Sensors sensors = Sensors(reader);
 TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
 
 void setup(void) {
@@ -37,6 +38,10 @@ void setup(void) {
       Spark.process();
     }
 */
+  while (Serial1.available()) {
+    Serial1.read();
+  }
+
     nfcClient = new NfcClient();
     state = new KegeratorState(display, nfcClient, &sensors);
 }
@@ -70,5 +75,8 @@ HAL_USB_USART_Config acquireUSBSerial1Buffer()
 
 void serialEvent1()
 {
-    Serial.print("Data available");
+  // if (state->GetState() == KegeratorState::INITIALIZING) {
+  //
+  // }
+  sensors.ReadMultitap();
 }

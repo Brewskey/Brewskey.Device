@@ -2,8 +2,9 @@
 #define ITap_h
 
 #include "application.h"
+#include "Tappt/ITick.h"
 
-class ITap {
+class ITap: public ITick {
 public:
   virtual uint32_t GetId() = 0;
   virtual void AddToFlowCount(int32_t pulses) = 0;

@@ -2,10 +2,7 @@
 
 #include "application.h"
 #include "Tappt/Pins.h"
-
-#define DESTINATION_INDEX 0
-#define PACKET_SOURCE_INDEX 1
-#define PACKET_TYPE_INDEX 2
+#include "Tappt/Packets/PacketDefinitions.h"
 
 class PacketBase {
 public:

@@ -1,27 +1,31 @@
 #include "StandardSendPacket.h"
 
-#define PACKET_TYPE 0x22 /* Solenoid flow sensor control */
-
 uint8_t TAP_BITS[4] = { 0x03, 0x0C, 0x30, 0xC0 };
 
-
+#ifdef USE_BETA_PACKET_FORMAT
+#define DATA_PACKET_SIZE 4
+#define SOLENOID_ON_INDEX 4
+#define SOLENOID_OFF_INDEX 5
+#define RESET_FLOW_INDEX 6
+#else
 #define DATA_PACKET_SIZE 3
 #define SOLENOID_ON_INDEX 3
 #define SOLENOID_OFF_INDEX 4
 #define RESET_FLOW_INDEX 5
+#endif
+
 
 StandardSendPacket::StandardSendPacket(
-  uint8_t destination,
-  bool hasVersionByte
-): PacketBase(DATA_PACKET_SIZE + (hasVersionByte ? 1 : 0), PACKET_TYPE)
+  uint8_t destination
+): PacketBase(
+  DATA_PACKET_SIZE,
+  FLOW_CONTROL_PACKET_TYPE)
 {
   // Set version packet for beta hardware
   // Beta hardware had an extra byte :/
-  if (hasVersionByte)
-  {
-    this->offset = 1;
-    this->dataPacket[3] = 0x01; /*mainboard packet version */
-  }
+#ifdef USE_BETA_PACKET_FORMAT
+  this->dataPacket[3] = 0x01; /*mainboard packet version */
+#endif
 
   this->SetDestination(destination);
 }
@@ -41,15 +45,15 @@ void StandardSendPacket::OpenSolenoids() {
 }
 
 void StandardSendPacket::CloseSolenoid(uint8_t solenoid) {
-  this->dataPacket[SOLENOID_OFF_INDEX + this->offset] |= TAP_BITS[solenoid];
+  this->dataPacket[SOLENOID_OFF_INDEX] |= TAP_BITS[solenoid];
 }
 
 void StandardSendPacket::OpenSolenoid(uint8_t solenoid) {
-  this->dataPacket[SOLENOID_ON_INDEX + this->offset] |= TAP_BITS[solenoid];
+  this->dataPacket[SOLENOID_ON_INDEX] |= TAP_BITS[solenoid];
 }
 
 void StandardSendPacket::ResetFlowSensor(uint8_t sensor) {
-  this->dataPacket[RESET_FLOW_INDEX + this->offset] |= TAP_BITS[sensor];
+  this->dataPacket[RESET_FLOW_INDEX] |= TAP_BITS[sensor];
 }
 
 void StandardSendPacket::ResetDataPacket()
@@ -61,7 +65,7 @@ void StandardSendPacket::ResetDataPacket()
   Bits: 0xC0 - solendoid 4
 
   solendoid will turn OFF automatically when no more flow is detected*/
-  this->dataPacket[SOLENOID_ON_INDEX + this->offset] = 0x00;
+  this->dataPacket[SOLENOID_ON_INDEX] = 0x00;
 
   /* force solenoid OFF
   Bits: 0x03 - solendoid 1
@@ -72,7 +76,7 @@ void StandardSendPacket::ResetDataPacket()
   This can be used to override the auto-off algorithm, for example in case
   abnormal flow is detected (tap left open or leak)
   */
-  this->dataPacket[SOLENOID_OFF_INDEX + this->offset] = 0x00;
+  this->dataPacket[SOLENOID_OFF_INDEX] = 0x00;
 
   /* reset flow sensors
   Bits: 0x03 - Flow Sensor 1
@@ -82,5 +86,5 @@ void StandardSendPacket::ResetDataPacket()
 
   This is used to reset the flow sensor.
   */
-  this->dataPacket[RESET_FLOW_INDEX + this->offset] = 0x00;
+  this->dataPacket[RESET_FLOW_INDEX] = 0x00;
 }

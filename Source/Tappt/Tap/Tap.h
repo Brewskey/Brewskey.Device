@@ -11,7 +11,7 @@
 #define AFTER_POUR_TIME_PERIOD 3000
 #define PULSE_EPSILON 9
 
-class Tap: public ITap, public ITick {
+class Tap: public ITap {
 public:
   Tap();
   uint32_t GetId();
