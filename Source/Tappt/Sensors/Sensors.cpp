@@ -25,6 +25,9 @@ void Sensors::Setup(Tap taps[], uint8_t tapCount) {
   this->tapCount = tapCount;
 
   this->isWaitingForResponse = false;
+  while (Serial1.available()) {
+    Serial1.read();
+  }
   this->packetResponseTimer.Start();
 }
 
@@ -37,13 +40,14 @@ int Sensors::Tick() {
 #ifdef EXPANSION_BOX_PIN
   this->packetResponseTimer.Tick();
   if (this->packetResponseTimer.ShouldTrigger()) {
-    Serial.println("Reset");
     this->isWaitingForResponse = false;
+    this->reader.Reset();
   }
-  if (!this->isWaitingForResponse) {
-    Serial.println("Sending");
-    this->sendPacket.Send();
+  if (
+    !this->isWaitingForResponse
+  ) {
     this->isWaitingForResponse = true;
+    this->sendPacket.Send();
   }
 #endif
   return 0;
@@ -55,7 +59,7 @@ void Sensors::SingleFlowCounter()
 #if USE_INTERRUPT == 1
 	// delayMicroseconds(1200);
 	if (pin == 0) {
-    this->taps[0].AddToFlowCount(1);
+    this->taps[0].SetTotalPulses(this->taps[0].GetTotalPulses() + 1);
 	}
 #else
 	static uint8_t buffer = 0;
@@ -74,7 +78,7 @@ void Sensors::SingleFlowCounter()
   transition verified by 3 low samples followed by 3 high samples*/
 	if((buffer & 0x3F) == 0x07)
 	{
-		this->taps[0].AddToFlowCount(1);
+    this->taps[0].SetTotalPulses(this->taps[0].GetTotalPulses() + 1);
 	}
 #endif
 }
@@ -128,11 +132,10 @@ void Sensors::ReadMultitap(void)
     return;
   }
 
-  this->isWaitingForResponse = false;
-
   bool isValid = this->reader.IsValid();
   this->reader.Reset();
   if (!isValid) {
+    this->isWaitingForResponse = false;
     return;
   }
 
@@ -140,17 +143,10 @@ void Sensors::ReadMultitap(void)
   uint8_t source = this->reader.GetSource();
   uint8_t packetType = this->reader.GetPacketType();
 
-  /*print received data to USB*/
 	if(destination == 0x00 && source == 0x01 && packetType == POUR_PACKET_TYPE)
 	{
     uint8_t* incomingBuffer = this->reader.GetDataBuffer();
     uint8_t ii;
-    for (ii = 0; ii < this->reader.GetDataBufferSize() + 1; ii++) {
-      Serial.print(incomingBuffer[ii], HEX);
-      Serial.print(" ");
-    }
-    Serial.println();
-
     const uint8_t FLOW_START = 1;
     uint8_t tapsInBox = this->tapCount % 4;
     for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
@@ -174,12 +170,8 @@ void Sensors::ReadMultitap(void)
       if (pulses == totalPulses) {
         continue;
       }
-      long difference = pulses - totalPulses;
-      if (difference <= 0) {
-        continue;
-      }
 
-      this->taps[ii].AddToFlowCount(difference);
+      this->taps[ii].SetTotalPulses(pulses);
     }
 
 #if SHOW_OUTPUT
@@ -195,6 +187,7 @@ void Sensors::ReadMultitap(void)
     Serial.println();
 #endif
 	}
+  this->isWaitingForResponse = false;
 }
 
 #endif

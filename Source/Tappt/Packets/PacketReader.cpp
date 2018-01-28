@@ -86,7 +86,7 @@ void PacketReader::Read()
 				{
 					checksum = 0;					/* Reset checksum */
 
-          uint8_t incomingBufferSize = this->GetBufferSizeForPacket();
+          uint8_t incomingBufferSize = this->GetBufferSizeForPacket() - 1;
 					for(ii = 0; ii < incomingBufferSize; ii++)		/* Calculating checksum of packet */
 					{
 						checksum ^= this->incomingBuffer[ii];

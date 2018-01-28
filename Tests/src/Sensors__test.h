@@ -143,7 +143,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Verify(Method(mock, GetDestination)).Once();
     Verify(Method(mock, GetSource)).Once();
     Verify(Method(mock, GetDataBuffer)).Once();
-    Verify(Method(tapMock, AddToFlowCount)).Never();
+    Verify(Method(tapMock, SetTotalPulses)).Never();
   }
 
   SECTION("Single tap new pulses") {
@@ -162,7 +162,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
 
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(0);
-    When(Method(tapMock, AddToFlowCount)).AlwaysReturn();
+    When(Method(tapMock, SetTotalPulses)).AlwaysReturn();
     sensors.Setup(&tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
@@ -171,7 +171,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Verify(Method(mock, GetDestination)).Once();
     Verify(Method(mock, GetSource)).Once();
     Verify(Method(mock, GetDataBuffer)).Once();
-    Verify(Method(tapMock, AddToFlowCount).Using(0xFF)).Once();
+    Verify(Method(tapMock, SetTotalPulses).Using(0xFF)).Once();
   }
 
   SECTION("Single tap pulses from slot 2") {
@@ -190,7 +190,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
 
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(0);
-    When(Method(tapMock, AddToFlowCount)).AlwaysReturn();
+    When(Method(tapMock, SetTotalPulses)).AlwaysReturn();
     sensors.Setup(&tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
@@ -199,6 +199,6 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Verify(Method(mock, GetDestination)).Once();
     Verify(Method(mock, GetSource)).Once();
     Verify(Method(mock, GetDataBuffer)).Once();
-    Verify(Method(tapMock, AddToFlowCount)).Never();
+    Verify(Method(tapMock, SetTotalPulses)).Never();
   }
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "application.h"
+#include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketDefinitions.h"
 
 /*maximum size of incoming packet from ext board*/
@@ -11,7 +12,7 @@
 #define DATA_START_INDEX 4
 #else
 #define INCOMING_POUR_BUFFER_SIZE 21
-#define DATA_START_INDEX 4
+#define DATA_START_INDEX 3
 #endif
 
 class PacketReader {

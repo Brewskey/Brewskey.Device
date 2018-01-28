@@ -40,7 +40,7 @@ private:
 
   // start true so we wait to send first packet
   bool isWaitingForResponse = true;
-  TapptTimer packetResponseTimer = TapptTimer(300);
+  TapptTimer packetResponseTimer = TapptTimer(400);
 #endif
 };
 

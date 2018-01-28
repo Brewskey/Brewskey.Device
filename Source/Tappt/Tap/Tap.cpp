@@ -38,23 +38,30 @@ void Tap::SetAuthToken(String authenticationKey) {
 }
 
 void Tap::StopPour() {
-  Serial.println("Tap::StopPour");
+  this->pourCooldownTimer.Start();
+  
   bool isPouring = this->isPouring;
   this->isPouring = false;
-  if (this->totalPulses > PULSE_EPSILON && isPouring) {
-    this->kegeratorState->TapStoppedPouring(
-      *this,
-      this->totalPulses,
-      this->authenticationKey
-    );
-  }
+
+
+  uint32_t totalPulses = this->totalPulses;
+  String authenticationKey = this->authenticationKey;
 
   this->totalPulses = 0;
   this->authenticationKey = "";
+
+  if (totalPulses > PULSE_EPSILON && isPouring) {
+    this->kegeratorState->TapStoppedPouring(
+      this->tapId,
+      totalPulses,
+      authenticationKey
+    );
+  }
 }
 
 int Tap::Tick() {
   // handle isPouring here :)
+  this->pourCooldownTimer.Tick();
   if (!this->isPouring) {
     return 0;
   }
@@ -67,15 +74,20 @@ int Tap::Tick() {
   return 0;
 }
 
-void Tap::AddToFlowCount(int32_t pulses) {
+void Tap::SetTotalPulses(uint32_t pulses) {
+  // If the pour cooldown is running, wait to set pulses.
+  if (this->pourCooldownTimer.IsRunning()) {
+    return;
+  };
+
   // Don't start pouring if pulses aren't being sent.
   // TODO - we need to find a good way to filter our phantom pours.  Maybe do
   // an average over time and kill it that way.
-  if (pulses <= 0) {
+  if (pulses == 0) {
     return;
   }
 
-  this->totalPulses += pulses;
+  this->totalPulses = pulses;
   this->pourStartTime = millis();
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {

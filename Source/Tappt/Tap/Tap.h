@@ -6,6 +6,7 @@
 #include "Tappt/KegeratorState/IStateManager.h"
 #include "Tappt/ITick.h"
 #include "Tappt/Pins.h"
+#include "Tappt/TapptTimer/TapptTimer.h"
 
 #define BEFORE_POUR_TIME_PERIOD 5000
 #define AFTER_POUR_TIME_PERIOD 3000
@@ -21,7 +22,7 @@ public:
   void Setup(IStateManager *kegeratorState, uint32_t tapId, uint32_t pulsesPerGallon);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
-  virtual void AddToFlowCount(int32_t pulses);
+  virtual void SetTotalPulses(uint32_t pulses);
   void StopPour();
 private:
   IStateManager* kegeratorState;
@@ -31,6 +32,10 @@ private:
   uint32_t totalPulses;
   String authenticationKey;
   unsigned long pourStartTime;
+
+  // Sometimes the expansion box and the brewskey box aren't quite in sync.
+  // This makes sure we don't end up with duplicate pours.
+  TapptTimer pourCooldownTimer = TapptTimer(500, 400);
 };
 
 #endif

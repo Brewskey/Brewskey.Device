@@ -32,6 +32,7 @@ void KegeratorState::SetState(e newState) {
     }
 
 		case KegeratorState::LISTENING: {
+			Serial.println("LISTENING");
 			RGB.control(false);
 			break;
 		}
@@ -153,12 +154,16 @@ int KegeratorState::Tick()
   ) {
     this->Timeout();
   }
-	this->sensors->Tick();
 
 	// read taps and manage end-pour
 	for(int i = 0; i < this->settings->tapCount; i++) {
 		this->taps[i].Tick();
 	}
+
+	// This must come after the taps check otherwise it can result in
+	// duplicate pours.
+	this->sensors->Tick();
+
 
   // Rendering
   this->displayChangeCount += this->pourDisplay->Tick();
@@ -271,19 +276,19 @@ void KegeratorState::TapStartedPouring(ITap &tap) {
 	}
 
 	this->lastAuthorizedToken = "";
-	this->CleanupTapState();
 }
 
 void KegeratorState::TapStoppedPouring(
-	ITap &tap,
+	uint32_t tapID,
 	uint32_t totalPulses,
 	String authenticationKey
 ) {
+	this->CleanupTapState();
 	Serial.println("Finished Pouring");
 
 	if (totalPulses > PULSE_EPSILON) {
 		this->serverLink->SendPourToServer(
-			tap.GetId(),
+			tapID,
 			totalPulses,
 			authenticationKey
 		);
@@ -291,7 +296,6 @@ void KegeratorState::TapStoppedPouring(
 		// TODO - Maybe show pulse on display a bit longer...?
 	}
 
-	this->CleanupTapState();
 }
 
 void KegeratorState::StopPouring() {

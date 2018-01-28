@@ -23,7 +23,7 @@ public:
 	KegeratorState(Display* display, NfcClient* client, Sensors* sensors);
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
-    ITap &tap,
+    uint32_t tapID,
     uint32_t totalPulses,
     String authenticationKey
   );
