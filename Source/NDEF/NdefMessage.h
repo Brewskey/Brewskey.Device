@@ -8,34 +8,34 @@
 
 class NdefMessage
 {
-    public:
-        NdefMessage(void);
-        NdefMessage(const byte *data, const int numBytes);
-        NdefMessage(const NdefMessage& rhs);
-        ~NdefMessage();
-        NdefMessage& operator=(const NdefMessage& rhs);
+public:
+  NdefMessage(void);
+  NdefMessage(const byte *data, const int numBytes);
+  NdefMessage(const NdefMessage& rhs);
+  ~NdefMessage();
+  NdefMessage& operator=(const NdefMessage& rhs);
 
-        int getEncodedSize(); // need so we can pass array to encode
-        void encode(byte *data);
+  int getEncodedSize(); // need so we can pass array to encode
+  void encode(byte *data);
 
-        boolean addRecord(NdefRecord& record);
-        void addApplicationRecord(String application);
-        void addLaunchApp(String application, String parameters = "");
-        void addMimeMediaRecord(String mimeType, String payload);
-        void addMimeMediaRecord(String mimeType, byte *payload, int payloadLength);
-        void addTextRecord(String text);
-        void addTextRecord(String text, String encoding);
-        void addUriRecord(String uri);
-        void addEmptyRecord();
+  boolean addRecord(NdefRecord& record);
+  void addApplicationRecord(String application);
+  void addLaunchApp(String application, String parameters = "");
+  void addMimeMediaRecord(String mimeType, String payload);
+  void addMimeMediaRecord(String mimeType, byte *payload, int payloadLength);
+  void addTextRecord(String text);
+  void addTextRecord(String text, String encoding);
+  void addUriRecord(String uri);
+  void addEmptyRecord();
 
-        unsigned int getRecordCount();
-        NdefRecord getRecord(int index);
-        NdefRecord operator[](int index);
+  unsigned int getRecordCount();
+  NdefRecord getRecord(int index);
+  NdefRecord operator[](int index);
 
-        void print();
-    private:
-        NdefRecord _records[MAX_NDEF_RECORDS];
-        unsigned int _recordCount;
+  void print();
+private:
+  NdefRecord _records[MAX_NDEF_RECORDS];
+  unsigned int _recordCount;
 };
 
 #endif

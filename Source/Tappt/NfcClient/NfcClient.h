@@ -24,7 +24,7 @@ namespace NfcState {
   };
 };
 
-class NfcClient: public ITick {
+class NfcClient : public ITick {
 public:
   NfcClient();
   void Setup(ServerLink *serverLink);

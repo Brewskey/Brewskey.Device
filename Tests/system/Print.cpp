@@ -28,9 +28,9 @@
 
 #include "Print.h"
 
-// Public Methods //////////////////////////////////////////////////////////////
+ // Public Methods //////////////////////////////////////////////////////////////
 
-/* default implementation: may be overridden */
+ /* default implementation: may be overridden */
 size_t Print::write(const uint8_t *buffer, size_t size)
 {
   size_t n = 0;
@@ -63,31 +63,33 @@ size_t Print::print(char c)
 
 size_t Print::print(unsigned char b, int base)
 {
-  return print((unsigned long) b, base);
+  return print((unsigned long)b, base);
 }
 
 size_t Print::print(int n, int base)
 {
-  return print((long) n, base);
+  return print((long)n, base);
 }
 
 size_t Print::print(unsigned int n, int base)
 {
-  return print((unsigned long) n, base);
+  return print((unsigned long)n, base);
 }
 
 size_t Print::print(long n, int base)
 {
   if (base == 0) {
     return write(n);
-  } else if (base == 10) {
+  }
+  else if (base == 10) {
     if (n < 0) {
       int t = print('-');
       n = -n;
       return printNumber(n, 10) + t;
     }
     return printNumber(n, 10);
-  } else {
+  }
+  else {
     return printNumber(n, base);
   }
 }
@@ -207,7 +209,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
     n /= base;
 
     *--str = c < 10 ? c + '0' : c + 'A' - 10;
-  } while(n);
+  } while (n);
 
   return write(str);
 }
@@ -218,19 +220,19 @@ size_t Print::printFloat(double number, uint8_t digits)
 
   if (isnan(number)) return print("nan");
   if (isinf(number)) return print("inf");
-  if (number > 4294967040.0) return print ("ovf");  // constant determined empirically
-  if (number <-4294967040.0) return print ("ovf");  // constant determined empirically
+  if (number > 4294967040.0) return print("ovf");  // constant determined empirically
+  if (number < -4294967040.0) return print("ovf");  // constant determined empirically
 
   // Handle negative numbers
   if (number < 0.0)
   {
-     n += print('-');
-     number = -number;
+    n += print('-');
+    number = -number;
   }
 
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
-  for (uint8_t i=0; i<digits; ++i)
+  for (uint8_t i = 0; i < digits; ++i)
     rounding /= 10.0;
 
   number += rounding;

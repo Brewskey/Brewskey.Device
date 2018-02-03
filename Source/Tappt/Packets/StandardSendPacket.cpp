@@ -17,7 +17,7 @@ uint8_t TAP_BITS[4] = { 0x03, 0x0C, 0x30, 0xC0 };
 
 StandardSendPacket::StandardSendPacket(
   uint8_t destination
-): PacketBase(
+) : PacketBase(
   DATA_PACKET_SIZE,
   FLOW_CONTROL_PACKET_TYPE)
 {

@@ -18,9 +18,9 @@
 //#define TIME_TO_POUR =
 #define MILLISECONDS_IN_HOUR 3600000
 
-class KegeratorState: public IStateManager  {
+class KegeratorState : public IStateManager {
 public:
-	KegeratorState(Display* display, NfcClient* client, Sensors* sensors);
+  KegeratorState(Display* display, NfcClient* client, Sensors* sensors);
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(
     uint32_t tapID,

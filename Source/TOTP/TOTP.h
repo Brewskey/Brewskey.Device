@@ -17,21 +17,21 @@
 
 class TOTP {
 
-	public:
+public:
 
-		TOTP(uint8_t* hmacKey, int keyLength);
-		char* getCode(long timeStamp);
+  TOTP(uint8_t* hmacKey, int keyLength);
+  char* getCode(long timeStamp);
 
-	private:
+private:
 
-		uint8_t* _hmacKey;
-		int _keyLength;
-		long _timeStep;
-		uint8_t _byteArray[8];
-		uint8_t* _hash;
-		int _offset;
-		long _truncatedHash;
-		char _code[7];
+  uint8_t * _hmacKey;
+  int _keyLength;
+  long _timeStep;
+  uint8_t _byteArray[8];
+  uint8_t* _hash;
+  int _offset;
+  long _truncatedHash;
+  char _code[7];
 };
 
 #endif

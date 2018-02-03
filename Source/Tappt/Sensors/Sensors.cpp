@@ -1,6 +1,6 @@
 #include "Sensors.h"
 
-Sensors::Sensors(PacketReader &packetReader): reader(packetReader)
+Sensors::Sensors(PacketReader &packetReader) : reader(packetReader)
 {
   pinMode(FLOW_PIN, INPUT);
   digitalWrite(FLOW_PIN, HIGH);
@@ -45,7 +45,7 @@ int Sensors::Tick() {
   }
   if (
     !this->isWaitingForResponse
-  ) {
+    ) {
     this->sendPacket.Send();
     this->isWaitingForResponse = true;
   }
@@ -55,31 +55,31 @@ int Sensors::Tick() {
 
 void Sensors::SingleFlowCounter()
 {
-	uint8_t pin = digitalRead(FLOW_PIN);
+  uint8_t pin = digitalRead(FLOW_PIN);
 #if USE_INTERRUPT == 1
-	// delayMicroseconds(1200);
-	if (pin == 0) {
+  // delayMicroseconds(1200);
+  if (pin == 0) {
     this->taps[0].SetTotalPulses(this->taps[0].GetTotalPulses() + 1);
-	}
+  }
 #else
-	static uint8_t buffer = 0;
+  static uint8_t buffer = 0;
 
-	/*shift buffer byte by 1 */
-	buffer <<= 1;
+  /*shift buffer byte by 1 */
+  buffer <<= 1;
 
-	/*SENSOR_PIN represents the pin status, if high set last bit in buffer to 1
+  /*SENSOR_PIN represents the pin status, if high set last bit in buffer to 1
   else it will remain 0*/
-	if(pin != 0)
-	{
-		buffer |= 0x01;
-	}
+  if (pin != 0)
+  {
+    buffer |= 0x01;
+  }
 
-	/*check for 0x07 pattern (mask upper 2 bits), representing a low to high
+  /*check for 0x07 pattern (mask upper 2 bits), representing a low to high
   transition verified by 3 low samples followed by 3 high samples*/
-	if((buffer & 0x3F) == 0x07)
-	{
+  if ((buffer & 0x3F) == 0x07)
+  {
     this->taps[0].SetTotalPulses(this->taps[0].GetTotalPulses() + 1);
-	}
+  }
 #endif
 }
 
@@ -143,8 +143,8 @@ void Sensors::ReadMultitap(void)
   uint8_t source = this->reader.GetSource();
   uint8_t packetType = this->reader.GetPacketType();
 
-	if(destination == 0x00 && source == 0x01 && packetType == POUR_PACKET_TYPE)
-	{
+  if (destination == 0x00 && source == 0x01 && packetType == POUR_PACKET_TYPE)
+  {
 
     uint8_t* incomingBuffer = this->reader.GetDataBuffer();
     uint8_t ii;
@@ -160,9 +160,9 @@ void Sensors::ReadMultitap(void)
     uint8_t tapsInBox = this->tapCount % 4;
     for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
       uint32_t pulses =
-        (incomingBuffer[FLOW_START + 4 * ii]<<24) |
-        (incomingBuffer[FLOW_START + 4 * ii + 1]<<16) |
-        (incomingBuffer[FLOW_START + 4 * ii + 2]<<8) |
+        (incomingBuffer[FLOW_START + 4 * ii] << 24) |
+        (incomingBuffer[FLOW_START + 4 * ii + 1] << 16) |
+        (incomingBuffer[FLOW_START + 4 * ii + 2] << 8) |
         (incomingBuffer[FLOW_START + 4 * ii + 3]);
 
       if (ii >= this->tapCount) {
@@ -184,18 +184,18 @@ void Sensors::ReadMultitap(void)
     }
 
 #if SHOW_OUTPUT
-		Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
-			(incomingBuffer[0] & 0x03)?"ON":"OFF",	/*solenoid 1*/
-			(incomingBuffer[1]<<24) | (incomingBuffer[2]<<16) |	(incomingBuffer[3]<<8) | (incomingBuffer[4]), /*flow 1*/
-			(incomingBuffer[0] & 0x0C)?"ON":"OFF",	/*solenoid 2*/
-			(incomingBuffer[5]<<24) | (incomingBuffer[6]<<16) |	(incomingBuffer[7]<<8) | (incomingBuffer[8]), /*flow 2*/
-			(incomingBuffer[0] & 0x30)?"ON":"OFF",	/*solenoid 3*/
-			(incomingBuffer[9]<<24) | (incomingBuffer[10]<<16) |	(incomingBuffer[11]<<8) | (incomingBuffer[12]), /*flow 3*/
-			(incomingBuffer[0] & 0xC0)?"ON":"OFF",	/*solenoid 4*/
-			(incomingBuffer[13]<<24) | (incomingBuffer[14]<<16) |	(incomingBuffer[15]<<8) | (incomingBuffer[16])); /*flow 4*/
+    Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
+      (incomingBuffer[0] & 0x03) ? "ON" : "OFF",	/*solenoid 1*/
+      (incomingBuffer[1] << 24) | (incomingBuffer[2] << 16) | (incomingBuffer[3] << 8) | (incomingBuffer[4]), /*flow 1*/
+      (incomingBuffer[0] & 0x0C) ? "ON" : "OFF",	/*solenoid 2*/
+      (incomingBuffer[5] << 24) | (incomingBuffer[6] << 16) | (incomingBuffer[7] << 8) | (incomingBuffer[8]), /*flow 2*/
+      (incomingBuffer[0] & 0x30) ? "ON" : "OFF",	/*solenoid 3*/
+      (incomingBuffer[9] << 24) | (incomingBuffer[10] << 16) | (incomingBuffer[11] << 8) | (incomingBuffer[12]), /*flow 3*/
+      (incomingBuffer[0] & 0xC0) ? "ON" : "OFF",	/*solenoid 4*/
+      (incomingBuffer[13] << 24) | (incomingBuffer[14] << 16) | (incomingBuffer[15] << 8) | (incomingBuffer[16])); /*flow 4*/
     Serial.println();
 #endif
-	}
+  }
   this->isWaitingForResponse = false;
 }
 

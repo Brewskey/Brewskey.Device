@@ -18,7 +18,7 @@ public:
   uint8_t* GetDataArray() {
     return this->dataPacket;
   }
-  
+
   virtual void ResetDataPacket() {
   }
 };

@@ -56,29 +56,29 @@ typedef uint32_t PortMask;
     SH1106_96_16
 
     -----------------------------------------------------------------------*/
-   #define SH1106_128_64
-//   #define SH1106_128_32
-//   #define SH1106_96_16
-/*=========================================================================*/
+#define SH1106_128_64
+    //   #define SH1106_128_32
+    //   #define SH1106_96_16
+    /*=========================================================================*/
 
 #if defined SH1106_128_64 && defined SH1106_128_32
-  #error "Only one SH1106 display can be specified at once in SH1106.h"
+#error "Only one SH1106 display can be specified at once in SH1106.h"
 #endif
 #if !defined SH1106_128_64 && !defined SH1106_128_32 && !defined SH1106_96_16
-  #error "At least one SH1106 display must be specified in SH1106.h"
+#error "At least one SH1106 display must be specified in SH1106.h"
 #endif
 
 #if defined SH1106_128_64
-  #define SH1106_LCDWIDTH                  128
-  #define SH1106_LCDHEIGHT                 64
+#define SH1106_LCDWIDTH                  128
+#define SH1106_LCDHEIGHT                 64
 #endif
 #if defined SH1106_128_32
-  #define SH1106_LCDWIDTH                  128
-  #define SH1106_LCDHEIGHT                 32
+#define SH1106_LCDWIDTH                  128
+#define SH1106_LCDHEIGHT                 32
 #endif
 #if defined SH1106_96_16
-  #define SH1106_LCDWIDTH                  96
-  #define SH1106_LCDHEIGHT                 16
+#define SH1106_LCDWIDTH                  96
+#define SH1106_LCDHEIGHT                 16
 #endif
 
 #define SH1106_SETCONTRAST 0x81
@@ -128,12 +128,12 @@ typedef uint32_t PortMask;
 #define SH1106_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL 0x2A
 
 class Adafruit_SH1106 : public Adafruit_GFX {
- public:
+public:
   Adafruit_SH1106(int8_t SID, int8_t SCLK, int8_t DC, int8_t RST, int8_t CS);
   Adafruit_SH1106(int8_t DC, int8_t RST, int8_t CS);
   Adafruit_SH1106(int8_t RST);
 
-  void begin(uint8_t switchvcc = SH1106_SWITCHCAPVCC, uint8_t i2caddr = SH1106_I2C_ADDRESS, bool reset=true);
+  void begin(uint8_t switchvcc = SH1106_SWITCHCAPVCC, uint8_t i2caddr = SH1106_I2C_ADDRESS, bool reset = true);
   void SH1106_command(uint8_t c);
   void SH1106_data(uint8_t c);
 
@@ -155,7 +155,7 @@ class Adafruit_SH1106 : public Adafruit_GFX {
   virtual void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   virtual void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 
- private:
+private:
   int8_t _i2caddr, _vccstate, sid, sclk, dc, rst, cs;
   void fastSPIwrite(uint8_t c);
 

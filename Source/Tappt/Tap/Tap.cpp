@@ -39,7 +39,7 @@ void Tap::SetAuthToken(String authenticationKey) {
 
 void Tap::StopPour() {
   this->pourCooldownTimer.Start();
-  
+
   bool isPouring = this->isPouring;
   this->isPouring = false;
 

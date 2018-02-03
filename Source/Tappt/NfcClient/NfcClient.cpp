@@ -36,7 +36,7 @@ int NfcClient::Initialize(String data) {
   return 0;
 #endif
   this->deviceId = String(data).toInt();
-  Serial.print("Device ID: ");Serial.println(deviceId);
+  Serial.print("Device ID: "); Serial.println(deviceId);
 
   this->message = NdefMessage();
 
@@ -46,8 +46,8 @@ int NfcClient::Initialize(String data) {
 
   this->messageSize = this->message.getEncodedSize();
   if (this->messageSize > sizeof(this->ndefBuf)) {
-      Serial.println("ndefBuf is too small");
-      return -1;
+    Serial.println("ndefBuf is too small");
+    return -1;
   }
 
   message.encode(ndefBuf);

@@ -8,7 +8,7 @@
 
 class Adafruit_GFX : public Print {
 
- public:
+public:
 
   Adafruit_GFX(int16_t w, int16_t h); // Constructor
 
@@ -53,7 +53,7 @@ class Adafruit_GFX : public Print {
     setTextWrap(boolean w),
     setRotation(uint8_t r);
 
-   virtual size_t write(uint8_t);
+  virtual size_t write(uint8_t);
 
   int16_t
     height(void),
@@ -61,7 +61,7 @@ class Adafruit_GFX : public Print {
 
   uint8_t getRotation(void);
 
- protected:
+protected:
   const int16_t
     WIDTH, HEIGHT;   // This is the 'raw' display w/h - never changes
   int16_t

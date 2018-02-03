@@ -4,19 +4,19 @@
 #include "Tappt/ServerLink/ServerLink.h"
 
 TEST_CASE("ServerLink", "[Initialize]") {
-	SECTION("empty input string") {
+  SECTION("empty input string") {
     fakeit::Mock<KegeratorState> stateMock;
     ServerLink link(&stateMock.get());
     link.Initialize("", "");
     Verify(Method(stateMock, Initialize)).Never();
-	}
+  }
 
-	SECTION("bad input string") {
+  SECTION("bad input string") {
     fakeit::Mock<KegeratorState> stateMock;
     ServerLink link(&stateMock.get());
     link.Initialize("", "{}");
     Verify(Method(stateMock, Initialize)).Never();
-	}
+  }
 
   auto deviceSettingsComparer = [](DeviceSettings &s, DeviceSettings &other) {
     if (
@@ -49,12 +49,12 @@ TEST_CASE("ServerLink", "[Initialize]") {
     String tapIDs;
     String pulses;
 
-    if (s.tapCount == 0) 
+    if (s.tapCount == 0)
     {
       tapIDs = ",";
       pulses = ",";
     }
-    else 
+    else
     {
       for (int ii = 0; ii < s.tapCount; ii++) {
         tapIDs += String(s.tapIds[ii]) + ",";
@@ -106,7 +106,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     s.tapIds = new uint32_t[1]{ 456 };
 
     String input = serializeDeviceSettings(s);
-    
+
     ServerLink link(&stateMock.get());
     When(Method(stateMock, Initialize)
       .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
@@ -143,7 +143,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     s.deviceStatus = 0;
     s.pulsesPerGallon = new uint[10]{ 111,222,333,444,555,6666,7777,8888,999,10000 };
     s.tapCount = 10;
-    s.tapIds = new uint32_t[10]{ 1,2,3,4,5,6,7,8,9,10};
+    s.tapIds = new uint32_t[10]{ 1,2,3,4,5,6,7,8,9,10 };
 
     String input = serializeDeviceSettings(s);
 

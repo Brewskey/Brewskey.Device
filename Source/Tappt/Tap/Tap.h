@@ -12,7 +12,7 @@
 #define AFTER_POUR_TIME_PERIOD 3000
 #define PULSE_EPSILON 9
 
-class Tap: public ITap {
+class Tap : public ITap {
 public:
   Tap();
   uint32_t GetId();
@@ -25,7 +25,7 @@ public:
   virtual void SetTotalPulses(uint32_t pulses);
   void StopPour();
 private:
-  IStateManager* kegeratorState;
+  IStateManager * kegeratorState;
   uint32_t tapId;
   int pulsesPerGallon;
   bool isPouring;

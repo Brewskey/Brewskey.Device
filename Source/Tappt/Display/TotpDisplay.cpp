@@ -24,15 +24,15 @@ int TotpDisplay::Tick() {
   }
 
   TOTP totp = TOTP(
-		(uint8_t*)this->settings->authorizationToken.c_str(),
-		this->settings->authorizationToken.length()
-	);
+    (uint8_t*)this->settings->authorizationToken.c_str(),
+    this->settings->authorizationToken.length()
+  );
   String newTotp = String(totp.getCode((long)Time.now()));
 
   if (
     this->lastPourCount == currentPourCount &&
     this->currentTotp == newTotp
-  ) {
+    ) {
     return 0;
   }
 
@@ -42,7 +42,7 @@ int TotpDisplay::Tick() {
   if (
     this->lastPourCount <= 1 &&
     currentPourCount > 1
-  ) {
+    ) {
     this->display->DrawIcon(BLACK);
     iconCleared = true;
     changeCount++;
@@ -52,7 +52,7 @@ int TotpDisplay::Tick() {
   if (
     iconCleared ||
     this->currentTotp != newTotp
-  ) {
+    ) {
     int x = 42;
     int y = 24;
     int offsetType = 0;
@@ -60,7 +60,8 @@ int TotpDisplay::Tick() {
     if (this->lastPourCount == 1) {
       x = 42;
       y = 10;
-    } else if (this->lastPourCount > 1) {
+    }
+    else if (this->lastPourCount > 1) {
       x = 64;
       y = 24;
       offsetType = 2;
@@ -83,7 +84,7 @@ int TotpDisplay::Tick() {
     this->currentTotp.length() == 0 ||
     currentPourCount <= 1 &&
     this->lastPourCount > 1
-  ) {
+    ) {
     this->display->DrawIcon(WHITE);
     changeCount++;
   }
@@ -91,7 +92,7 @@ int TotpDisplay::Tick() {
   if (
     this->currentTotp != newTotp ||
     totpCleared
-  ) {
+    ) {
     int x = 42;
     int y = 24;
     int offsetType = 0;
@@ -99,7 +100,8 @@ int TotpDisplay::Tick() {
     if (currentPourCount == 1) {
       x = 42;
       y = 10;
-    } else if (currentPourCount > 1) {
+    }
+    else if (currentPourCount > 1) {
       x = 64;
       y = 24;
       offsetType = 2;

@@ -39,34 +39,34 @@ int PourDisplay::Tick() {
   int changeCount = 0;
   int counter = 0;
 
-  for(int ii = 0; ii < this->tapCount; ii++) {
+  for (int ii = 0; ii < this->tapCount; ii++) {
     if (this->taps[ii].IsPouring()) {
       counter++;
       this->SetEmptySlotForTap(ii);
     }
-	}
+  }
 
   // Count the number of taps that rendered last
   int oldCounter = 0;
-  for(int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
+  for (int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
     if (this->currentPouringTaps[ii] >= 0) {
       oldCounter++;
     }
   }
 
-  int (*textSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
+  int(*textSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
   if (counter == 1) {
     textSettings = TEXT_SETTINGS_1;
   }
 
 
-  int (*oldTextSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
+  int(*oldTextSettings)[TEXT_SETTING_LENGTH] = TEXT_SETTINGS_4;
   if (oldCounter == 1) {
     oldTextSettings = TEXT_SETTINGS_1;
   }
 
   // Render tap if there is a change;
-  for(int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
+  for (int ii = 0; ii < MAX_DRAWING_SLOTS; ii++) {
     int currentPouringTap = this->currentPouringTaps[ii];
     if (currentPouringTap < 0) {
       continue;
@@ -81,7 +81,7 @@ int PourDisplay::Tick() {
     if (
       !this->taps[currentPouringTap].IsPouring() &&
       this->currentDisplays[ii].length() > 0
-    ) {
+      ) {
       changeCount++;
       this->display->ClearText(
         this->currentDisplays[ii],
@@ -106,9 +106,9 @@ int PourDisplay::Tick() {
     fontSize = textSettings[ii][2];
     offsetType = textSettings[ii][3];
 
-  	float ounces = (float)pulses * (float)128 / (float)pulsesPerGallon;
+    float ounces = (float)pulses * (float)128 / (float)pulsesPerGallon;
     char ounceString[12];
-  	sprintf(
+    sprintf(
       ounceString,
       ounces >= 100 && counter == 1 ? "%.0f oz" : "%.1f oz",
       ounces
@@ -147,7 +147,7 @@ void PourDisplay::SetEmptySlotForTap(int tapId) {
   int minPouringTaps = min(this->tapCount, MAX_DRAWING_SLOTS);
 
   // Find an empty slot for the tap if one hasn't already been set for it.
-  for(int i = 0; i < minPouringTaps; i++) {
+  for (int i = 0; i < minPouringTaps; i++) {
     int currentPouringTap = this->currentPouringTaps[i];
     // Kick out if already set
     if (currentPouringTap == tapId) {
@@ -168,9 +168,9 @@ void PourDisplay::SetEmptySlotForTap(int tapId) {
 
 void swapInt(int *xp, int *yp)
 {
-    int temp = *xp;
-    *xp = *yp;
-    *yp = temp;
+  int temp = *xp;
+  *xp = *yp;
+  *yp = temp;
 }
 
 // A function to implement bubble sort

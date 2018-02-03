@@ -15,43 +15,43 @@
 
 class NdefRecord
 {
-    public:
-        NdefRecord();
-        NdefRecord(const NdefRecord& rhs);
-        ~NdefRecord();
-        NdefRecord& operator=(const NdefRecord& rhs);
+public:
+  NdefRecord();
+  NdefRecord(const NdefRecord& rhs);
+  ~NdefRecord();
+  NdefRecord& operator=(const NdefRecord& rhs);
 
-        int getEncodedSize();
-        void encode(byte *data, bool firstRecord, bool lastRecord);
+  int getEncodedSize();
+  void encode(byte *data, bool firstRecord, bool lastRecord);
 
-        unsigned int getTypeLength();
-        int getPayloadLength();
-        unsigned int getIdLength();
+  unsigned int getTypeLength();
+  int getPayloadLength();
+  unsigned int getIdLength();
 
-        byte getTnf();
-        void getType(byte *type);
-        void getPayload(byte *payload);
-        void getId(byte *id);
+  byte getTnf();
+  void getType(byte *type);
+  void getPayload(byte *payload);
+  void getId(byte *id);
 
-        // convenience methods
-        String getType();
-        String getId();
+  // convenience methods
+  String getType();
+  String getId();
 
-        void setTnf(byte tnf);
-        void setType(const byte *type, const unsigned int numBytes);
-        void setPayload(const byte *payload, const int numBytes);
-        void setId(const byte *id, const unsigned int numBytes);
+  void setTnf(byte tnf);
+  void setType(const byte *type, const unsigned int numBytes);
+  void setPayload(const byte *payload, const int numBytes);
+  void setId(const byte *id, const unsigned int numBytes);
 
-        void print();
-    private:
-        byte getTnfByte(bool firstRecord, bool lastRecord);
-        byte _tnf; // 3 bit
-        unsigned int _typeLength;
-        int _payloadLength;
-        unsigned int _idLength;
-        byte *_type;
-        byte *_payload;
-        byte *_id;
+  void print();
+private:
+  byte getTnfByte(bool firstRecord, bool lastRecord);
+  byte _tnf; // 3 bit
+  unsigned int _typeLength;
+  int _payloadLength;
+  unsigned int _idLength;
+  byte *_type;
+  byte *_payload;
+  byte *_id;
 };
 
 #endif

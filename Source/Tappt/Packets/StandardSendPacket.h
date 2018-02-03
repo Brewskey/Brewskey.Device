@@ -3,7 +3,7 @@
 #include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketBase.h"
 
-class StandardSendPacket: public PacketBase {
+class StandardSendPacket : public PacketBase {
 public:
   StandardSendPacket(uint8_t destination);
 

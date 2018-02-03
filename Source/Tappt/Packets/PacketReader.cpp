@@ -18,9 +18,9 @@ uint8_t PacketReader::GetPacketType()
 uint8_t PacketReader::GetBufferSizeForPacket()
 {
   switch (this->GetPacketType()) {
-    case POUR_PACKET_TYPE: {
-      return INCOMING_POUR_BUFFER_SIZE;
-    }
+  case POUR_PACKET_TYPE: {
+    return INCOMING_POUR_BUFFER_SIZE;
+  }
   }
 
   return 0;
@@ -59,66 +59,66 @@ void PacketReader::Read()
     checksum = 0,
     data = 0;
 
-	/*read all received bytes*/
-	while (Serial1.available() > 0) {
-		data = Serial1.read();			/* Get data */
-		if(data == '#' && !this->esc_flag)				/* If finding first escape byte */
-		{
-			this->esc_flag = 1;							/* Set escape byte flag */
-		}
-		else
-		{
+  /*read all received bytes*/
+  while (Serial1.available() > 0) {
+    data = Serial1.read();			/* Get data */
+    if (data == '#' && !this->esc_flag)				/* If finding first escape byte */
+    {
+      this->esc_flag = 1;							/* Set escape byte flag */
+    }
+    else
+    {
       /* Escape byte not set */
-			if(!this->esc_flag)
-			{
+      if (!this->esc_flag)
+      {
         /* Getting sync byte of packet, since no escape byte before it */
-				if(data == '+')
-				{
+        if (data == '+')
+        {
           this->Reset();
-					for(ii = 0; ii < PACKET_BUFFER; ii++)
-					{
-						this->incomingBuffer[ii] = 0;	/* Clearing packet buffer */
-					}
+          for (ii = 0; ii < PACKET_BUFFER; ii++)
+          {
+            this->incomingBuffer[ii] = 0;	/* Clearing packet buffer */
+          }
 
-					continue;
-				}
+          continue;
+        }
 
-				if(data == '-')						/* End of packet */
-				{
-					checksum = 0;					/* Reset checksum */
+        if (data == '-')						/* End of packet */
+        {
+          checksum = 0;					/* Reset checksum */
 
           uint8_t incomingBufferSize = this->GetBufferSizeForPacket() - 1;
-					for(ii = 0; ii < incomingBufferSize; ii++)		/* Calculating checksum of packet */
-					{
-						checksum ^= this->incomingBuffer[ii];
-					}
+          for (ii = 0; ii < incomingBufferSize; ii++)		/* Calculating checksum of packet */
+          {
+            checksum ^= this->incomingBuffer[ii];
+          }
 
-					checksum = 255 - checksum;
+          checksum = 255 - checksum;
 
-					if(checksum == this->incomingBuffer[count - 1])
-					{
-						this->isValid = 1;	/*packet is valid*/
-					}
-					else
-					{
-						this->isValid = 0;			/* packet invalid */
-					}
+          if (checksum == this->incomingBuffer[count - 1])
+          {
+            this->isValid = 1;	/*packet is valid*/
+          }
+          else
+          {
+            this->isValid = 0;			/* packet invalid */
+          }
 
           this->isPacketReady = true;
           break;
-				}
-			}
-			else
-			{
-				this->esc_flag = 0;
-			}
+        }
+      }
+      else
+      {
+        this->esc_flag = 0;
+      }
 
       /* If count still less than packet buffer size */
-			if(this->count < PACKET_BUFFER)
-			{
-				this->incomingBuffer[count] = data;	/* Store data in buffer */
-				this->count++;									/* Increment counter */
-			}
-		}
-	}
+      if (this->count < PACKET_BUFFER)
+      {
+        this->incomingBuffer[count] = data;	/* Store data in buffer */
+        this->count++;									/* Increment counter */
+      }
+    }
+  }
 }

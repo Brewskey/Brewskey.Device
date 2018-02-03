@@ -4,7 +4,7 @@
 #include "application.h"
 #include "Tappt/ITick.h"
 
-class ITap: public ITick {
+class ITap : public ITick {
 public:
   virtual uint32_t GetId() = 0;
   virtual void SetTotalPulses(uint32_t pulses) = 0;

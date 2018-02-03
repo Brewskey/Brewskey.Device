@@ -102,7 +102,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, GetDestination)).AlwaysReturn(0x00);
     When(Method(mock, GetSource)).AlwaysReturn(0x01);
 
-    uint8_t data[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    uint8_t data[17]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     When(Method(mock, GetDataBuffer)).AlwaysReturn(data);
 
     Sensors sensors = Sensors(mock.get());
@@ -134,7 +134,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
 
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(1);
-   // When(Method(tapMock, AddToFlowCount)).AlwaysReturn(1);
+    // When(Method(tapMock, AddToFlowCount)).AlwaysReturn(1);
     sensors.Setup(&tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();

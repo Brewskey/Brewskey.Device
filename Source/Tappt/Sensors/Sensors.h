@@ -13,7 +13,7 @@
 
 #endif
 
-class Sensors: public ISolenoids, public ITick {
+class Sensors : public ISolenoids, public ITick {
 public:
   Sensors(PacketReader &packetReader);
   void Setup(Tap* taps, uint8_t tapCount);

@@ -6,7 +6,7 @@
 #include "Tappt/Tap/ITap.h"
 #include "Tappt/ITick.h"
 
-class IStateManager: public ITick {
+class IStateManager : public ITick {
 public:
   virtual void TapStartedPouring(ITap &tap) = 0;
   virtual void TapStoppedPouring(uint32_t tapID, uint32_t totalPulses, String authenticationKey) = 0;

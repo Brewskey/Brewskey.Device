@@ -6,24 +6,24 @@ ServerLink::ServerLink(IStateManager *stateManager) {
   String deviceID = System.deviceID();
 
   Particle.subscribe(
-		"hook-response/tappt_initialize-" + deviceID,
-		&ServerLink::Initialize,
-		this,
-		MY_DEVICES
-	);
+    "hook-response/tappt_initialize-" + deviceID,
+    &ServerLink::Initialize,
+    this,
+    MY_DEVICES
+  );
 
-	// Called by server when device settings are updated.
-	Particle.function("settings", &ServerLink::Settings, this);
+  // Called by server when device settings are updated.
+  Particle.function("settings", &ServerLink::Settings, this);
 
-	// Called by server when user tries to pour.
-	Particle.function("pour", &ServerLink::Pour, this);
-	// Response when token is used
-	Particle.subscribe(
-		"hook-response/tappt_request-pour-" + deviceID,
-		&ServerLink::PourResponse,
-		this,
-		MY_DEVICES
-	);
+  // Called by server when user tries to pour.
+  Particle.function("pour", &ServerLink::Pour, this);
+  // Response when token is used
+  Particle.subscribe(
+    "hook-response/tappt_request-pour-" + deviceID,
+    &ServerLink::PourResponse,
+    this,
+    MY_DEVICES
+  );
 
   this->CallInitialize();
 }
@@ -134,41 +134,41 @@ int ServerLink::Settings(String data) {
   this->CallInitialize();
   Serial.println("Settings");
 
-	return 0;
+  return 0;
 }
 
 void ServerLink::AuthorizePour(uint32_t deviceId, String authenticationKey) {
-    Serial.println(authenticationKey);
-    Serial.println("printed");
+  Serial.println(authenticationKey);
+  Serial.println("printed");
 
-    sprintf(
-      json,
-      "{\"authToken\":\"%s\",\"id\":\"%lu\",\"tkn\":\"%s\"}",
-      this->settings.authorizationToken.c_str(),
-      deviceId,
-      // remove \u0002 and "en"
-      authenticationKey.substring(3).c_str()
-    );
+  sprintf(
+    json,
+    "{\"authToken\":\"%s\",\"id\":\"%lu\",\"tkn\":\"%s\"}",
+    this->settings.authorizationToken.c_str(),
+    deviceId,
+    // remove \u0002 and "en"
+    authenticationKey.substring(3).c_str()
+  );
 
-    Serial.print("Request Pour");Serial.println(json);
-    Particle.publish("tappt_request-pour", json, 5, PRIVATE);
+  Serial.print("Request Pour"); Serial.println(json);
+  Particle.publish("tappt_request-pour", json, 5, PRIVATE);
 }
 
 int ServerLink::Pour(String data) {
-	Serial.print("Pour: ");
-	Serial.println(data);
+  Serial.print("Pour: ");
+  Serial.println(data);
 
-	if (data.length() <= 0) {
-		return -1;
-	}
+  if (data.length() <= 0) {
+    return -1;
+  }
 
   this->stateManager->StartPour(data);
 
-	return 0;
+  return 0;
 }
 
 void ServerLink::PourResponse(const char* event, const char* data) {
-	this->Pour(String(data));
+  this->Pour(String(data));
 }
 
 void ServerLink::SendPourToServer(
@@ -182,12 +182,12 @@ void ServerLink::SendPourToServer(
     this->settings.authorizationToken.c_str(),
     tapId,
     authenticationKey != NULL && authenticationKey.length()
-      ? authenticationKey.c_str()
-      : "",
+    ? authenticationKey.c_str()
+    : "",
     totalPulses
   );
 
 
-  Serial.print("Finished Pour");Serial.println(json);
+  Serial.print("Finished Pour"); Serial.println(json);
   Particle.publish("tappt_pour-finished", json, 60, PRIVATE);
 }

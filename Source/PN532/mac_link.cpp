@@ -4,9 +4,9 @@
 
 int8_t MACLink::activateAsTarget(uint16_t timeout)
 {
-	pn532.begin();
-	pn532.SAMConfig();
-	return pn532.tgInitAsTarget(timeout);
+  pn532.begin();
+  pn532.SAMConfig();
+  return pn532.tgInitAsTarget(timeout);
 }
 
 bool MACLink::write(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)

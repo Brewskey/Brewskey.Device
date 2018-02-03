@@ -26,25 +26,25 @@ Sensors sensors = Sensors(reader);
 TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
 
 void setup(void) {
-    RGB.control(true);
-    RGB.color(255, 255, 255);
-    display = new Display();
-    Serial.begin(115200);
-    Serial1.begin(19200);
-    //Serial1.halfDuplex(true);
+  RGB.control(true);
+  RGB.color(255, 255, 255);
+  display = new Display();
+  Serial.begin(115200);
+  Serial1.begin(19200);
+  //Serial1.halfDuplex(true);
 
-    Serial.println("Starting");
-/*
-    while(!Serial.available()) {
-      Spark.process();
-    }
-*/
+  Serial.println("Starting");
+  /*
+      while(!Serial.available()) {
+        Spark.process();
+      }
+  */
   while (Serial1.available()) {
     Serial1.read();
   }
 
-    nfcClient = new NfcClient();
-    state = new KegeratorState(display, nfcClient, &sensors);
+  nfcClient = new NfcClient();
+  state = new KegeratorState(display, nfcClient, &sensors);
 }
 
 void loop(void) {
@@ -60,7 +60,7 @@ void loop(void) {
 #define SERIA1_BUFFER_SIZE 129
 HAL_USB_USART_Config acquireUSBSerial1Buffer()
 {
-  HAL_USB_USART_Config conf = {0};
+  HAL_USB_USART_Config conf = { 0 };
 
   // The usable buffer size will be 128
   static uint8_t usbserial1_rx_buffer[SERIA1_BUFFER_SIZE];

@@ -21,10 +21,10 @@
 #include <inttypes.h>
 
 #if defined(ARDUINO) && ARDUINO >= 100
-    #include <OneWire.h>
+#include <OneWire.h>
 #elif defined(SPARK) or defined(STM32F10X_MD)
-    #include "application.h"
-    #include "OneWire/OneWire.h"
+#include "application.h"
+#include "OneWire/OneWire.h"
 #endif
 
 
@@ -69,7 +69,7 @@ typedef uint8_t DeviceAddress[8];
 
 class DallasTemperature
 {
-  public:
+public:
 
   DallasTemperature(OneWire*);
 
@@ -150,7 +150,7 @@ class DallasTemperature
 
   bool isConversionAvailable(const uint8_t*);
 
-  #if REQUIRESALARMS
+#if REQUIRESALARMS
 
   typedef void AlarmHandler(const uint8_t*);
 
@@ -191,7 +191,7 @@ class DallasTemperature
   // The default alarm handler
   static void defaultAlarmHandler(const uint8_t*);
 
-  #endif
+#endif
 
   // convert from Celsius to Fahrenheit
   static float toFahrenheit(float);
@@ -205,7 +205,7 @@ class DallasTemperature
   // convert from raw to Fahrenheit
   static float rawToFahrenheit(int16_t);
 
-  #if REQUIRESNEW
+#if REQUIRESNEW
 
   // initialize memory area
   void* operator new (unsigned int);
@@ -213,9 +213,9 @@ class DallasTemperature
   // delete memory reference
   void operator delete(void*);
 
-  #endif
+#endif
 
-  private:
+private:
   typedef uint8_t ScratchPad[9];
 
   // parasite power on or off
@@ -244,7 +244,7 @@ class DallasTemperature
 
   void  blockTillConversionComplete(uint8_t, const uint8_t*);
 
-  #if REQUIRESALARMS
+#if REQUIRESALARMS
 
   // required for alarmSearch
   uint8_t alarmSearchAddress[8];
@@ -254,7 +254,7 @@ class DallasTemperature
   // the alarm handler function pointer
   AlarmHandler *_AlarmHandler;
 
-  #endif
+#endif
 
 };
 #endif

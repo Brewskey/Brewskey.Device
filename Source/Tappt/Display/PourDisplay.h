@@ -5,7 +5,7 @@
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/Display/Display.h"
 
-class PourDisplay: public ITick  {
+class PourDisplay : public ITick {
 public:
   PourDisplay(Display* display);
 
@@ -19,7 +19,7 @@ private:
   Tap* taps;
   int tapCount;
 
-  int currentPouringTaps[4] = {-1, -1, -1, -1};
+  int currentPouringTaps[4] = { -1, -1, -1, -1 };
   String currentDisplays[4];
 };
 

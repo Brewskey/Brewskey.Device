@@ -15,11 +15,11 @@
 
 class SNEP {
 public:
-	SNEP(PN532Interface &interface) : llcp(interface) {
-		headerBuf = llcp.getHeaderBuffer(&headerBufLen);
-	};
+  SNEP(PN532Interface &interface) : llcp(interface) {
+    headerBuf = llcp.getHeaderBuffer(&headerBufLen);
+  };
 
-	/**
+  /**
     * @brief    write a SNEP packet, the packet should be less than (255 - 2 - 3) bytes
     * @param    buf     the buffer to contain the packet
     * @param    len     lenght of the buffer
@@ -28,22 +28,22 @@ public:
     *			=0      timeout
     *           <0      failed
     */
-    int8_t write(const uint8_t *buf, uint8_t len, uint16_t timeout = 0);
+  int8_t write(const uint8_t *buf, uint8_t len, uint16_t timeout = 0);
 
-    /**
-    * @brief    read a SNEP packet, the packet will be less than (255 - 2 - 3) bytes
-    * @param    buf     the buffer to contain the packet
-    * @param    len     lenght of the buffer
-    * @param    timeout max time to wait, 0 means no timeout
-    * @return   >=0     length of the packet 
-    *           <0      failed
-    */
-    int16_t read(uint8_t *buf, uint8_t len, uint16_t timeout = 0);
+  /**
+  * @brief    read a SNEP packet, the packet will be less than (255 - 2 - 3) bytes
+  * @param    buf     the buffer to contain the packet
+  * @param    len     lenght of the buffer
+  * @param    timeout max time to wait, 0 means no timeout
+  * @return   >=0     length of the packet
+  *           <0      failed
+  */
+  int16_t read(uint8_t *buf, uint8_t len, uint16_t timeout = 0);
 
 private:
-	LLCP llcp;
-	uint8_t *headerBuf;
-	uint8_t headerBufLen;
+  LLCP llcp;
+  uint8_t *headerBuf;
+  uint8_t headerBufLen;
 };
 
 #endif // __SNEP_H__

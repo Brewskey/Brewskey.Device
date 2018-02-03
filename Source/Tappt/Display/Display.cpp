@@ -8,15 +8,15 @@
 #define I2C_ADDRESS SSD1306_I2C_ADDRESS
 #endif
 
-Display::Display():
+Display::Display() :
 #ifdef OLED_SPI
 #ifdef SPI_HW_MODE
-display(OLED_DC, OLED_RESET, OLED_CS)
+  display(OLED_DC, OLED_RESET, OLED_CS)
 #else
-display(MOSI, SCK, OLED_DC, OLED_RESET, OLED_CS)
+  display(MOSI, SCK, OLED_DC, OLED_RESET, OLED_CS)
 #endif
 #else
-display(OLED_RESET)
+  display(OLED_RESET)
 #endif
 {
 #ifdef OLED_SPI

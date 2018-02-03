@@ -4,7 +4,7 @@
 #include "application.h"
 #include "Tappt/ITick.h"
 
-class TapptTimer: public ITick {
+class TapptTimer : public ITick {
 public:
   TapptTimer(unsigned long interval, unsigned long duration = 0);
   void Start();

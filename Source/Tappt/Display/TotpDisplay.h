@@ -7,7 +7,7 @@
 #include "TOTP/TOTP.h"
 #include "Tappt/ServerLink/DeviceSettings.h"
 
-class TotpDisplay: public ITick  {
+class TotpDisplay : public ITick {
 public:
   TotpDisplay(Display* display);
 
@@ -15,7 +15,7 @@ public:
   void Setup(DeviceSettings* settings, Tap* taps, int tapCount);
   virtual int Tick();
 private:
-  Display* display;
+  Display * display;
   Tap* taps;
   DeviceSettings* settings;
   int tapCount;

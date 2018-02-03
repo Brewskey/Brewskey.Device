@@ -65,13 +65,13 @@ typedef uint8_t byte;
 extern "C" {
 #endif
 
-void pinMode(uint8_t, uint8_t);
-void digitalWrite(uint8_t, uint8_t);
-int digitalRead(uint8_t);
-int analogRead(uint8_t);
-unsigned long millis();
-void analogWrite(uint8_t, int);
-void delay(unsigned long);
+  void pinMode(uint8_t, uint8_t);
+  void digitalWrite(uint8_t, uint8_t);
+  int digitalRead(uint8_t);
+  int analogRead(uint8_t);
+  unsigned long millis();
+  void analogWrite(uint8_t, int);
+  void delay(unsigned long);
 
 #ifdef __cplusplus
 }
@@ -94,43 +94,43 @@ void delay(unsigned long);
 
 class Serial_CLS
 {
-   typedef std::queue<std::string> Buffer;
+  typedef std::queue<std::string> Buffer;
 
-   public:
-	   void write(char value) { }
-	   void write( const char* buffer, int buffer_n ) { }
-      void write( const char* buffer ) { }
-	  void print(unsigned int value) { }
-	  void print( int value ) { }
-      void print( double value ) { }
-	  void print(const char* buffer) { }
-	  void print(String buffer) { }
-	  void print(byte value, byte format) { }
-	  void println(const char* buffer) { }
-	  void println(String buffer) { }
-	  void println() { }
-	  void println(unsigned int value) { }
-	  void println(int value) { }
-	  void println(float value) { }
-	  void println(byte value) { }
-	  void println(byte value, byte format) { }
-	  template<typename... Args>
-	  void printf(const char *fmt, Args ...args) { }
+public:
+  void write(char value) { }
+  void write(const char* buffer, int buffer_n) { }
+  void write(const char* buffer) { }
+  void print(unsigned int value) { }
+  void print(int value) { }
+  void print(double value) { }
+  void print(const char* buffer) { }
+  void print(String buffer) { }
+  void print(byte value, byte format) { }
+  void println(const char* buffer) { }
+  void println(String buffer) { }
+  void println() { }
+  void println(unsigned int value) { }
+  void println(int value) { }
+  void println(float value) { }
+  void println(byte value) { }
+  void println(byte value, byte format) { }
+  template<typename... Args>
+  void printf(const char *fmt, Args ...args) { }
 
-      void begin( int baudrate ) {}
-	  int available() { return 0; }
-	  char read() { return 'a'; }
-	  void flush() {}
+  void begin(int baudrate) {}
+  int available() { return 0; }
+  char read() { return 'a'; }
+  void flush() {}
 
-      // any printing will be appended to this vector
-      Buffer _test_output_buffer;
-      std::string _test_output_current; // current output line
-      std::queue<char> _test_input_buffer;
+  // any printing will be appended to this vector
+  Buffer _test_output_buffer;
+  std::string _test_output_current; // current output line
+  std::queue<char> _test_input_buffer;
 
-      void _test_clear(); // remove and reset everything from the buffers
-      void _test_set_input( const char* what );
-   protected:
-      void _test_output_string( std::string what );
+  void _test_clear(); // remove and reset everything from the buffers
+  void _test_set_input(const char* what);
+protected:
+  void _test_output_string(std::string what);
 };
 
 extern Serial_CLS Serial;

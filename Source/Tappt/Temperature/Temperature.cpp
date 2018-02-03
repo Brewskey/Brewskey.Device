@@ -1,6 +1,6 @@
 #include "Temperature.h"
 
-Temperature::Temperature():
+Temperature::Temperature() :
   sensors(new OneWire(TEMPERATURE_PIN)) {
 
   // locate devices on the bus
@@ -58,7 +58,7 @@ int Temperature::Tick()
     temperature
   );
 
-  Serial.print("Json: ");Serial.println(json);
+  Serial.print("Json: "); Serial.println(json);
 
   Particle.publish("tappt_temperature", json, 5, PRIVATE);
 

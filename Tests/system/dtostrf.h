@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-extern char *dtostrf (double val, signed char width, unsigned char prec, char *sout);
+  extern char *dtostrf(double val, signed char width, unsigned char prec, char *sout);
 
 #ifdef __cplusplus
 }
