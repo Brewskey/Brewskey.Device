@@ -10,6 +10,7 @@ public:
     INACTIVE = 2,
     CLEANING = 3,
     UNLOCKED = 4,
+    CONFIGURE = 5,
   };
 };
 

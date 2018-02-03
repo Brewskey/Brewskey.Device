@@ -3,7 +3,7 @@
 
 #include "application.h"
 #include "Tappt/Tap/ITap.h"
-#include "Tappt/KegeratorState/IStateManager.h"
+#include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/ITick.h"
 #include "Tappt/Pins.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
@@ -19,13 +19,13 @@ public:
   uint32_t GetPulsesPerGallon();
   bool IsPouring();
   uint32_t GetTotalPulses();
-  void Setup(IStateManager *kegeratorState, uint32_t tapId, uint32_t pulsesPerGallon);
+  void Setup(IKegeratorStateMachine *kegeratorStateMachine, uint32_t tapId, uint32_t pulsesPerGallon);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void SetTotalPulses(uint32_t pulses);
   void StopPour();
 private:
-  IStateManager * kegeratorState;
+  IKegeratorStateMachine * kegeratorStateMachine;
   uint32_t tapId;
   int pulsesPerGallon;
   bool isPouring;

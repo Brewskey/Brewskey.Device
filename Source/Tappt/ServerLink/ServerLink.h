@@ -3,11 +3,11 @@
 
 #include "application.h"
 #include "DeviceSettings.h"
-#include "Tappt/KegeratorState/IStateManager.h"
+#include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 
 class ServerLink {
 public:
-  ServerLink(IStateManager *stateManager);
+  ServerLink(IKegeratorStateMachine *kegeratorStateMachine);
   void AuthorizePour(uint32_t deviceId, String authenticationKey);
   void SendPourToServer(uint32_t tapId, uint32_t totalPulses, String authenticationKey);
 
@@ -19,7 +19,7 @@ private:
   int Settings(String data);
   void CallInitialize();
 
-  IStateManager *stateManager;
+  IKegeratorStateMachine *kegeratorStateMachine;
 
   DeviceSettings settings;
   Timer initializeTimer = Timer(15000, &ServerLink::CallInitialize, *this);

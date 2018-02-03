@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Tappt/KegeratorState/KegeratorState.h"
+#include "Tappt/KegeratorStateMachine/KegeratorStateMachine.h"
 #include "Tappt/ServerLink/ServerLink.h"
 
 TEST_CASE("ServerLink", "[Initialize]") {
   SECTION("empty input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     ServerLink link(&stateMock.get());
     link.Initialize("", "");
     Verify(Method(stateMock, Initialize)).Never();
   }
 
   SECTION("bad input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     ServerLink link(&stateMock.get());
     link.Initialize("", "{}");
     Verify(Method(stateMock, Initialize)).Never();
@@ -76,7 +76,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
   };
 
   SECTION("zero tap input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     DeviceSettings s;
     s.authorizationToken = "totpKey";
     s.deviceId = "deviceID";
@@ -96,7 +96,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
   }
 
   SECTION("single tap input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     DeviceSettings s;
     s.authorizationToken = "totpKey";
     s.deviceId = "deviceID";
@@ -116,7 +116,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
   }
 
   SECTION("2 tap input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     DeviceSettings s;
     s.authorizationToken = "totpKey";
     s.deviceId = "deviceID";
@@ -136,7 +136,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
   }
 
   SECTION("10 tap input string") {
-    fakeit::Mock<KegeratorState> stateMock;
+    fakeit::Mock<KegeratorStateMachine> stateMock;
     DeviceSettings s;
     s.authorizationToken = "totpKey";
     s.deviceId = "deviceID";
@@ -157,7 +157,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
 
   SECTION("Device Status") {
     SECTION("Device Status Active") {
-      fakeit::Mock<KegeratorState> stateMock;
+      fakeit::Mock<KegeratorStateMachine> stateMock;
       DeviceSettings s;
       s.authorizationToken = "totpKey";
       s.deviceId = "deviceID";
@@ -177,7 +177,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     }
 
     SECTION("Device Status Inactive") {
-      fakeit::Mock<KegeratorState> stateMock;
+      fakeit::Mock<KegeratorStateMachine> stateMock;
       DeviceSettings s;
       s.authorizationToken = "totpKey";
       s.deviceId = "deviceID";
@@ -197,7 +197,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     }
 
     SECTION("Device Status Cleaning") {
-      fakeit::Mock<KegeratorState> stateMock;
+      fakeit::Mock<KegeratorStateMachine> stateMock;
       DeviceSettings s;
       s.authorizationToken = "totpKey";
       s.deviceId = "deviceID";
@@ -217,7 +217,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     }
 
     SECTION("Device Status Unlocked") {
-      fakeit::Mock<KegeratorState> stateMock;
+      fakeit::Mock<KegeratorStateMachine> stateMock;
       DeviceSettings s;
       s.authorizationToken = "totpKey";
       s.deviceId = "deviceID";

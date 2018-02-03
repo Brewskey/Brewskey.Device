@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Tappt/Tap/Tap.h"
-#include "Tappt/KegeratorState/IStateManager.h"
+#include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 
 TEST_CASE("Tap", "[GetId]") {
-  fakeit::Mock<IStateManager> mock;
+  fakeit::Mock<IKegeratorStateMachine> mock;
   SECTION("tap ID is empty") {
     Tap tap;
     REQUIRE(tap.GetId() == 0);

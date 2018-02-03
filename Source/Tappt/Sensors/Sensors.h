@@ -6,6 +6,7 @@
 #include "Tappt/ITick.h"
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/Temperature/Temperature.h"
+#include "Tappt/KegeratorStateMachine/KegeratorState.h"
 
 #ifdef EXPANSION_BOX_PIN
 #include "Tappt/Packets/StandardSendPacket.h"
@@ -23,6 +24,8 @@ public:
   virtual void CloseSolenoid(uint8_t solenoid);
   virtual void CloseSolenoids();
   virtual void ResetFlowSensor(uint8_t solenoid);
+  virtual void SetState(KegeratorState::e state);
+
 #ifdef EXPANSION_BOX_PIN
   void ReadMultitap();
 #endif
@@ -33,6 +36,7 @@ private:
   Tap* taps = NULL;
 
   uint8_t tapCount;
+  KegeratorState::e state;
 
 #ifdef EXPANSION_BOX_PIN
   StandardSendPacket sendPacket = StandardSendPacket(0x01);

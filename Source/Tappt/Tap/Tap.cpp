@@ -24,11 +24,11 @@ bool Tap::IsPouring() {
   return this->isPouring;
 }
 void Tap::Setup(
-  IStateManager *kegeratorState,
+  IKegeratorStateMachine *kegeratorStateMachine,
   uint32_t tapId,
   uint32_t pulsesPerGallon
 ) {
-  this->kegeratorState = kegeratorState;
+  this->kegeratorStateMachine = kegeratorStateMachine;
   this->tapId = tapId;
   this->pulsesPerGallon = pulsesPerGallon;
 }
@@ -51,7 +51,7 @@ void Tap::StopPour() {
   this->authenticationKey = "";
 
   if (totalPulses > PULSE_EPSILON && isPouring) {
-    this->kegeratorState->TapStoppedPouring(
+    this->kegeratorStateMachine->TapStoppedPouring(
       this->tapId,
       totalPulses,
       authenticationKey
@@ -93,6 +93,6 @@ void Tap::SetTotalPulses(uint32_t pulses) {
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
     this->isPouring = true;
 
-    this->kegeratorState->TapStartedPouring(*this);
+    this->kegeratorStateMachine->TapStartedPouring(*this);
   }
 }

@@ -1,7 +1,7 @@
 #include "ServerLink.h"
 
-ServerLink::ServerLink(IStateManager *stateManager) {
-  this->stateManager = stateManager;
+ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
+  this->kegeratorStateMachine = kegeratorStateMachine;
   this->settings.tapIds = NULL;
   String deviceID = System.deviceID();
 
@@ -126,7 +126,7 @@ void ServerLink::Initialize(const char* event, const char* data) {
 
   // End pulsesPerGallon IDs
 
-  this->stateManager->Initialize(&this->settings);
+  this->kegeratorStateMachine->Initialize(&this->settings);
   Serial.println("Initialized");
 }
 
@@ -162,7 +162,7 @@ int ServerLink::Pour(String data) {
     return -1;
   }
 
-  this->stateManager->StartPour(data);
+  this->kegeratorStateMachine->StartPour(data);
 
   return 0;
 }

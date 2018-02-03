@@ -5,7 +5,7 @@
 #include "Tappt/Pins.h"
 #include "Tappt/Display/Display.h"
 #include "Tappt/led/LED.h"
-#include "Tappt/KegeratorState/KegeratorState.h"
+#include "Tappt/KegeratorStateMachine/KegeratorStateMachine.h"
 #include "Tappt/NfcClient/NfcClient.h"
 #include "Tappt/Sensors/Sensors.h"
 #include "Tappt/ServerLink/ServerLink.h"
@@ -19,7 +19,7 @@ PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
 
 Display* display;
 LED led;
-KegeratorState* state;
+KegeratorStateMachine* stateMachine;
 NfcClient* nfcClient;
 PacketReader reader;
 Sensors sensors = Sensors(reader);
@@ -44,11 +44,11 @@ void setup(void) {
   }
 
   nfcClient = new NfcClient();
-  state = new KegeratorState(display, nfcClient, &sensors);
+  stateMachine = new KegeratorStateMachine(display, nfcClient, &sensors);
 }
 
 void loop(void) {
-  state->Tick();
+  stateMachine->Tick();
   timeSync.Tick();
 
   if (timeSync.ShouldTrigger()) {

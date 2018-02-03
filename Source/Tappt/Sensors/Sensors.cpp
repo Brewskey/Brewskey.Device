@@ -45,13 +45,19 @@ int Sensors::Tick() {
   }
   if (
     !this->isWaitingForResponse
-    ) {
+  ) {
     this->sendPacket.Send();
     this->isWaitingForResponse = true;
   }
 #endif
   return 0;
 }
+
+void Sensors::SetState(KegeratorState::e state)
+{
+  this->state = state;
+}
+
 
 void Sensors::SingleFlowCounter()
 {
