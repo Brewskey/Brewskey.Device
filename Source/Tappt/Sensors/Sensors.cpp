@@ -46,8 +46,8 @@ int Sensors::Tick() {
   if (
     !this->isWaitingForResponse
   ) {
-    this->isWaitingForResponse = true;
     this->sendPacket.Send();
+    this->isWaitingForResponse = true;
   }
 #endif
   return 0;
@@ -145,8 +145,17 @@ void Sensors::ReadMultitap(void)
 
 	if(destination == 0x00 && source == 0x01 && packetType == POUR_PACKET_TYPE)
 	{
+
     uint8_t* incomingBuffer = this->reader.GetDataBuffer();
     uint8_t ii;
+
+    for (ii = 0; ii < this->reader.GetDataBufferSize(); ii++) {
+      Serial.print(incomingBuffer[ii], HEX);
+      Serial.print(" ");
+    }
+
+    Serial.println();
+
     const uint8_t FLOW_START = 1;
     uint8_t tapsInBox = this->tapCount % 4;
     for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {

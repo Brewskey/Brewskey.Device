@@ -50,6 +50,7 @@ void PacketReader::Reset()
 {
   this->isPacketReady = false;
   this->isValid = false;
+  this->count = 0;				/* Reset Counter - since start of packet */
 }
 
 void PacketReader::Read()
@@ -73,7 +74,7 @@ void PacketReader::Read()
         /* Getting sync byte of packet, since no escape byte before it */
 				if(data == '+')
 				{
-					this->count = 0;				/* Reset Counter - since start of packet */
+          this->Reset();
 					for(ii = 0; ii < PACKET_BUFFER; ii++)
 					{
 						this->incomingBuffer[ii] = 0;	/* Clearing packet buffer */
@@ -104,6 +105,7 @@ void PacketReader::Read()
 					}
 
           this->isPacketReady = true;
+          break;
 				}
 			}
 			else

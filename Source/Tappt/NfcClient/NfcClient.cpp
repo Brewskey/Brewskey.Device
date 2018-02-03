@@ -1,5 +1,7 @@
 #include "NfcClient.h"
 
+#define EMULATE_TAG_TIME 300
+
 NfcClient::NfcClient() :
 #ifdef SPI_HW_MODE
   pn532spi(SPI, SS),
@@ -128,7 +130,7 @@ NfcState::value NfcClient::ReadMessage()
 NfcState::value NfcClient::SendMessage()
 {
   Serial.println("Emulated Tag");
-  if (nfc.emulate(300)) {
+  if (nfc.emulate(EMULATE_TAG_TIME)) {
     return NfcState::SENT_MESSAGE;
   }
 
