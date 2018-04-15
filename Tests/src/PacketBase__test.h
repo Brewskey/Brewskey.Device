@@ -38,16 +38,16 @@ TEST_CASE("PacketBase::PrepareDataPacket", "[PacketBase]") {
     uint8_t* data = packet.GetDataArray();
     packet.PrepareDataPacket();
     uint8_t checksum = data[4];
-    REQUIRE(checksum == 51);
+    REQUIRE(checksum == 254);
   }
 
   SECTION("Calculates the correct checksum with data") {
     PacketTestImpl packet = PacketTestImpl(2);
     uint8_t* data = packet.GetDataArray();
     data[3] = 0xEE;
-    data[4] = 0xEE;
+    data[4] = 0xDD;
     packet.PrepareDataPacket();
     uint8_t checksum = data[5];
-    REQUIRE(checksum == 254);
+    REQUIRE(checksum == 205);
   }
 }

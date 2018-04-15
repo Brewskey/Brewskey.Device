@@ -86,7 +86,7 @@
 #define USE_BETA_PACKET_FORMAT 1
 #elif HARDWARE_CONFIG == 6
 #define BREWSKEY_PRODUCT_ID 2
-#define BREWSKEY_PRODUCT_VERSION 4
+#define BREWSKEY_PRODUCT_VERSION 5
 #define BIG_SCREEN
 #define EXPANSION_BOX_PIN A0
 #define OLED_SPI
@@ -97,7 +97,6 @@
 #define OLED_DC     P1S3
 #define OLED_CS     A2
 #define OLED_RESET  A1
-#define USE_BETA_PACKET_FORMAT 1
 #endif
 
 

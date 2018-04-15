@@ -48,6 +48,8 @@ void ServerLink::Initialize(const char* event, const char* data) {
     return;
   }
 
+  Serial.println(data);
+
   this->initializeTimer.stop();
 
   String response = String(data);

@@ -3,6 +3,7 @@
 #include "Tappt/Sensors/Sensors.h"
 
 TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
+  IKegeratorStateMachine &ks = Mock<IKegeratorStateMachine>().get();
 
   SECTION("Read packet is not ready") {
     PacketReader cls;
@@ -11,7 +12,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, IsPacketReady)).AlwaysReturn(false);
     Sensors sensors = Sensors(mock.get());
     Tap *taps = NULL;
-    sensors.Setup(taps, 0);
+    sensors.Setup(&ks, taps, 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Never();
@@ -24,7 +25,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, IsValid)).AlwaysReturn(false);
     Sensors sensors = Sensors(mock.get());
     Tap *taps = NULL;
-    sensors.Setup(taps, 0);
+    sensors.Setup(&ks, taps, 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -43,7 +44,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, GetSource)).AlwaysReturn(0x01);
     Sensors sensors = Sensors(mock.get());
     Tap *taps = NULL;
-    sensors.Setup(taps, 0);
+    sensors.Setup(&ks, taps, 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -63,7 +64,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, GetSource)).AlwaysReturn(0x01);
     Sensors sensors = Sensors(mock.get());
     Tap *taps = NULL;
-    sensors.Setup(taps, 0);
+    sensors.Setup(&ks, taps, 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -82,7 +83,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, GetDestination)).AlwaysReturn(0x00);
     When(Method(mock, GetSource)).AlwaysReturn(0x00);
     Sensors sensors = Sensors(mock.get());
-    sensors.Setup(NULL, 0);
+    sensors.Setup(&ks, NULL, 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -100,6 +101,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     When(Method(mock, IsValid)).AlwaysReturn(true);
     When(Method(mock, GetPacketType)).AlwaysReturn(POUR_PACKET_TYPE);
     When(Method(mock, GetDestination)).AlwaysReturn(0x00);
+    When(Method(mock, GetPacketType)).AlwaysReturn(0x01);
     When(Method(mock, GetSource)).AlwaysReturn(0x01);
 
     uint8_t data[17]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -107,12 +109,13 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
 
     Sensors sensors = Sensors(mock.get());
     Mock<Tap> tapMock;
-    sensors.Setup(&tapMock.get(), 0);
+    sensors.Setup(&ks, &tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
     Verify(Method(mock, GetPacketType)).AtLeastOnce();
     Verify(Method(mock, GetDestination)).Once();
+    Verify(Method(mock, GetPacketType)).Once();
     Verify(Method(mock, GetSource)).Once();
     Verify(Method(mock, GetDataBuffer)).Once();
     Verify(Method(tapMock, GetTotalPulses)).Never();
@@ -135,7 +138,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(1);
     // When(Method(tapMock, AddToFlowCount)).AlwaysReturn(1);
-    sensors.Setup(&tapMock.get(), 1);
+    sensors.Setup(&ks, &tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -163,7 +166,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(0);
     When(Method(tapMock, SetTotalPulses)).AlwaysReturn();
-    sensors.Setup(&tapMock.get(), 1);
+    sensors.Setup(&ks, &tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();
@@ -191,7 +194,7 @@ TEST_CASE("Sensors::ReadMultitap", "[Sensors]") {
     Mock<Tap> tapMock;
     When(Method(tapMock, GetTotalPulses)).AlwaysReturn(0);
     When(Method(tapMock, SetTotalPulses)).AlwaysReturn();
-    sensors.Setup(&tapMock.get(), 1);
+    sensors.Setup(&ks, &tapMock.get(), 1);
     sensors.Tick();
     sensors.ReadMultitap();
     Verify(Method(mock, IsValid)).Once();

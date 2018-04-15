@@ -5,5 +5,7 @@
 #define PACKET_TYPE_INDEX 2
 
 // Packet types
+#define CONFIGURATION_PACKET_TYPE 0x11
+#define CONFIGURATION_RESPONSE_PACKET_TYPE 0x12
 #define FLOW_CONTROL_PACKET_TYPE 0x22 /* Solenoid flow sensor control */
 #define POUR_PACKET_TYPE 0x33

@@ -31,17 +31,16 @@ void setup(void) {
   display = new Display();
   Serial.begin(115200);
   Serial1.begin(19200);
-  //Serial1.halfDuplex(true);
-
+//Serial1.halfDuplex(true);
   Serial.println("Starting");
-  /*
-      while(!Serial.available()) {
-        Spark.process();
-      }
-  */
-  while (Serial1.available()) {
-    Serial1.read();
+/*
+  while(!Serial.available()) {
+    Spark.process();
   }
+*/
+  // while (Serial1.available()) {
+  //   Serial1.read();
+  // }
 
   nfcClient = new NfcClient();
   stateMachine = new KegeratorStateMachine(display, nfcClient, &sensors);
@@ -76,18 +75,5 @@ HAL_USB_USART_Config acquireUSBSerial1Buffer()
 
 void serialEvent1()
 {
-  // Make sure that we don't misread some packets when the device switches
-  // states.
-  // switch (state->GetState()) {
-  //   case KegeratorState::INITIALIZING:
-  //   case KegeratorState::CLEANING:
-  //   case KegeratorState::UNLOCKED:
-  //   case KegeratorState::INACTIVE: {
-  //     while (Serial1.available()) {
-  //       Serial1.read();
-  //     }
-  //     return;
-  //   }
-  // }
   sensors.ReadMultitap();
 }

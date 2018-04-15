@@ -15,6 +15,8 @@
 #define DATA_START_INDEX 3
 #endif
 
+#define CONFIGURATION_RESPONSE_BUFFER_SIZE 8
+
 class PacketReader {
 public:
   void Read();

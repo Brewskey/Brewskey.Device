@@ -18,9 +18,13 @@ uint8_t PacketReader::GetPacketType()
 uint8_t PacketReader::GetBufferSizeForPacket()
 {
   switch (this->GetPacketType()) {
-  case POUR_PACKET_TYPE: {
-    return INCOMING_POUR_BUFFER_SIZE;
-  }
+    case POUR_PACKET_TYPE: {
+      return INCOMING_POUR_BUFFER_SIZE;
+    }
+
+    case CONFIGURATION_RESPONSE_PACKET_TYPE: {
+      return CONFIGURATION_RESPONSE_BUFFER_SIZE;
+    }
   }
 
   return 0;
@@ -87,8 +91,7 @@ void PacketReader::Read()
         {
           checksum = 0;					/* Reset checksum */
 
-          uint8_t incomingBufferSize = this->GetBufferSizeForPacket() - 1;
-          for (ii = 0; ii < incomingBufferSize; ii++)		/* Calculating checksum of packet */
+          for (ii = 0; ii < this->count - 1; ii++)		/* Calculating checksum of packet */
           {
             checksum ^= this->incomingBuffer[ii];
           }

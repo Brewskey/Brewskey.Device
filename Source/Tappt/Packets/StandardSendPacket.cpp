@@ -2,22 +2,20 @@
 
 uint8_t TAP_BITS[4] = { 0x03, 0x0C, 0x30, 0xC0 };
 
+#define DATA_PACKET_SIZE 3
+
 #ifdef USE_BETA_PACKET_FORMAT
-#define DATA_PACKET_SIZE 4
 #define SOLENOID_ON_INDEX 4
 #define SOLENOID_OFF_INDEX 5
 #define RESET_FLOW_INDEX 6
 #else
-#define DATA_PACKET_SIZE 3
 #define SOLENOID_ON_INDEX 3
 #define SOLENOID_OFF_INDEX 4
 #define RESET_FLOW_INDEX 5
 #endif
 
 
-StandardSendPacket::StandardSendPacket(
-  uint8_t destination
-) : PacketBase(
+StandardSendPacket::StandardSendPacket() : PacketBase(
   DATA_PACKET_SIZE,
   FLOW_CONTROL_PACKET_TYPE)
 {
@@ -26,8 +24,6 @@ StandardSendPacket::StandardSendPacket(
 #ifdef USE_BETA_PACKET_FORMAT
   this->dataPacket[3] = 0x01; /*mainboard packet version */
 #endif
-
-  this->SetDestination(destination);
 }
 
 // If this gets called it means the pour stopped or the user changed the state

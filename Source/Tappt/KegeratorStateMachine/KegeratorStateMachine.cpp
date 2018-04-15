@@ -11,21 +11,19 @@ KegeratorStateMachine::KegeratorStateMachine(
 ) {
   this->serverLink = new ServerLink(this);
 
-  this->taps = (Tap*)NULL;
+  this->sensors = sensors;
+
   this->SetState(KegeratorState::INITIALIZING);
 
   this->display = display;
   this->pourDisplay = new PourDisplay(display);
   this->totpDisplay = new TotpDisplay(display);
 
-  this->nfcClient = nfcClient;
-  this->sensors = sensors;
+	this->nfcClient = nfcClient;
   nfcClient->Setup(this->serverLink);
 }
 
 void KegeratorStateMachine::SetState(KegeratorState::e newState) {
-	this->sensors->SetState(newState);
-
   switch (newState) {
 	  case KegeratorState::INITIALIZING: {
 	    RGB.control(true);
@@ -100,10 +98,7 @@ void KegeratorStateMachine::SetState(KegeratorState::e newState) {
 		case KegeratorState::CONFIGURE: {
 	    RGB.control(true);
 	    RGB.color(255, 255, 0);
-	    this->display->BeginBatch();
-	    this->display->SetText("Configure", 16, 15);
-	    this->display->SetText("Device", 28, 35);
-	    this->displayChangeCount++;
+	    this->OnConfigureNextBox(0);
 
 			this->StopPouring();
 
@@ -114,6 +109,24 @@ void KegeratorStateMachine::SetState(KegeratorState::e newState) {
   }
 
   this->state = newState;
+	this->sensors->SetState(newState);
+}
+
+void KegeratorStateMachine::OnConfigureNextBox(uint8_t destination)
+{
+	this->display->BeginBatch();
+	this->displayChangeCount++;
+
+	uint8_t tapIndex = destination * MAX_TAP_COUNT_PER_BOX + 1;
+	if (tapIndex > this->settings->tapCount) {
+		this->settings->deviceStatus = DeviceStatus::ACTIVE;
+		this->StopPouring();
+		this->SetStateFromDeviceStatus();
+		return;
+	}
+
+	this->display->SetText("Pour From", 16, 15);
+	this->display->SetText("Tap " + String(tapIndex), 28, 35);
 }
 
 int KegeratorStateMachine::Tick()
@@ -219,7 +232,7 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
     delete[] this->taps;
   }
 
-  int tapCount = this->settings->tapCount;
+  uint8_t tapCount = this->settings->tapCount;
   this->taps = new Tap[tapCount];
   for (int i = 0; i < tapCount; i++) {
     this->taps[i].Setup(
@@ -229,7 +242,7 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
     );
   }
 
-  this->sensors->Setup(this->taps, tapCount);
+  this->sensors->Setup(this, this->taps, tapCount);
   this->pourDisplay->Setup(this->taps, tapCount);
   this->totpDisplay->Setup(this->settings, this->taps, tapCount);
 
@@ -238,7 +251,7 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   if (
     this->settings->deviceId.length() <= 0 ||
     this->settings->authorizationToken.length() <= 0
-    ) {
+  ) {
     RGB.control(true);
     RGB.color(0, 128, 0);
     return;

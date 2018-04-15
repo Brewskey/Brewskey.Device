@@ -1,14 +1,18 @@
 #ifndef Sensors_h
 #define Sensors_h
 
+#include "math.h"
+
 #include "ISolenoids.h"
 #include "Tappt/Pins.h"
 #include "Tappt/ITick.h"
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/Temperature/Temperature.h"
+#include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/KegeratorStateMachine/KegeratorState.h"
 
 #ifdef EXPANSION_BOX_PIN
+#include "Tappt/Packets/ConfigurationPacket.h"
 #include "Tappt/Packets/StandardSendPacket.h"
 #include "Tappt/Packets/PacketReader.h"
 
@@ -17,7 +21,7 @@
 class Sensors : public ISolenoids, public ITick {
 public:
   Sensors(PacketReader &packetReader);
-  void Setup(Tap* taps, uint8_t tapCount);
+  void Setup(IKegeratorStateMachine* stateMachine, Tap* taps, uint8_t tapCount);
   virtual int Tick();
   virtual void OpenSolenoid(uint8_t solenoid);
   virtual void OpenSolenoids();
@@ -31,16 +35,22 @@ public:
 #endif
 private:
   void SingleFlowCounter();
+  void ParsePourPacket();
+  void ParseConfigurationPacket();
 
   Temperature* temperatureSensor = NULL;
   Tap* taps = NULL;
 
   uint8_t tapCount;
-  KegeratorState::e state;
+  IKegeratorStateMachine* stateMachine;
+  KegeratorState::e state = KegeratorState::INITIALIZING;
 
 #ifdef EXPANSION_BOX_PIN
-  StandardSendPacket sendPacket = StandardSendPacket(0x01);
+  ConfigurationPacket configPacket;
+  StandardSendPacket* sendPackets = NULL;
   PacketReader &reader;
+  uint8_t boxCount = 0;
+  uint8_t sendIndex = 0;
 
   // start true so we wait to send first packet
   bool isWaitingForResponse = true;

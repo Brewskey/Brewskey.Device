@@ -13,6 +13,7 @@ public:
   virtual void Initialize(DeviceSettings *settings) = 0;
   virtual int StartPour(String data) = 0;
   virtual int Settings(String data) = 0;
+  virtual void OnConfigureNextBox(uint8_t destination) = 0;
   virtual ~IKegeratorStateMachine() {}
 };
 

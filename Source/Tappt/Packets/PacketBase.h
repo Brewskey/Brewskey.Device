@@ -9,10 +9,11 @@ public:
   PacketBase(uint8_t packetSize, uint8_t packetType);
   uint8_t GetPacketSize() { return this->packetSize; }
   void Send();
+  void SetDestination(uint8_t destination);
+  uint8_t GetDestination();
 
   virtual ~PacketBase();
 protected:
-  void SetDestination(uint8_t destination);
   virtual void PrepareDataPacket();
 
   // Packets only need to be sent once to devices so this will reset all the

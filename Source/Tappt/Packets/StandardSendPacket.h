@@ -5,7 +5,7 @@
 
 class StandardSendPacket : public PacketBase {
 public:
-  StandardSendPacket(uint8_t destination);
+  StandardSendPacket();
 
   void CloseSolenoids();
   void OpenSolenoids();

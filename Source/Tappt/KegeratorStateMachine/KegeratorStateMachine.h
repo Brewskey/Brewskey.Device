@@ -32,8 +32,7 @@ public:
   int StartPour(String data);
   int Settings(String data);
 
-  int GetState();
-
+  void OnConfigureNextBox(uint8_t destination);
 private:
   void SetState(KegeratorState::e state);
   void Timeout();
@@ -46,14 +45,14 @@ private:
 
   void SetStateFromDeviceStatus();
 
-  DeviceSettings *settings;
-  Display *display;
-  PourDisplay *pourDisplay;
-  TotpDisplay *totpDisplay;
-  NfcClient *nfcClient;
-  Sensors *sensors;
-  ServerLink *serverLink;
-  Tap *taps;
+  DeviceSettings *settings = NULL;
+  Display *display = NULL;
+  PourDisplay *pourDisplay = NULL;
+  TotpDisplay *totpDisplay = NULL;
+  NfcClient *nfcClient = NULL;
+  Sensors *sensors = NULL;
+  ServerLink *serverLink = NULL;
+  Tap *taps = NULL;
 
   bool canPourWithoutDeviceId = true;
   KegeratorState::e state;

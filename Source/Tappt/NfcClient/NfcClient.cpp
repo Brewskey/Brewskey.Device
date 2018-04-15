@@ -129,7 +129,7 @@ NfcState::value NfcClient::ReadMessage()
 
 NfcState::value NfcClient::SendMessage()
 {
-  Serial.println("Emulated Tag");
+  // Serial.println("Emulated Tag");
   if (nfc.emulate(EMULATE_TAG_TIME)) {
     return NfcState::SENT_MESSAGE;
   }

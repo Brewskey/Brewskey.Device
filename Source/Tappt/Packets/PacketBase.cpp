@@ -4,14 +4,15 @@
 
 // Extra bytes in the array used for identifying the packet
 // and determining if it's valid.
-#define NON_DATA_BYTES_SIZE 4
+#define NON_DATA_BYTES_SIZE 4 // includes checksum
 
 PacketBase::PacketBase(uint8_t dataSize, uint8_t packetType)
 {
   this->packetSize = dataSize + NON_DATA_BYTES_SIZE;
   this->dataPacket = new uint8_t[this->packetSize];
+  memset(this->dataPacket, 0x00, this->packetSize);
 
-  this->SetDestination(0x00); // Devault - all devices
+  this->SetDestination(0x00); // Default - all devices
   this->dataPacket[PACKET_SOURCE_INDEX] = PACKET_SOURCE;
   this->dataPacket[PACKET_TYPE_INDEX] = packetType;
 }
@@ -23,6 +24,11 @@ PacketBase::~PacketBase() {
 void PacketBase::SetDestination(uint8_t destination)
 {
   this->dataPacket[PACKET_DESTINATION_INDEX] = destination;
+}
+
+uint8_t PacketBase::GetDestination()
+{
+  return this->dataPacket[PACKET_DESTINATION_INDEX];
 }
 
 void PacketBase::PrepareDataPacket()
@@ -66,6 +72,9 @@ void PacketBase::Send()
       Serial1.write('#');
     }
 
+    Serial.print(*str, HEX);
+    Serial.print(" ");
+
     /*send data byte*/
     Serial1.write(*str);
     str++;														/* Point to next char */
@@ -77,6 +86,7 @@ void PacketBase::Send()
 
   /*wait for serial data to be transfered*/
   Serial1.flush();
+  Serial.println();
 
   this->ResetDataPacket();
 
