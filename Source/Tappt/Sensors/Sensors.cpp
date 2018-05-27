@@ -1,6 +1,10 @@
 #include "Sensors.h"
 
+#ifdef EXPANSION_BOX_PIN
 Sensors::Sensors(PacketReader &packetReader) : reader(packetReader)
+#else
+Sensors::Sensors()
+#endif
 {
   pinMode(FLOW_PIN, INPUT);
   digitalWrite(FLOW_PIN, HIGH);
@@ -31,6 +35,7 @@ void Sensors::Setup(
 
   this->boxCount = ceil((float)tapCount / MAX_TAP_COUNT_PER_BOX);
 
+  #ifdef EXPANSION_BOX_PIN
   if (this->sendPackets != NULL) {
     delete[] this->sendPackets;
   }
@@ -44,6 +49,7 @@ void Sensors::Setup(
     Serial1.read();
   }
   this->packetResponseTimer.Start();
+  #endif
 }
 
 int Sensors::Tick() {
@@ -101,6 +107,7 @@ void Sensors::SetState(KegeratorState::e state)
 {
   Serial.print("Sensor::SetState ");
   Serial.println(state);
+  #ifdef EXPANSION_BOX_PIN
   if (this->state != state)
   {
     // Begin configuration
@@ -116,6 +123,7 @@ void Sensors::SetState(KegeratorState::e state)
       Serial.println("SetupDefaultSendPackets");
     }
   }
+  #endif
 
   this->state = state;
 }

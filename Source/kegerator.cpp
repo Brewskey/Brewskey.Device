@@ -21,8 +21,12 @@ Display* display;
 LED led;
 KegeratorStateMachine* stateMachine;
 NfcClient* nfcClient;
+#ifdef EXPANSION_BOX_PIN
 PacketReader reader;
 Sensors sensors = Sensors(reader);
+#else
+Sensors sensors = Sensors();
+#endif
 TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
 
 void setup(void) {
@@ -55,6 +59,7 @@ void loop(void) {
   }
 }
 
+#ifdef EXPANSION_BOX_PIN
 // Override the Serial1 buffer we use to communicate with expansion boxes
 #define SERIA1_BUFFER_SIZE 129
 HAL_USB_USART_Config acquireUSBSerial1Buffer()
@@ -77,3 +82,4 @@ void serialEvent1()
 {
   sensors.ReadMultitap();
 }
+#endif

@@ -20,7 +20,11 @@
 
 class Sensors : public ISolenoids, public ITick {
 public:
+  #ifdef EXPANSION_BOX_PIN
   Sensors(PacketReader &packetReader);
+  #else
+  Sensors();
+  #endif
   void Setup(IKegeratorStateMachine* stateMachine, Tap* taps, uint8_t tapCount);
   virtual int Tick();
   virtual void OpenSolenoid(uint8_t solenoid);
@@ -49,13 +53,13 @@ private:
   ConfigurationPacket configPacket;
   StandardSendPacket* sendPackets = NULL;
   PacketReader &reader;
+#endif
   uint8_t boxCount = 0;
   uint8_t sendIndex = 0;
 
   // start true so we wait to send first packet
   bool isWaitingForResponse = true;
   TapptTimer packetResponseTimer = TapptTimer(400);
-#endif
 };
 
 #endif

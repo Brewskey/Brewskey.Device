@@ -16,7 +16,6 @@ void TapptTimer::Stop() {
   this->isRunning = false;
 }
 
-
 int TapptTimer::Tick() {
   if (!this->isRunning)
   {
@@ -34,11 +33,13 @@ int TapptTimer::Tick() {
     }
   }
 
-  this->shouldTrigger =
-    (long)(currentMillis - this->previousMillis) > this->interval;
+  if (this->interval != 0) {
+    this->shouldTrigger =
+      (long)(currentMillis - this->previousMillis) > this->interval;
 
-  if (this->shouldTrigger)
-  {
-    this->previousMillis = currentMillis;
+    if (this->shouldTrigger)
+    {
+      this->previousMillis = currentMillis;
+    }
   }
 }
