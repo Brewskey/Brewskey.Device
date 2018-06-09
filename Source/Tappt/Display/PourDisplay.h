@@ -9,7 +9,7 @@ class PourDisplay : public ITick {
 public:
   PourDisplay(Display* display);
 
-  void Setup(Tap* taps, int tapCount);
+  void Setup(Tap* taps, uint8_t tapCount);
   virtual int Tick();
 private:
   void SetEmptySlotForTap(int tapId);
@@ -17,7 +17,7 @@ private:
 
   Display* display;
   Tap* taps;
-  int tapCount;
+  uint8_t tapCount;
 
   int currentPouringTaps[4] = { -1, -1, -1, -1 };
   String currentDisplays[4];

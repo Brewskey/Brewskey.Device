@@ -4,9 +4,11 @@ int TOTP_SIZE = 2;
 
 TotpDisplay::TotpDisplay(Display* display) {
   this->display = display;
+  this->settings = NULL;
+  this->tapCount = 0;
 }
 
-void TotpDisplay::Setup(DeviceSettings *settings, Tap* taps, int tapCount) {
+void TotpDisplay::Setup(DeviceSettings *settings, Tap* taps, uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
   this->settings = settings;

@@ -89,7 +89,6 @@ int Sensors::Tick() {
     return 0;
   }
 
-
   if (
     !this->isWaitingForResponse
   ) {

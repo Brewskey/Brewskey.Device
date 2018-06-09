@@ -2,6 +2,7 @@
 #define ServerLink_h
 
 #include "application.h"
+#include "Tappt/Pins.h"
 #include "DeviceSettings.h"
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 

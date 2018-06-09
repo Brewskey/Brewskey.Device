@@ -12,13 +12,13 @@ public:
   TotpDisplay(Display* display);
 
   void Reset();
-  void Setup(DeviceSettings* settings, Tap* taps, int tapCount);
+  void Setup(DeviceSettings* settings, Tap* taps, uint8_t tapCount);
   virtual int Tick();
 private:
   Display * display;
   Tap* taps;
   DeviceSettings* settings;
-  int tapCount;
+  uint8_t tapCount;
 
   int lastPourCount;
   String currentTotp;

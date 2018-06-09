@@ -27,9 +27,10 @@ int TEXT_SETTINGS_4[MAX_DRAWING_SLOTS][TEXT_SETTING_LENGTH] = {
 
 PourDisplay::PourDisplay(Display* display) {
   this->display = display;
+  this->tapCount = 0;
 }
 
-void PourDisplay::Setup(Tap* taps, int tapCount) {
+void PourDisplay::Setup(Tap* taps, uint8_t tapCount) {
   this->taps = taps;
   this->tapCount = tapCount;
 }

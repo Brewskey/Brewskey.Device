@@ -9,15 +9,14 @@ KegeratorStateMachine::KegeratorStateMachine(
   NfcClient* nfcClient,
   Sensors* sensors
 ) {
-  this->serverLink = new ServerLink(this);
-
   this->sensors = sensors;
-
   this->SetState(KegeratorState::INITIALIZING);
 
   this->display = display;
   this->pourDisplay = new PourDisplay(display);
   this->totpDisplay = new TotpDisplay(display);
+
+	this->serverLink = new ServerLink(this);
 
 	this->nfcClient = nfcClient;
   nfcClient->Setup(this->serverLink);

@@ -12,6 +12,10 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 #include "TOTP/TOTP.h"
 
+#ifdef TEST_MODE
+SYSTEM_MODE(MANUAL);
+#endif
+
 PRODUCT_ID(BREWSKEY_PRODUCT_ID);
 PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
 
@@ -37,15 +41,17 @@ void setup(void) {
   Serial1.begin(19200);
 //Serial1.halfDuplex(true);
   Serial.println("Starting");
-/*
-  while(!Serial.available()) {
-    Spark.process();
-  }
-*/
+
+  // while(!Serial.available()) {
+  //  Spark.process();
+  // }
+
   // while (Serial1.available()) {
   //   Serial1.read();
   // }
-
+  #ifdef TEST_MODE
+  delay(3000);
+  #endif
   nfcClient = new NfcClient();
   stateMachine = new KegeratorStateMachine(display, nfcClient, &sensors);
 }

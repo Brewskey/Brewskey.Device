@@ -3,6 +3,7 @@
 
 #include "application.h"
 
+//#define TEST_MODE 1
 #define USE_INTERRUPT 1 // The flow sensor uses interrupt based measurement
 
 #define RED_PIN (WKP)
@@ -24,8 +25,8 @@
 #define MAX_TAP_COUNT_PER_BOX 4
 
 #if HARDWARE_CONFIG == 0
-#define BREWSKEY_PRODUCT_ID 6
-#define BREWSKEY_PRODUCT_VERSION 1
+#define BREWSKEY_PRODUCT_ID 2
+#define BREWSKEY_PRODUCT_VERSION 15
 #define OLED_SPI
 //  #define SPI_HW_MODE
 #define BIG_SCREEN

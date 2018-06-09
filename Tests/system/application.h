@@ -12,8 +12,10 @@
 #define IS_WINDOWS
 #endif
 
+#define MANUAL 
 #define PRODUCT_ID(v)
 #define PRODUCT_VERSION(v)
+#define SYSTEM_MODE(v)
 
 #define Serial1 Serial
 #define uint unsigned int

@@ -5,6 +5,11 @@ ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
   this->settings.tapIds = NULL;
   String deviceID = System.deviceID();
 
+  #ifdef TEST_MODE
+    this->Initialize("", "~2~asdfasdfasdf~1,2,3,4,5,~1~10313,10313,10313,10313,10313,");
+    return;
+  #endif
+
   Particle.subscribe(
     "hook-response/tappt_initialize-" + deviceID,
     &ServerLink::Initialize,
