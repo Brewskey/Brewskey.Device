@@ -33,6 +33,11 @@ public:
   int Settings(String data);
 
   void OnConfigureNextBox(uint8_t destination);
+#ifdef TEST_MODE
+  void TestInitialization(const char *data) {
+    this->serverLink->Initialize("", data);
+  }
+#endif
 private:
   void SetState(KegeratorState::e state);
   void Timeout();

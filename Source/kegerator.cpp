@@ -13,7 +13,7 @@
 #include "TOTP/TOTP.h"
 
 #ifdef TEST_MODE
-SYSTEM_MODE(MANUAL);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 #endif
 
 PRODUCT_ID(BREWSKEY_PRODUCT_ID);
@@ -49,11 +49,15 @@ void setup(void) {
   // while (Serial1.available()) {
   //   Serial1.read();
   // }
-  #ifdef TEST_MODE
-  delay(3000);
-  #endif
+
   nfcClient = new NfcClient();
   stateMachine = new KegeratorStateMachine(display, nfcClient, &sensors);
+
+  #ifdef TEST_MODE
+  stateMachine->TestInitialization(
+    "~2~asdfasdfasdf~1,2,3,4,5,~1~10313,10313,10313,10313,10313,"
+  );
+  #endif
 }
 
 void loop(void) {
