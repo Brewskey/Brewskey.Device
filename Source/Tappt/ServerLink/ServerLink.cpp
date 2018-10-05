@@ -176,17 +176,21 @@ void ServerLink::PourResponse(const char* event, const char* data) {
 void ServerLink::SendPourToServer(
   uint32_t tapId,
   uint32_t totalPulses,
-  String authenticationKey
+  String authenticationKey,
+  uint32_t pourStartTime,
+  uint32_t pourEndTime
 ) {
   sprintf(
     json,
-    "{\"authToken\":\"%s\",\"tapId\":\"%lu\",\"pourKey\":\"%s\",\"pulses\":\"%d\"}",
+    "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
     this->settings.authorizationToken.c_str(),
     tapId,
     authenticationKey != NULL && authenticationKey.length()
     ? authenticationKey.c_str()
     : "",
-    totalPulses
+    totalPulses,
+    pourStartTime,
+    pourEndTime
   );
 
 

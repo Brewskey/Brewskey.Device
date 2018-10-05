@@ -38,8 +38,13 @@ void KegeratorStateMachine::SetState(KegeratorState::e newState) {
 
 	  case KegeratorState::WAITING_FOR_POUR_RESPONSE: {
 	    this->nfcClient->SendPendingMessage();
-	    RGB.control(true);
-	    RGB.color(255, 255, 0);
+			if (
+				this->state != KegeratorState::POUR_AUTHORIZED &&
+				this->state != KegeratorState::POURING
+			) {
+		    RGB.control(true);
+		    RGB.color(255, 255, 0);
+			}
 	    break;
 	  }
 
@@ -320,7 +325,9 @@ void KegeratorStateMachine::TapStartedPouring(ITap &tap) {
 void KegeratorStateMachine::TapStoppedPouring(
   uint32_t tapID,
   uint32_t totalPulses,
-  String authenticationKey
+  String authenticationKey,
+	uint32_t pourStartTime,
+	uint32_t pourEndTime
 ) {
   this->CleanupTapState();
   Serial.println("Finished Pouring");
@@ -329,7 +336,9 @@ void KegeratorStateMachine::TapStoppedPouring(
     this->serverLink->SendPourToServer(
       tapID,
       totalPulses,
-      authenticationKey
+      authenticationKey,
+			pourStartTime,
+			pourEndTime
     );
 
     // TODO - Maybe show pulse on display a bit longer...?

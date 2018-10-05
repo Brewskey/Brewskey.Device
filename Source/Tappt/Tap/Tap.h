@@ -31,7 +31,9 @@ private:
   bool isPouring;
   uint32_t totalPulses;
   String authenticationKey;
-  unsigned long pourStartTime;
+  unsigned long pourStartTime;  // is reset each time we get more pulses.
+  unsigned long pourDeviceEndTime; // actual start time in UTC ticks
+  unsigned long pourDeviceStartTime; // actual start time in UTC ticks
 
   // Sometimes the expansion box and the brewskey box aren't quite in sync.
   // This makes sure we don't end up with duplicate pours.

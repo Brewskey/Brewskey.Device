@@ -9,7 +9,7 @@
 class IKegeratorStateMachine : public ITick {
 public:
   virtual void TapStartedPouring(ITap &tap) = 0;
-  virtual void TapStoppedPouring(uint32_t tapID, uint32_t totalPulses, String authenticationKey) = 0;
+  virtual void TapStoppedPouring(uint32_t tapID, uint32_t totalPulses, String authenticationKey, uint32_t pourStartTime, uint32_t pourEndTime) = 0;
   virtual void Initialize(DeviceSettings *settings) = 0;
   virtual int StartPour(String data) = 0;
   virtual int Settings(String data) = 0;

@@ -25,7 +25,9 @@ public:
   virtual void TapStoppedPouring(
     uint32_t tapID,
     uint32_t totalPulses,
-    String authenticationKey
+    String authenticationKey,
+    uint32_t pourStartTime,
+    uint32_t pourEndTime
   );
   virtual int Tick();
   void Initialize(DeviceSettings *settings);

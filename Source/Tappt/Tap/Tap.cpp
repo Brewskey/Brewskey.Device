@@ -54,7 +54,9 @@ void Tap::StopPour() {
     this->kegeratorStateMachine->TapStoppedPouring(
       this->tapId,
       totalPulses,
-      authenticationKey
+      authenticationKey,
+      this->pourDeviceStartTime,
+      this->pourDeviceEndTime
     );
   }
 }
@@ -89,9 +91,11 @@ void Tap::SetTotalPulses(uint32_t pulses) {
 
   this->totalPulses = pulses;
   this->pourStartTime = millis();
+  this->pourDeviceEndTime = Time.now();
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {
     this->isPouring = true;
+    this->pourDeviceStartTime = Time.now();
 
     this->kegeratorStateMachine->TapStartedPouring(*this);
   }
