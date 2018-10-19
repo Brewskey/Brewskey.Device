@@ -63,7 +63,6 @@ private:
 
   bool canPourWithoutDeviceId = true;
   KegeratorState::e state;
-  String oldCode;
   String lastAuthorizedToken;
   int displayChangeCount = 0;
 

@@ -10,7 +10,6 @@
 #define GREEN_PIN (RX)
 #define BLUE_PIN (TX)
 
-
 // Configurations
 // 0 - Photon - No NFC - OLED SPI Test
 // 1 - Photon - Adafruit NFC
@@ -38,15 +37,15 @@
 #define BREWSKEY_PRODUCT_ID 2
 #define BREWSKEY_PRODUCT_VERSION 1
 #define SPI_HW_MODE
-#define SS   (A2)
+#define SS (A2)
 #define SOLENOID_PIN (D2)
 #define FLOW_PIN (D6)
 #define TEMPERATURE_PIN (D4)
 #elif HARDWARE_CONFIG == 2
 #define BREWSKEY_PRODUCT_ID 3
 #define BREWSKEY_PRODUCT_VERSION 1
-#define SS   (A2)
-#define SCK  (A5)
+#define SS (A2)
+#define SCK (A5)
 #define MISO (A4)
 #define MOSI (A5)
 #define SOLENOID_PIN (D2)
@@ -55,8 +54,8 @@
 #elif HARDWARE_CONFIG == 3
 #define BREWSKEY_PRODUCT_ID 4
 #define BREWSKEY_PRODUCT_VERSION 1
-#define SS   (A2)
-#define SCK  (A3)
+#define SS (A2)
+#define SCK (A3)
 #define MISO (A4)
 #define MOSI (A5)
 #define SOLENOID_PIN (D2)
@@ -66,7 +65,7 @@
 #define BREWSKEY_PRODUCT_ID 5
 #define BREWSKEY_PRODUCT_VERSION 1
 #define SPI_HW_MODE
-#define SS   DAC
+#define SS DAC
 #define SOLENOID_PIN P1S1
 #define FLOW_PIN P1S0
 #define TEMPERATURE_PIN D2
@@ -77,34 +76,33 @@
 #define EXPANSION_BOX_PIN A0
 //  #define SPI_HW_MODE
 #define OLED_SPI
-#define SS   DAC
+#define SS DAC
 #define SOLENOID_PIN P1S1
 #define FLOW_PIN P1S0
 #define TEMPERATURE_PIN D2
-#define OLED_DC     P1S3
-#define OLED_CS     A2
-#define OLED_RESET  A1
+#define OLED_DC P1S3
+#define OLED_CS A2
+#define OLED_RESET A1
 #define USE_BETA_PACKET_FORMAT 1
 #elif HARDWARE_CONFIG == 6
 #define BREWSKEY_PRODUCT_ID 2
-#define BREWSKEY_PRODUCT_VERSION 10
+#define BREWSKEY_PRODUCT_VERSION 11
 #define BIG_SCREEN
 #define EXPANSION_BOX_PIN A0
 #define OLED_SPI
-#define SS   DAC
+#define SS DAC
 #define SOLENOID_PIN P1S1
 #define FLOW_PIN P1S0
 #define TEMPERATURE_PIN D2
-#define OLED_DC     P1S3
-#define OLED_CS     A2
-#define OLED_RESET  A1
+#define OLED_DC P1S3
+#define OLED_CS A2
+#define OLED_RESET A1
 #endif
 
-
 #ifndef OLED_RESET
-#define OLED_DC     D3
-#define OLED_CS     D4
-#define OLED_RESET  D5
+#define OLED_DC D3
+#define OLED_CS D4
+#define OLED_RESET D5
 #endif
 
 #endif

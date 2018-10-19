@@ -320,6 +320,7 @@ void KegeratorStateMachine::TapStartedPouring(ITap &tap) {
   }
 
   this->lastAuthorizedToken = "";
+	this->CleanupTapState();
 }
 
 void KegeratorStateMachine::TapStoppedPouring(
@@ -360,8 +361,6 @@ void KegeratorStateMachine::Timeout() {
 }
 
 void KegeratorStateMachine::CleanupTapState() {
-  this->oldCode = "";
-
   bool allStopped = true;
   for (uint8_t ii = 0; ii < this->settings->tapCount; ii++) {
     if (this->taps[ii].IsPouring()) {

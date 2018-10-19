@@ -12,6 +12,11 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 #include "TOTP/TOTP.h"
 
+void setup(void);
+void loop(void);
+HAL_USB_USART_Config acquireUSBSerial1Buffer();
+void serialEvent1();
+#line 15 "c:/dev/Brewskey/Brewskey.Device/src/kegerator.ino"
 #ifdef TEST_MODE
 SYSTEM_MODE(SEMI_AUTOMATIC);
 #endif

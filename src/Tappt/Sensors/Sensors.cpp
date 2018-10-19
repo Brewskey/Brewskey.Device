@@ -189,7 +189,7 @@ void Sensors::CloseSolenoid(uint8_t solenoid) {
 }
 
 void Sensors::OpenSolenoids() {
-  for (int i = 0; i < MAX_TAP_COUNT_PER_BOX; i++) {
+  for (int i = 0; i < this->boxCount * MAX_TAP_COUNT_PER_BOX; i++) {
     this->OpenSolenoid(i);
   }
 }
@@ -284,7 +284,7 @@ void Sensors::ParsePourPacket()
 
   uint8_t source = this->reader.GetSource();
   const uint8_t FLOW_START = 1;
-  uint8_t tapsInBox = this->tapCount % 4;
+
   for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
     uint32_t pulses =
       (incomingBuffer[FLOW_START + 4 * ii] << 24) |
