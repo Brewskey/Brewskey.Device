@@ -21,7 +21,7 @@ walkSync(path.join(__dirname, 'Tests'))
       file.endsWith('.h') || file.endsWith('.cpp') || file.endsWith('.hpp'),
   )
   .forEach(file => console.log(file));
-walkSync(path.join(__dirname, 'Source'))
+walkSync(path.join(__dirname, 'src'))
   .filter(
     file =>
       file.endsWith('.h') || file.endsWith('.cpp') || file.endsWith('.hpp'),

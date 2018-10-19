@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const startingDirectory = path.join(__dirname, 'Source');
+const startingDirectory = path.join(__dirname, 'src');
 
 const walkSync = function(dir, dirs) {
   const files = fs.readdirSync(dir);

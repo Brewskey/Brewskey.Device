@@ -12,7 +12,7 @@
       ],
       "include_dirs": [
         "Tests/system",
-        "Source",
+        "src",
       ],
       "conditions": [
         ['OS=="win"', {
