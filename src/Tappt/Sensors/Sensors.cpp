@@ -117,7 +117,7 @@ void Sensors::SetState(KegeratorState::e state)
     }
 
     // Use default send packet
-    if (this->state == KegeratorState::CONFIGURE) {
+    if (this->state != KegeratorState::CONFIGURE) {
       this->packetResponseTimer.Start();
       Serial.println("SetupDefaultSendPackets");
     }
@@ -279,6 +279,10 @@ void Sensors::ParseConfigurationPacket()
 
 void Sensors::ParsePourPacket()
 {
+  if (this->state == KegeratorState::CLEANING) {
+    return;
+  }
+
   uint8_t* incomingBuffer = this->reader.GetDataBuffer();
   uint8_t ii;
 

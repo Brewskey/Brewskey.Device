@@ -94,6 +94,7 @@ void KegeratorStateMachine::SetState(KegeratorState::e newState) {
 	    this->display->SetText("Device", 28, 35);
 	    this->displayChangeCount++;
 
+			this->StopPouring();
 	    this->openValveTimer.Start();
 
 	    break;
@@ -140,9 +141,9 @@ int KegeratorStateMachine::Tick()
     return 0;
   }
 
+	this->openValveTimer.Tick();
   if (this->openValveTimer.IsRunning())
   {
-    this->openValveTimer.Tick();
     if (this->openValveTimer.ShouldTrigger())
     {
       this->sensors->OpenSolenoids();
@@ -164,7 +165,11 @@ int KegeratorStateMachine::Tick()
   // We don't need to run the rest of the rendering logic
   switch (this->state)
   {
-	  case KegeratorState::CLEANING:
+	  case KegeratorState::CLEANING: {
+			this->sensors->Tick();
+
+			return 0;
+		}
 	  case KegeratorState::INACTIVE: {
 	    return 0;
 	  }
