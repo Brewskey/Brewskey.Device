@@ -71,5 +71,5 @@ private:
   Timer nfcTimer = Timer(1, &KegeratorStateMachine::NfcLoop, *this);
 
   // Add extra delay so the server can switch this over instead of us
-  TapptTimer openValveTimer = TapptTimer(3000, MILLISECONDS_IN_HOUR + 30000);
+  TapptTimer openValveTimer = TapptTimer(3000, 3 * MILLISECONDS_IN_HOUR + 30000);
 };
