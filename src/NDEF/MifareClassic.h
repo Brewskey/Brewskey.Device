@@ -3,6 +3,7 @@
 
 #include "application.h"
 #include "PN532/PN532.h"
+#include "PN532/tag_information.h"
 #include "NDEF/Ndef.h"
 #include "NDEF/NfcTag.h"
 
@@ -13,7 +14,7 @@ public:
   ~MifareClassic();
   NfcTag read(byte *uid, unsigned int uidLength);
   boolean write(NdefMessage& ndefMessage, byte *uid, unsigned int uidLength);
-  boolean formatNDEF(byte * uid, unsigned int uidLength);
+  boolean formatNDEF(TagInformation *tagInfo);
   boolean formatMifare(byte * uid, unsigned int uidLength);
 private:
   PN532 * _nfcShield;

@@ -13,6 +13,7 @@
 #include "Tappt/led/LED.h"
 #include "Tappt/Pins.h"
 #include "Tappt/ServerLink/ServerLink.h"
+#include "Tappt/TapptTimer/TapptTimer.h"
 //#define P2P 1
 
 namespace NfcState {
@@ -48,6 +49,9 @@ private:
   int messageSize;
   uint8_t ndefBuf[256];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
+  TapptTimer swapTimer = TapptTimer(500);
+  // Either read mode or write mode
+  uint8_t state = 0;
 };
 
 #endif

@@ -72,8 +72,8 @@ void PacketBase::Send()
       Serial1.write('#');
     }
 
-    Serial.print(*str, HEX);
-    Serial.print(" ");
+    // Serial.print(*str, HEX);
+    // Serial.print(" ");
 
     /*send data byte*/
     Serial1.write(*str);
@@ -86,7 +86,7 @@ void PacketBase::Send()
 
   /*wait for serial data to be transfered*/
   Serial1.flush();
-  Serial.println();
+  //Serial.println();
 
   this->ResetDataPacket();
 

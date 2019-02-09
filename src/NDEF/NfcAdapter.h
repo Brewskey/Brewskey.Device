@@ -3,6 +3,7 @@
 
 #include "PN532/PN532Interface.h"
 #include "PN532/PN532.h"
+#include "PN532/tag_information.h"
 #include "NDEF/NfcTag.h"
 #include "NDEF/Ndef.h"
 
@@ -37,9 +38,8 @@ public:
   boolean clean();
 private:
   PN532 * shield;
-  byte uid[7];  // Buffer to store the returned UID
-  unsigned int uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
   unsigned int guessTagType();
+  TagInformation tagInfo;
 };
 
 #endif

@@ -37,15 +37,14 @@ void NfcAdapter::begin(boolean verbose)
 boolean NfcAdapter::tagPresent(unsigned long timeout)
 {
   uint8_t success;
-  uidLength = 0;
 
   if (timeout == 0)
   {
-    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, (uint8_t*)&uidLength);
+    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo);
   }
   else
   {
-    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, (uint8_t*)&uidLength, timeout);
+    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo, timeout);
   }
   return success;
 }
@@ -61,10 +60,10 @@ boolean NfcAdapter::erase()
 boolean NfcAdapter::format()
 {
   boolean success;
-  if (uidLength == 4)
+  if (tagInfo.GetTagType() == TagInformation::MIFARE_CLASSIC)
   {
     MifareClassic mifareClassic = MifareClassic(*shield);
-    success = mifareClassic.formatNDEF(uid, uidLength);
+    success = mifareClassic.formatNDEF(&tagInfo);
   }
   else
   {
@@ -84,7 +83,7 @@ boolean NfcAdapter::clean()
     Serial.println(F("Cleaning Mifare Classic"));
 #endif
     MifareClassic mifareClassic = MifareClassic(*shield);
-    return mifareClassic.formatMifare(uid, uidLength);
+    return mifareClassic.formatMifare(tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_2)
   {
@@ -94,6 +93,9 @@ boolean NfcAdapter::clean()
     MifareUltralight ultralight = MifareUltralight(*shield);
     return ultralight.clean();
   }
+  else if (type == TAG_TYPE_4) {
+    // TODO - Use DESFire code
+  }
   else
   {
     Serial.print(F("No driver for card type ")); Serial.println(type);
@@ -101,7 +103,6 @@ boolean NfcAdapter::clean()
   }
 
 }
-
 
 NfcTag NfcAdapter::read()
 {
@@ -113,7 +114,7 @@ NfcTag NfcAdapter::read()
     Serial.println(F("Reading Mifare Classic"));
 #endif
     MifareClassic mifareClassic = MifareClassic(*shield);
-    return mifareClassic.read(uid, uidLength);
+    return mifareClassic.read(tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_2)
   {
@@ -121,18 +122,21 @@ NfcTag NfcAdapter::read()
     Serial.println(F("Reading Mifare Ultralight"));
 #endif
     MifareUltralight ultralight = MifareUltralight(*shield);
-    return ultralight.read(uid, uidLength);
+    return ultralight.read(tagInfo.uid, tagInfo.uidLength);
+  }
+  else if (type == TAG_TYPE_4) {
+    // TODO - Use DESFire code
   }
   else if (type == TAG_TYPE_UNKNOWN)
   {
     Serial.print(F("Can not determine tag type"));
-    return NfcTag(uid, uidLength);
+    return NfcTag(tagInfo.uid, tagInfo.uidLength);
   }
   else
   {
     Serial.print(F("No driver for card type ")); Serial.println(type);
     // TODO should set type here
-    return NfcTag(uid, uidLength);
+    return NfcTag(tagInfo.uid, tagInfo.uidLength);
   }
 
 }
@@ -148,7 +152,7 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
     Serial.println(F("Writing Mifare Classic"));
 #endif
     MifareClassic mifareClassic = MifareClassic(*shield);
-    success = mifareClassic.write(ndefMessage, uid, uidLength);
+    success = mifareClassic.write(ndefMessage, tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_2)
   {
@@ -156,7 +160,10 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
     Serial.println(F("Writing Mifare Ultralight"));
 #endif
     MifareUltralight mifareUltralight = MifareUltralight(*shield);
-    success = mifareUltralight.write(ndefMessage, uid, uidLength);
+    success = mifareUltralight.write(ndefMessage, tagInfo.uid, tagInfo.uidLength);
+  }
+  else if (type == TAG_TYPE_4) {
+    // TODO - Use DESFire code
   }
   else if (type == TAG_TYPE_UNKNOWN)
   {
@@ -177,24 +184,22 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
 // Need to follow spec for Card Identification. Maybe AN1303, AN1305 and ???
 unsigned int NfcAdapter::guessTagType()
 {
+  switch (this->tagInfo.GetTagType()) {
+    case TagInformation::DESFIRE_EV1:
+    case TagInformation::DESFIRE_EV1_RANDOM: {
+      return TAG_TYPE_4;
+    }
 
-  // 4 byte id - Mifare Classic
-  //  - ATQA 0x4 && SAK 0x8
-  // 7 byte id
-  //  - ATQA 0x44 && SAK 0x8 - Mifare Classic
-  //  - ATQA 0x44 && SAK 0x0 - Mifare Ultralight NFC Forum Type 2
-  //  - ATQA 0x344 && SAK 0x20 - NFC Forum Type 4
+    case TagInformation::MIFARE_CLASSIC: {
+      return TAG_TYPE_MIFARE_CLASSIC;
+    }
 
-  if (uidLength == 4)
-  {
-    // Android will try to interact with the reader (beam???) so return
-    // unknown here.  This logic in the function should really be fleshed
-    // out instead...
-    return TAG_TYPE_UNKNOWN;
-    //return TAG_TYPE_MIFARE_CLASSIC;
-  }
-  else
-  {
-    return TAG_TYPE_2;
+    case TagInformation::MIFARE_ULTRALIGHT: {
+      return TAG_TYPE_2;
+    }
+
+    default: {
+      return TAG_TYPE_UNKNOWN;
+    }
   }
 }

@@ -49,7 +49,7 @@ void PN532_SPI::begin()
 void PN532_SPI::wakeup()
 {
   digitalWrite(_ss, LOW);
-  delay(500);
+  delay(2);
   digitalWrite(_ss, HIGH);
 }
 
@@ -61,10 +61,11 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
   uint16_t timer = 0;
   writeFrame(header, hlen, body, blen);
 
+  uint8_t timeout = PN532_ACK_WAIT_TIME;
   while (!isReady()) {
     delay(1);
-    timer += 1;
-    if (timer > PN532_ACK_WAIT_TIME) {
+    timeout--;
+    if (0 <= timeout) {
       DMSG("Time out when waiting for ACK\r\n");
       return -2;
     }
@@ -82,14 +83,15 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
   uint16_t time = 0;
   while (!isReady()) {
     delay(1);
-    time += 1;
+    time++;
     if (timeout > 0 && time > timeout) {
+      Serial.println("TIMEOUT");
       return PN532_TIMEOUT;
     }
   }
 
   digitalWrite(_ss, LOW);
-  //delay(2);
+  delay(1);
 
   int16_t result;
   do {
@@ -180,7 +182,7 @@ boolean PN532_SPI::isReady()
 
 void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
   digitalWrite(_ss, LOW);
-  //delay(1);               // wake up PN532
+  delay(2);               // wake up PN532
 
   write(DATA_WRITE);
   write(PN532_PREAMBLE);
@@ -225,7 +227,7 @@ int8_t PN532_SPI::readAckFrame()
   uint8_t ackBuf[sizeof(PN532_ACK)];
 
   digitalWrite(_ss, LOW);
-  //delay(1);
+  delay(1);
   write(DATA_READ);
 
   if (receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0) {

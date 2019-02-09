@@ -268,21 +268,22 @@ bool PN532::setPassiveActivationRetries(uint8_t maxRetries)
     Waits for an ISO14443A target to enter the field
 
     @param  cardBaudRate  Baud rate of the card
-    @param  uid           Pointer to the array that will be populated
-                          with the card's UID (up to 7 bytes)
-    @param  uidLength     Pointer to the variable that will hold the
-                          length of the card's UID.
+    @param  tagInfo       Contains all the information about the current tag.
     @param  timeout       The number of tries before timing out
     @param  inlist        If set to true, the card will be inlisted
 
     @returns 1 if everything executed properly, 0 for an error
 */
 /**************************************************************************/
-bool PN532::readPassiveTargetID(uint8_t cardbaudrate, uint8_t *uid, uint8_t *uidLength, uint16_t timeout, bool inlist)
+bool PN532::readPassiveTargetID(uint8_t cardbaudrate, TagInformation *tagInfo, uint16_t timeout, bool inlist)
 {
   pn532_packetbuffer[0] = PN532_COMMAND_INLISTPASSIVETARGET;
   pn532_packetbuffer[1] = 1;  // max 1 cards at once (we can set this to 2 later)
   pn532_packetbuffer[2] = cardbaudrate;
+
+  tagInfo->sens_res = 0;
+  tagInfo->sak = 0;
+  tagInfo->uidLength = 0;
 
   if (HAL(writeCommand)(pn532_packetbuffer, 3)) {
     return 0x0;  // command failed
@@ -309,29 +310,24 @@ bool PN532::readPassiveTargetID(uint8_t cardbaudrate, uint8_t *uid, uint8_t *uid
   if (pn532_packetbuffer[0] != 1)
     return 0;
 
-  uint16_t sens_res = pn532_packetbuffer[2];
-  sens_res <<= 8;
-  sens_res |= pn532_packetbuffer[3];
-
+  uint16_t sens_res = ((uint16_t)pn532_packetbuffer[2] << 8) | pn532_packetbuffer[3];
   uint16_t sak = pn532_packetbuffer[4];
+  uint8_t uidLength = pn532_packetbuffer[5];
+
+  tagInfo->sens_res = sens_res;
+  tagInfo->sak = sak;
+  tagInfo->uidLength = uidLength;
 
   DMSG("ATQA: 0x");  DMSG_HEX(sens_res);
   DMSG("\r\n");
   DMSG("SAK: 0x");  DMSG_HEX(sak);
   DMSG("\r\n");
+  DMSG("UID Length: ");  DMSG_INT(uidLength);
+  DMSG("\r\n");
 
-  /* if card is not mifare ultralight */
-  if (sens_res != 0x44 || sak != 0x0) {
-    DMSG("\r\n");
-    DMSG("Card is not mifare ultralight");
-    DMSG("\r\n");
-    return 0;
-  }
 
-  *uidLength = pn532_packetbuffer[5];
-
-  for (uint8_t i = 0; i < pn532_packetbuffer[5]; i++) {
-    uid[i] = pn532_packetbuffer[6 + i];
+  for (uint8_t i = 0; i < uidLength; i++) {
+    tagInfo->uid[i] = pn532_packetbuffer[6 + i];
   }
 
   if (inlist) {

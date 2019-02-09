@@ -197,14 +197,14 @@ bool MifareClassic::decodeTlv(byte *data, int &messageLength, int &messageStartI
 
 // Intialized NDEF tag contains one empty NDEF TLV 03 00 FE - AN1304 6.3.1
 // We are formatting in read/write mode with a NDEF TLV 03 03 and an empty NDEF record D0 00 00 FE - AN1304 6.3.2
-boolean MifareClassic::formatNDEF(byte * uid, unsigned int uidLength)
+boolean MifareClassic::formatNDEF(TagInformation *tagInfo)
 {
   uint8_t keya[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
   uint8_t emptyNdefMesg[16] = { 0x03, 0x03, 0xD0, 0x00, 0x00, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   uint8_t sectorbuffer0[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   uint8_t sectorbuffer4[16] = { 0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7, 0x7F, 0x07, 0x88, 0x40, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-  boolean success = _nfcShield->mifareclassic_AuthenticateBlock(uid, uidLength, 0, 0, keya);
+  boolean success = _nfcShield->mifareclassic_AuthenticateBlock(tagInfo->uid, tagInfo->uidLength, 0, 0, keya);
   if (!success)
   {
     Serial.println(F("Unable to authenticate block 0 to enable card formatting!"));
@@ -218,7 +218,7 @@ boolean MifareClassic::formatNDEF(byte * uid, unsigned int uidLength)
   else
   {
     for (int i = 4; i < 64; i += 4) {
-      success = _nfcShield->mifareclassic_AuthenticateBlock(uid, uidLength, i, 0, keya);
+      success = _nfcShield->mifareclassic_AuthenticateBlock(tagInfo->uid, tagInfo->uidLength, i, 0, keya);
 
       if (success) {
         if (i == 4)  // special handling for block 4
@@ -249,9 +249,8 @@ boolean MifareClassic::formatNDEF(byte * uid, unsigned int uidLength)
         }
       }
       else {
-        unsigned int iii = uidLength;
         Serial.print(F("Unable to authenticate block ")); Serial.println(i);
-        _nfcShield->readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, (uint8_t*)&iii);
+        _nfcShield->readPassiveTargetID(PN532_MIFARE_ISO14443A, tagInfo);
       }
     }
   }

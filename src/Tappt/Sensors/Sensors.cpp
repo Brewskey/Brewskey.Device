@@ -92,7 +92,7 @@ int Sensors::Tick() {
   if (
     !this->isWaitingForResponse
   ) {
-    Serial.println("Send");
+    //Serial.println("Send");
     this->sendPackets[this->sendIndex].Send();
     this->sendIndex++;
     this->sendIndex = this->sendIndex % this->boxCount;

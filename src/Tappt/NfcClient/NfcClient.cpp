@@ -1,6 +1,7 @@
 #include "NfcClient.h"
 
-#define EMULATE_TAG_TIME 300
+#define READ_TAG_TIME 200
+#define EMULATE_TAG_TIME 600
 
 NfcClient::NfcClient() :
 #ifdef SPI_HW_MODE
@@ -13,6 +14,8 @@ NfcClient::NfcClient() :
 #if DISABLE_NFC == 1
   return;
 #endif
+  //this->swapTimer.Start();
+
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
     DMSG("Error initializing PN532\r\n");
@@ -68,23 +71,33 @@ int NfcClient::Tick()
 #if DISABLE_NFC == 1
   return 0;
 #endif
-  NfcState::value output;
+return this->ReadMessage();
+return this->SendMessage();
 
-  output = this->SendMessage();
-
-  if (output != NfcState::NO_MESSAGE) {
-    return output;
+  this->swapTimer.Tick();
+  if (!this->swapTimer.ShouldTrigger()) {
+  //  return NfcState::NO_MESSAGE;
   }
+  //pn532.inRelease();
 
-  return output;
+  this->state++;
+  this->state %= 2;
 
-  return this->ReadMessage();
+  switch (this->state) {
+    case 0: {
+      return this->SendMessage();
+    }
+
+    case 1: {
+      return this->ReadMessage();
+    }
+  }
 }
 
 NfcState::value NfcClient::ReadMessage()
 {
   // If reading authentication from a tag
-  if (!this->nfcAdapter.tagPresent(70))
+  if (!this->nfcAdapter.tagPresent(READ_TAG_TIME))
   {
     Serial.println("Tag not present");
     return NfcState::NO_MESSAGE;
