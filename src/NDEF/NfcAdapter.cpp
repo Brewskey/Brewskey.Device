@@ -126,6 +126,10 @@ NfcTag NfcAdapter::read()
   }
   else if (type == TAG_TYPE_4) {
     // TODO - Use DESFire code
+  #ifdef NDEF_DEBUG
+      Serial.println(F("Reading DESFire EV1"));
+  #endif
+    return NfcTag(tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_UNKNOWN)
   {
