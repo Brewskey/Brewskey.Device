@@ -46,6 +46,12 @@ boolean NfcAdapter::tagPresent(unsigned long timeout)
   {
     success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo, timeout);
   }
+
+  // Only try to read the tags if we know it
+  if (this->tagInfo.GetTagType() == TagInformation::UNKNOWN) {
+    return 0;
+  }
+
   return success;
 }
 

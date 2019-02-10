@@ -7,6 +7,8 @@
 #define DATA_WRITE      1
 #define DATA_READ       3
 
+bool shouldWrite = true;
+
 #ifdef SPI_HW_MODE
 PN532_SPI::PN532_SPI(SPIClass &spi, uint8_t ss)
 {
@@ -81,11 +83,14 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
 int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 {
   uint16_t time = 0;
+
+  DMSG(">");
+
   while (!isReady()) {
     delay(1);
     time++;
     if (timeout > 0 && time > timeout) {
-      Serial.println("TIMEOUT");
+      Serial.println("TIMEOUT\r\n");
       return PN532_TIMEOUT;
     }
   }
@@ -135,9 +140,6 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
       return PN532_INVALID_FRAME;
     }
 
-    DMSG(">");
-    DMSG_HEX(cmd);
-
     if (receive(buf, length[0], timeout) != length[0]) {
       DMSG("\r\nTimeout???");
       return PN532_TIMEOUT;
@@ -146,10 +148,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     uint8_t sum = PN532_PN532TOHOST + cmd;
     for (uint8_t i = 0; i < length[0]; i++) {
       sum += buf[i];
-      DMSG_HEX(buf[i]);
     }
-
-    DMSG("\r\n");
 
     /** checksum and postamble */
     if (receive(tmp, 2, timeout) <= 0) {
@@ -162,6 +161,7 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     }
 
     result = length[0];
+    DMSG("\r\n");
   } while (0);
 
   digitalWrite(_ss, HIGH);
@@ -171,16 +171,19 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
 boolean PN532_SPI::isReady()
 {
+  shouldWrite = false;
   digitalWrite(_ss, LOW);
   delay(2);
   write(STATUS_READ);
   uint8_t status = read() & 1;
   digitalWrite(_ss, HIGH);
+  shouldWrite = true;
 
   return status;
 }
 
 void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
+  DMSG("<");
   digitalWrite(_ss, LOW);
   delay(2);               // wake up PN532
 
@@ -196,19 +199,13 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
   write(PN532_HOSTTOPN532);
   uint8_t sum = PN532_HOSTTOPN532;    // sum of TFI + DATA
 
-  DMSG("<");
-
   for (uint8_t i = 0; i < hlen; i++) {
     write(header[i]);
     sum += header[i];
-
-    DMSG_HEX(header[i]);
   }
   for (uint8_t i = 0; i < blen; i++) {
     write(body[i]);
     sum += body[i];
-
-    DMSG_HEX(body[i]);
   }
 
   uint8_t checksum = ~sum + 1;        // checksum of TFI + DATA
@@ -228,10 +225,12 @@ int8_t PN532_SPI::readAckFrame()
 
   digitalWrite(_ss, LOW);
   delay(1);
+  DMSG(">");
   write(DATA_READ);
+  DMSG("\r\n");
 
   if (receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0) {
-    DMSG("Timeout\n");
+    DMSG("Timeout\r\n");
     return PN532_TIMEOUT;
   }
 
@@ -271,6 +270,9 @@ int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
 }
 
 void PN532_SPI::write(uint8_t data) {
+  if (shouldWrite) {
+    DMSG_HEX(data);
+  }
 #ifdef SPI_HW_MODE
   SPI.transfer(data);
 #else
@@ -278,7 +280,7 @@ void PN532_SPI::write(uint8_t data) {
   PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Start with Data Low (MODE0)
 
   for (uint8_t bit = 0; bit < 8; bit++) {
-    asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
     PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low
     if (data & (1 << bit)) { // walks up mask from bit 0 to bit 7
       PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Data High
@@ -286,10 +288,10 @@ void PN532_SPI::write(uint8_t data) {
     else {
       PIN_MAP[_mosi].gpio_peripheral->BRR = PIN_MAP[_mosi].gpio_pin; // Data Low
     }
-    asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
     PIN_MAP[_clk].gpio_peripheral->BSRR = PIN_MAP[_clk].gpio_pin; // Clock High (Data Shifted Out)
   }
-  asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+  asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
   PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Return Clock Low (MODE0)
   PIN_MAP[_mosi].gpio_peripheral->BSRR = PIN_MAP[_mosi].gpio_pin; // Return Data High (MODE0)
 #else
@@ -324,7 +326,7 @@ uint8_t PN532_SPI::read() {
     if (PIN_MAP[_miso].gpio_peripheral->IDR & PIN_MAP[_miso].gpio_pin) {
       x |= (1 << bit);
     }
-    //asm volatile("mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" ::: "r0", "cc", "memory");
+    //asm volatile("mov r0, r0" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" "nop" "\r\n\t" ::: "r0", "cc", "memory");
     PIN_MAP[_clk].gpio_peripheral->BRR = PIN_MAP[_clk].gpio_pin; // Clock Low (On exit, Clock Low (MODE0))
   }
 #else
@@ -339,5 +341,8 @@ uint8_t PN532_SPI::read() {
   }
 #endif //Spark
 #endif //HW SPI
+  if (shouldWrite) {
+    DMSG_HEX(x);
+  }
   return x;
 };

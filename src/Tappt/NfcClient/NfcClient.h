@@ -49,7 +49,7 @@ private:
   int messageSize;
   uint8_t ndefBuf[256];
   uint8_t uid[3] = { 0x12, 0x34, 0x56 };
-  TapptTimer swapTimer = TapptTimer(500);
+  TapptTimer swapTimer = TapptTimer(1000);
   // Either read mode or write mode
   uint8_t state = 0;
 };

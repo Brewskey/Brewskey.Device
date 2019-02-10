@@ -1,7 +1,7 @@
 #include "NfcClient.h"
 
-#define READ_TAG_TIME 200
-#define EMULATE_TAG_TIME 600
+#define READ_TAG_TIME 70
+#define EMULATE_TAG_TIME 370
 
 NfcClient::NfcClient() :
 #ifdef SPI_HW_MODE
@@ -71,27 +71,36 @@ int NfcClient::Tick()
 #if DISABLE_NFC == 1
   return 0;
 #endif
-return this->ReadMessage();
-return this->SendMessage();
+  //return this->SendMessage();
 
-  this->swapTimer.Tick();
-  if (!this->swapTimer.ShouldTrigger()) {
-  //  return NfcState::NO_MESSAGE;
-  }
+  // this->swapTimer.Tick();
+  // if (!this->swapTimer.ShouldTrigger()) {
+  //   return NfcState::NO_MESSAGE;
+  // }
+
+  //pn532.setRFField(0x02, 0x01);
   //pn532.inRelease();
 
   this->state++;
-  this->state %= 2;
+  if (this->state == 3) {
+    this->state = 0;
+  }
 
+  int result = 0;
   switch (this->state) {
     case 0: {
-      return this->SendMessage();
+      result = this->ReadMessage();
+      break;
     }
 
-    case 1: {
-      return this->ReadMessage();
+    default: {
+      result = this->SendMessage();
+      break;
     }
   }
+
+  //pn532.setRFField(0x02, 0x00);
+  return result;
 }
 
 NfcState::value NfcClient::ReadMessage()
