@@ -71,7 +71,7 @@ int NfcClient::Tick()
 #if DISABLE_NFC == 1
   return 0;
 #endif
-  //return this->SendMessage();
+  //return this->ReadMessage();
 
   // this->swapTimer.Tick();
   // if (!this->swapTimer.ShouldTrigger()) {

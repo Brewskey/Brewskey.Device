@@ -7,8 +7,6 @@
 #define DATA_WRITE      1
 #define DATA_READ       3
 
-bool shouldWrite = true;
-
 #ifdef SPI_HW_MODE
 PN532_SPI::PN532_SPI(SPIClass &spi, uint8_t ss)
 {
@@ -84,8 +82,6 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 {
   uint16_t time = 0;
 
-  DMSG(">");
-
   while (!isReady()) {
     delay(1);
     time++;
@@ -97,6 +93,8 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
   digitalWrite(_ss, LOW);
   delay(1);
+
+  DMSG("RX:");
 
   int16_t result;
   do {
@@ -171,19 +169,16 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
 boolean PN532_SPI::isReady()
 {
-  shouldWrite = false;
   digitalWrite(_ss, LOW);
   delay(2);
   write(STATUS_READ);
   uint8_t status = read() & 1;
   digitalWrite(_ss, HIGH);
-  shouldWrite = true;
 
   return status;
 }
 
 void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen) {
-  DMSG("<");
   digitalWrite(_ss, LOW);
   delay(2);               // wake up PN532
 
@@ -199,18 +194,30 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
   write(PN532_HOSTTOPN532);
   uint8_t sum = PN532_HOSTTOPN532;    // sum of TFI + DATA
 
+  DMSG("TX:");
+  DMSG_HEX(PN532_PREAMBLE);
+  DMSG_HEX(PN532_STARTCODE1);
+  DMSG_HEX(PN532_STARTCODE2);
+  DMSG_HEX(length);
+  DMSG_HEX((uint8_t)(~length + 1));
+  DMSG_HEX(PN532_HOSTTOPN532);
+
   for (uint8_t i = 0; i < hlen; i++) {
     write(header[i]);
     sum += header[i];
+    DMSG_HEX(header[i]);
   }
   for (uint8_t i = 0; i < blen; i++) {
     write(body[i]);
     sum += body[i];
+    DMSG_HEX(body[i]);
   }
 
   uint8_t checksum = ~sum + 1;        // checksum of TFI + DATA
   write(checksum);
   write(PN532_POSTAMBLE);
+  DMSG_HEX(checksum);
+  DMSG_HEX(PN532_POSTAMBLE);
 
   digitalWrite(_ss, HIGH);
 
@@ -225,14 +232,14 @@ int8_t PN532_SPI::readAckFrame()
 
   digitalWrite(_ss, LOW);
   delay(1);
-  DMSG(">");
   write(DATA_READ);
-  DMSG("\r\n");
 
+  DMSG("RX:");
   if (receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0) {
     DMSG("Timeout\r\n");
     return PN532_TIMEOUT;
   }
+  DMSG("\r\n");
 
   digitalWrite(_ss, HIGH);
 
@@ -264,15 +271,13 @@ int8_t PN532_SPI::receive(uint8_t *buf, int len, uint16_t timeout)
       }
     }
     buf[read_bytes] = (uint8_t)ret;
+    DMSG_HEX(ret);
     read_bytes++;
   }
   return read_bytes;
 }
 
 void PN532_SPI::write(uint8_t data) {
-  if (shouldWrite) {
-    DMSG_HEX(data);
-  }
 #ifdef SPI_HW_MODE
   SPI.transfer(data);
 #else
@@ -341,8 +346,5 @@ uint8_t PN532_SPI::read() {
   }
 #endif //Spark
 #endif //HW SPI
-  if (shouldWrite) {
-    DMSG_HEX(x);
-  }
   return x;
 };
