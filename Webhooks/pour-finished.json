@@ -3,10 +3,13 @@
     "url": "https://brewskey.com/api/pour/finish",
     "requestType": "POST",
     "json": {
-    	"authToken": "{{authToken}}",
-    	"pourKey": "{{pourKey}}",
+        "authToken": "{{authToken}}",
+        "pourKey": "{{pourKey}}",
+        "pourDeviceEndTime": "{{end}}",
+        "pourDeviceStartTime": "{{start}}",
         "pulses": "{{pulses}}",
-    	"tapId": "{{tapId}}"
+        "tapId": "{{tapId}}",
+    	"totp": "{{totp}}"
     },
     "mydevices": true
 }
