@@ -82,6 +82,8 @@ void KegeratorStateMachine::SetState(KegeratorState::e newState) {
 	    this->display->SetText("Disabled", 16, 35);
 	    this->displayChangeCount++;
 
+			this->openValveTimer.Stop();
+
 	    this->StopPouring();
 	    break;
 	  }
@@ -277,7 +279,10 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
 
   this->display->BeginBatch();
   this->display->EndBatch();
-  this->totpDisplay->Reset();
+
+	if (settings->deviceStatus == DeviceStatus::ACTIVE) {
+		this->totpDisplay->Reset();
+	}
 
   this->nfcTimer.stop();
   this->nfcTimer.start();

@@ -86,11 +86,11 @@ void ServerLink::Initialize(const char* event, const char* data) {
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
-  this->settings.isTOTPDisabled = response.substring(start, end).toInt();
+  this->settings.isTOTPDisabled = response.substring(start, end) == "true";
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
-  this->settings.isScreenDisabled = response.substring(start, end).toInt();
+  this->settings.isScreenDisabled = response.substring(start, end) == "true";
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 

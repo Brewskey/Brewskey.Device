@@ -70,15 +70,15 @@ TEST_CASE("ServerLink", "[Initialize]") {
     snprintf(
       input,
       sizeof(input),
-      "~%s~%s~%s~%d~%s~%d~%d~%d~%d~%d",
+      "~%s~%s~%s~%d~%s~%d~%s~%s~%d~%d",
       s.deviceId.c_str(),
       s.authorizationToken.c_str(),
       tapIDs.c_str(),
       s.deviceStatus,
       pulses.c_str(),
       s.ledBrightness,
-      s.isTOTPDisabled,
-      s.isScreenDisabled,
+      s.isTOTPDisabled ? "true" : "false",
+      s.isScreenDisabled ? "true" : "false",
       s.secondsToStayOpen,
       s.timeForValveOpen
     );
