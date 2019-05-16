@@ -40,11 +40,16 @@ TEST_CASE("ServerLink", "[Initialize]") {
 
     return s.authorizationToken.compareTo(other.authorizationToken) == 0 &&
       s.deviceId.compareTo(other.deviceId) == 0 &&
-      s.deviceStatus == other.deviceStatus;
+      s.deviceStatus == other.deviceStatus &&
+      s.isScreenDisabled == other.isScreenDisabled &&
+      s.isTOTPDisabled == other.isTOTPDisabled &&
+      s.ledBrightness == other.ledBrightness &&
+      s.secondsToStayOpen == other.secondsToStayOpen &&
+      s.timeForValveOpen == other.timeForValveOpen;
   };
 
   auto serializeDeviceSettings = [](DeviceSettings &s) {
-    char input[200];
+    char input[300];
 
     String tapIDs;
     String pulses;
@@ -65,12 +70,17 @@ TEST_CASE("ServerLink", "[Initialize]") {
     snprintf(
       input,
       sizeof(input),
-      "~%s~%s~%s~%d~%s",
+      "~%s~%s~%s~%d~%s~%d~%d~%d~%d~%d",
       s.deviceId.c_str(),
       s.authorizationToken.c_str(),
       tapIDs.c_str(),
       s.deviceStatus,
-      pulses.c_str()
+      pulses.c_str(),
+      s.ledBrightness,
+      s.isTOTPDisabled,
+      s.isScreenDisabled,
+      s.secondsToStayOpen,
+      s.timeForValveOpen
     );
     return String(input);
   };
@@ -225,6 +235,32 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.pulsesPerGallon = new uint[1]{ 1 };
       s.tapCount = 1;
       s.tapIds = new uint32_t[1]{ 1 };
+
+      String input = serializeDeviceSettings(s);
+
+      ServerLink link(&stateMock.get());
+      When(Method(stateMock, Initialize)
+        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+
+      link.Initialize("", input.c_str());
+      Verify(Method(stateMock, Initialize)).Once();
+    }
+
+
+    SECTION("New Settings") {
+      fakeit::Mock<KegeratorStateMachine> stateMock;
+      DeviceSettings s;
+      s.authorizationToken = "totpKey";
+      s.deviceId = "deviceID";
+      s.deviceStatus = DeviceStatus::UNLOCKED;
+      s.pulsesPerGallon = new uint[1]{ 1 };
+      s.tapCount = 1;
+      s.tapIds = new uint32_t[1]{ 1 };
+      s.isScreenDisabled = true;
+      s.isTOTPDisabled = true;
+      s.ledBrightness = 20;
+      s.secondsToStayOpen = 3000;
+      s.timeForValveOpen = 10;
 
       String input = serializeDeviceSettings(s);
 

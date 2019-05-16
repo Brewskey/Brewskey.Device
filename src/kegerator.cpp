@@ -4,7 +4,6 @@
 //#define NDEF_DEBUG 1
 #include "Tappt/Pins.h"
 #include "Tappt/Display/Display.h"
-#include "Tappt/led/LED.h"
 #include "Tappt/KegeratorStateMachine/KegeratorStateMachine.h"
 #include "Tappt/NfcClient/NfcClient.h"
 #include "Tappt/Sensors/Sensors.h"
@@ -12,11 +11,6 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 #include "TOTP/TOTP.h"
 
-void setup(void);
-void loop(void);
-HAL_USB_USART_Config acquireUSBSerial1Buffer();
-void serialEvent1();
-#line 15 "c:/dev/Brewskey/Brewskey.Device/src/kegerator.ino"
 #ifdef TEST_MODE
 SYSTEM_MODE(SEMI_AUTOMATIC);
 #endif
@@ -27,7 +21,6 @@ PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
 #define MILLISECONDS_IN_DAY 86400000
 
 Display *display;
-LED led;
 KegeratorStateMachine *stateMachine;
 NfcClient *nfcClient;
 #ifdef EXPANSION_BOX_PIN
@@ -37,9 +30,22 @@ Sensors sensors = Sensors(reader);
 Sensors sensors = Sensors();
 #endif
 TapptTimer timeSync = TapptTimer(MILLISECONDS_IN_DAY);
+void setupLEDs(void)
+{
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
+  RGB.brightness(255);
+  RGB.control(false);
+  RGB.mirrorTo(RED_PIN, GREEN_PIN, BLUE_PIN, true, true);
+}
+
+STARTUP(setupLEDs());
 
 void setup(void)
 {
+  System.on(setup_begin, setupLEDs);
+
   RGB.control(true);
   RGB.color(255, 255, 255);
   display = new Display();

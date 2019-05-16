@@ -10,7 +10,7 @@ class ServerLink {
 public:
   ServerLink(IKegeratorStateMachine *kegeratorStateMachine);
   void AuthorizePour(uint32_t deviceId, String authenticationKey);
-  void SendPourToServer(uint32_t tapId, uint32_t totalPulses, String authenticationKey, uint32_t pourStartTime, uint32_t pourEndTime);
+  void SendPourToServer(uint32_t tapId, uint32_t totalPulses, String authenticationKey, String totp, uint32_t pourStartTime, uint32_t pourEndTime);
 
   // public for testing
   void Initialize(const char* event, const char* data);

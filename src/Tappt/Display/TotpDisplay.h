@@ -13,6 +13,7 @@ public:
 
   void Reset();
   void Setup(DeviceSettings* settings, Tap* taps, uint8_t tapCount);
+  String GetTOTP() { return this->currentTotp; }
   virtual int Tick();
 private:
   Display * display;

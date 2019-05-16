@@ -2,7 +2,7 @@
     "event": "tappt_initialize",
     "mydevices": true,
     "requestType": "GET",
-    "responseTemplate": "~{{deviceId}}~{{totpKey}}~{{tapIds}},~{{deviceStatus}}~{{pulsesPerGallon}},",
+    "responseTemplate": "~{{deviceId}}~{{totpKey}}~{{tapIds}},~{{deviceStatus}}~{{pulsesPerGallon}},~{{ledBrightness}}~{{isTOTPDisabled}}~{{isScreenDisabled}}~{{timeForValveOpen}}~{{secondsToStayOpen}}",
     "responseTopic": "hook-response/tappt_initialize-{{SPARK_CORE_ID}}",
     "url": "https://brewskey.com/api/devices/particle/{{SPARK_CORE_ID}}/id"
 }

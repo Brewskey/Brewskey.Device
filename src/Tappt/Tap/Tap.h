@@ -8,8 +8,6 @@
 #include "Tappt/Pins.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
 
-#define BEFORE_POUR_TIME_PERIOD 5000
-#define AFTER_POUR_TIME_PERIOD 3000
 #define PULSE_EPSILON 9
 
 class Tap : public ITap {
@@ -19,7 +17,7 @@ public:
   uint32_t GetPulsesPerGallon();
   bool IsPouring();
   uint32_t GetTotalPulses();
-  void Setup(IKegeratorStateMachine *kegeratorStateMachine, uint32_t tapId, uint32_t pulsesPerGallon);
+  void Setup(IKegeratorStateMachine *kegeratorStateMachine, uint32_t tapId, uint32_t pulsesPerGallon, uint8_t timeForValveOpen);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void SetTotalPulses(uint32_t pulses);
@@ -34,6 +32,7 @@ private:
   unsigned long pourStartTime;  // is reset each time we get more pulses.
   unsigned long pourDeviceEndTime; // actual start time in UTC ticks
   unsigned long pourDeviceStartTime; // actual start time in UTC ticks
+  uint8_t timeForValveOpen; // Comes from settings -- how long the tap should wait before closing
 
   // Sometimes the expansion box and the brewskey box aren't quite in sync.
   // This makes sure we don't end up with duplicate pours.

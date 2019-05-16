@@ -16,8 +16,10 @@
 class Display {
 public:
   Display();
+  void DimScreen(bool shouldDim);
 
   void BeginBatch();
+  void DrawLogo(int color);
   void DrawIcon(int color);
   void EndBatch();
   // void FillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {

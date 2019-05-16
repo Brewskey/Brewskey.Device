@@ -10,7 +10,6 @@
 #include "NDEF/NfcAdapter.h"
 
 #include "Tappt/ITick.h"
-#include "Tappt/led/LED.h"
 #include "Tappt/Pins.h"
 #include "Tappt/ServerLink/ServerLink.h"
 #include "Tappt/TapptTimer/TapptTimer.h"

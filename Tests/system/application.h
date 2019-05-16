@@ -55,7 +55,7 @@
 #define WKP 0
 #define RX 0
 #define TX 0
-
+#define STARTUP(x)
 
 #if defined(IS_WINDOWS)
 #define __attribute__(A)
@@ -72,8 +72,10 @@ extern void delay(T timeout)
 class _RGB {
   typedef std::function<void(void)> callback_fn;
 public:
+  void brightness(char r) {}
   void control(bool val) {}
   void color(char r, char g, char b) {}
+  void mirrorTo(char r, char g, char b, bool v1, bool v2) {}
   template <typename T>
   void onChange(void (T::*handler)(uint8_t, uint8_t, uint8_t), T *instance) {
   }
@@ -95,10 +97,14 @@ public:
   uint now() { return 0; }
 };
 
+#define setup_begin 0
 class _System {
+  typedef std::function<void(void)> fn;
+
 public:
   byte freeMemory() { return 0; }
   String deviceID() { return ""; }
+  void on(byte b, fn func) {}
 };
 
 class Timer {

@@ -8,15 +8,11 @@
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/KegeratorStateMachine/KegeratorState.h"
 #include "Tappt/Tap/Tap.h"
-#include "Tappt/led/LED.h"
 #include "Tappt/Pins.h"
 #include "Tappt/NfcClient/NfcClient.h"
 #include "Tappt/Sensors/Sensors.h"
 #include "Tappt/ServerLink/ServerLink.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
-
-//#define TIME_TO_POUR =
-#define MILLISECONDS_IN_HOUR 3600000
 
 class KegeratorStateMachine : public IKegeratorStateMachine {
 public:
@@ -71,5 +67,5 @@ private:
   Timer nfcTimer = Timer(1, &KegeratorStateMachine::NfcLoop, *this);
 
   // Add extra delay so the server can switch this over instead of us
-  TapptTimer openValveTimer = TapptTimer(3000, 3 * MILLISECONDS_IN_HOUR + 30000);
+  TapptTimer openValveTimer = TapptTimer(3000);
 };

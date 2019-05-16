@@ -79,6 +79,28 @@ void ServerLink::Initialize(const char* event, const char* data) {
   end = response.indexOf(delimeter, start);
 
   String pulsesPerGallon = response.substring(start, end);
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.ledBrightness = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.isTOTPDisabled = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.isScreenDisabled = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.secondsToStayOpen = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.timeForValveOpen = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
 
   // Build out Tap IDs
   delimeter = ",";
@@ -177,17 +199,19 @@ void ServerLink::SendPourToServer(
   uint32_t tapId,
   uint32_t totalPulses,
   String authenticationKey,
+  String totp,
   uint32_t pourStartTime,
   uint32_t pourEndTime
 ) {
   sprintf(
     json,
-    "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
+    "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"totp\":\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
     this->settings.authorizationToken.c_str(),
     tapId,
     authenticationKey != NULL && authenticationKey.length()
     ? authenticationKey.c_str()
     : "",
+    totp.c_str(),
     totalPulses,
     pourStartTime,
     pourEndTime

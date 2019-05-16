@@ -25,10 +25,13 @@ Display::Display() :
   display.begin(SWITCHCAPVCC, I2C_ADDRESS);
 #endif
   display.clearDisplay();
-  display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, 1);
-
+  this->DrawLogo(WHITE);
   display.display();
   delay(1);
+}
+
+void Display::DimScreen(bool shouldDim) {
+  display.dim(shouldDim);
 }
 
 void Display::BeginBatch() {
@@ -37,6 +40,10 @@ void Display::BeginBatch() {
 
 void Display::DrawIcon(int color) {
   display.drawBitmap(3, 12, IMG_ICON, 32, 40, color);
+}
+
+void Display::DrawLogo(int color) {
+  display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, color);
 }
 
 void Display::SetText(

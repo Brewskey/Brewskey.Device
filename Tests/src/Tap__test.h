@@ -12,7 +12,7 @@ TEST_CASE("Tap", "[GetId]") {
 
   SECTION("tap ID is equal") {
     Tap tap;
-    tap.Setup(&mock.get(), 123, 0);
+    tap.Setup(&mock.get(), 123, 0, 5);
     REQUIRE(tap.GetId() == 123);
   }
 }

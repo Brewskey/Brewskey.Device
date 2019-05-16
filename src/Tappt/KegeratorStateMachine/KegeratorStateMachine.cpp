@@ -182,8 +182,9 @@ int KegeratorStateMachine::Tick()
 
   long pourResponseDelta = millis() - this->pourResponseStartTime;
 
-  // Only check this if waiting for the response and it's greater that 5
-  // seconds
+  // Only check this if waiting for the response and it's greater that 10
+  // seconds. This authorization is coming from the server so we don't need to
+	// make it configurable
   if (
     this->state == KegeratorState::WAITING_FOR_POUR_RESPONSE &&
     pourResponseDelta > 5000
@@ -191,10 +192,10 @@ int KegeratorStateMachine::Tick()
     this->Timeout();
   }
 
-  // If the pour is authorized, you have 5 seconds to pour
+  // If the pour is authorized, you have n seconds to pour
   if (
     this->state == KegeratorState::POUR_AUTHORIZED &&
-    pourResponseDelta > 5000
+    pourResponseDelta > this->settings->timeForValveOpen * 1000
   ) {
     this->Timeout();
   }
@@ -209,8 +210,10 @@ int KegeratorStateMachine::Tick()
   this->sensors->Tick();
 
   // Rendering
-  this->displayChangeCount += this->pourDisplay->Tick();
-  this->displayChangeCount += this->totpDisplay->Tick();
+	if (this->settings->isScreenDisabled == false) {
+	  this->displayChangeCount += this->pourDisplay->Tick();
+	  this->displayChangeCount += this->totpDisplay->Tick();
+	}
 
   return 0;
 }
@@ -247,7 +250,8 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
     this->taps[i].Setup(
       this,
       settings->tapIds[i],
-      settings->pulsesPerGallon[i]
+      settings->pulsesPerGallon[i],
+			settings->timeForValveOpen
     );
   }
 
@@ -265,6 +269,11 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
     RGB.color(0, 128, 0);
     return;
   }
+
+	// Apply settings
+	RGB.brightness(this->settings->ledBrightness);
+	this->display->DimScreen(this->settings->isScreenDisabled);
+	this->openValveTimer.SetDuration(this->settings->secondsToStayOpen * 1000 + 10000);
 
   this->display->BeginBatch();
   this->display->EndBatch();
@@ -305,6 +314,10 @@ int KegeratorStateMachine::Settings(String data) {
 }
 
 int KegeratorStateMachine::StartPour(String data) {
+	// Split the pour data here
+	// shouldOpenSolenoid
+	// maxOunces
+	// shouldStayOpenUntilMaxOunces
   this->lastAuthorizedToken = data;
 
   // This is only really necessary when anonymous pours are turned off
@@ -343,6 +356,7 @@ void KegeratorStateMachine::TapStoppedPouring(
       tapID,
       totalPulses,
       authenticationKey,
+			this->totpDisplay->GetTOTP(),
 			pourStartTime,
 			pourEndTime
     );

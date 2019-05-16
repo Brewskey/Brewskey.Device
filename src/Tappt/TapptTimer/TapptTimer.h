@@ -10,6 +10,7 @@ public:
   void Start();
   void Stop();
   virtual int Tick();
+  void SetDuration(unsigned long duration = 0);
 
   bool IsRunning() { return this->isRunning; };
   bool ShouldTrigger() { return this->shouldTrigger; };

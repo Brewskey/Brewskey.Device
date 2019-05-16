@@ -43,3 +43,8 @@ int TapptTimer::Tick() {
     }
   }
 }
+
+void TapptTimer::SetDuration(unsigned long duration)
+{
+  this->duration = duration;
+}

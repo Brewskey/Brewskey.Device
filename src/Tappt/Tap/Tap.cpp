@@ -26,11 +26,13 @@ bool Tap::IsPouring() {
 void Tap::Setup(
   IKegeratorStateMachine *kegeratorStateMachine,
   uint32_t tapId,
-  uint32_t pulsesPerGallon
+  uint32_t pulsesPerGallon,
+  uint8_t timeForValveOpen
 ) {
   this->kegeratorStateMachine = kegeratorStateMachine;
   this->tapId = tapId;
   this->pulsesPerGallon = pulsesPerGallon;
+  this->timeForValveOpen = timeForValveOpen;
 }
 
 void Tap::SetAuthToken(String authenticationKey) {
@@ -69,7 +71,7 @@ int Tap::Tick() {
   }
 
   long delta = millis() - this->pourStartTime;
-  if (delta > 5000 && delta != 4294967295) {
+  if (delta > this->timeForValveOpen * 1000 && delta != 4294967295) {
     this->StopPour();
   }
 
