@@ -79,9 +79,9 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.ledBrightness,
       s.isTOTPDisabled ? "true" : "false",
       s.isScreenDisabled ? "true" : "false",
-      s.secondsToStayOpen,
-      s.timeForValveOpen
-    );
+      s.timeForValveOpen,
+      s.secondsToStayOpen
+      );
     return String(input);
   };
 

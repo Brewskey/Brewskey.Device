@@ -193,7 +193,7 @@ int KegeratorStateMachine::Tick()
   ) {
     this->Timeout();
   }
-
+	
   // If the pour is authorized, you have n seconds to pour
   if (
     this->state == KegeratorState::POUR_AUTHORIZED &&
@@ -232,7 +232,7 @@ void KegeratorStateMachine::NfcLoop() {
   if (
     nfcState == NfcState::SENT_MESSAGE ||
     nfcState == NfcState::READ_MESSAGE
-    ) {
+  ) {
     this->pourResponseStartTime = millis();
     this->SetState(KegeratorState::WAITING_FOR_POUR_RESPONSE);
   }
@@ -280,7 +280,10 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   this->display->BeginBatch();
   this->display->EndBatch();
 
-	if (settings->deviceStatus == DeviceStatus::ACTIVE) {
+	if (
+		settings->deviceStatus == DeviceStatus::ACTIVE ||
+		settings->deviceStatus == DeviceStatus::UNLOCKED
+	) {
 		this->totpDisplay->Reset();
 	}
 

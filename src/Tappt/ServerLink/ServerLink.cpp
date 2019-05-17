@@ -94,11 +94,11 @@ void ServerLink::Initialize(const char* event, const char* data) {
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
-  this->settings.secondsToStayOpen = response.substring(start, end).toInt();
+  this->settings.timeForValveOpen = response.substring(start, end).toInt();
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
-  this->settings.timeForValveOpen = response.substring(start, end).toInt();
+  this->settings.secondsToStayOpen = response.substring(start, end).toInt();
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
