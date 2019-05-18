@@ -17,13 +17,13 @@
 // 3 - P1 Redboard - Seeed NFC
 // 4 - PCB v1/v2 - P1 + PN532 Chip (no screen + I2C screen)
 // 5 - PCB v3 - P1 + PN532 Chip
-// 6 - PCB v3/v4 - P1 + PN532 Chip + BIG SCREEN
+// 6 - PCB v3.1 - P1 + PN532 Chip + BIG SCREEN
 #define HARDWARE_CONFIG 6
 //#define SHOW_OUTPUT 2
 
 #define MAX_TAP_COUNT_PER_BOX 4
 
-#define BREWSKEY_PRODUCT_VERSION 15
+#define BREWSKEY_PRODUCT_VERSION 16
 
 #if HARDWARE_CONFIG == 0
 #define BREWSKEY_PRODUCT_ID 2

@@ -34,11 +34,12 @@ void NfcClient::Setup(ServerLink *serverLink) {
 }
 
 
-int NfcClient::Initialize(String data) {
+int NfcClient::Initialize(String data, uint8_t deviceNFCStatus) {
 #if DISABLE_NFC == 1
   return 0;
 #endif
   this->deviceId = String(data).toInt();
+  this->deviceNFCStatus = deviceNFCStatus;
   Serial.print("Device ID: "); Serial.println(deviceId);
 
   this->message = NdefMessage();
@@ -71,36 +72,56 @@ int NfcClient::Tick()
 #if DISABLE_NFC == 1
   return 0;
 #endif
-  return this->SendMessage();
 
-  // this->swapTimer.Tick();
-  // if (!this->swapTimer.ShouldTrigger()) {
-  //   return NfcState::NO_MESSAGE;
-  // }
+  switch (this->deviceNFCStatus) {
+    case DeviceNFCStatus::DISABLED: {
+      return 0;
+    }
 
-  //pn532.setRFField(0x02, 0x01);
-  //pn532.inRelease();
+    case DeviceNFCStatus::PHONE_ONLY: {
+      return this->SendMessage();
+    }
 
-  this->state++;
-  if (this->state == 3) {
-    this->state = 0;
-  }
+    case DeviceNFCStatus::CARD_ONLY: {
+      return this->ReadMessage();
+    }
 
-  int result = 0;
-  switch (this->state) {
-    case 0: {
-      result = this->ReadMessage();
-      break;
+    // NOTE: This is really experimental and doesn't work well for Android :/
+    case DeviceNFCStatus::PHONE_AND_CARD: {
+      // this->swapTimer.Tick();
+      // if (!this->swapTimer.ShouldTrigger()) {
+      //   return NfcState::NO_MESSAGE;
+      // }
+
+      //pn532.setRFField(0x02, 0x01);
+      //pn532.inRelease();
+
+      this->state++;
+      if (this->state == 3) {
+        this->state = 0;
+      }
+
+      int result = 0;
+      switch (this->state) {
+        case 0: {
+          result = this->ReadMessage();
+          break;
+        }
+
+        default: {
+          result = this->SendMessage();
+          break;
+        }
+      }
+
+      //pn532.setRFField(0x02, 0x00);
+      return result;
     }
 
     default: {
-      result = this->SendMessage();
-      break;
+      return 0;
     }
   }
-
-  //pn532.setRFField(0x02, 0x00);
-  return result;
 }
 
 NfcState::value NfcClient::ReadMessage()

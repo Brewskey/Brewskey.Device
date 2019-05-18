@@ -45,7 +45,9 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.isTOTPDisabled == other.isTOTPDisabled &&
       s.ledBrightness == other.ledBrightness &&
       s.secondsToStayOpen == other.secondsToStayOpen &&
-      s.timeForValveOpen == other.timeForValveOpen;
+      s.timeForValveOpen == other.timeForValveOpen &&
+      s.shouldInvertScreen == other.shouldInvertScreen &&
+      s.nfcStatus == other.nfcStatus;
   };
 
   auto serializeDeviceSettings = [](DeviceSettings &s) {
@@ -70,7 +72,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
     snprintf(
       input,
       sizeof(input),
-      "~%s~%s~%s~%d~%s~%d~%s~%s~%d~%d",
+      "~%s~%s~%s~%d~%s~%d~%s~%s~%d~%d~%s~%d",
       s.deviceId.c_str(),
       s.authorizationToken.c_str(),
       tapIDs.c_str(),
@@ -80,7 +82,9 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.isTOTPDisabled ? "true" : "false",
       s.isScreenDisabled ? "true" : "false",
       s.timeForValveOpen,
-      s.secondsToStayOpen
+      s.secondsToStayOpen,
+      s.shouldInvertScreen ? "true" : "false",
+      s.nfcStatus
       );
     return String(input);
   };
@@ -261,6 +265,8 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.ledBrightness = 20;
       s.secondsToStayOpen = 3000;
       s.timeForValveOpen = 10;
+      s.shouldInvertScreen = true;
+      s.nfcStatus = 2;
 
       String input = serializeDeviceSettings(s);
 

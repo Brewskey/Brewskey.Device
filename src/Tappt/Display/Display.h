@@ -17,6 +17,7 @@ class Display {
 public:
   Display();
   void DimScreen(bool shouldDim);
+  void InvertScreen(bool shouldInvert);
 
   void BeginBatch();
   void DrawLogo(int color);

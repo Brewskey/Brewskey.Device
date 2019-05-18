@@ -193,7 +193,7 @@ int KegeratorStateMachine::Tick()
   ) {
     this->Timeout();
   }
-	
+
   // If the pour is authorized, you have n seconds to pour
   if (
     this->state == KegeratorState::POUR_AUTHORIZED &&
@@ -275,6 +275,7 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
 	// Apply settings
 	RGB.brightness(this->settings->ledBrightness);
 	this->display->DimScreen(this->settings->isScreenDisabled);
+	this->display->InvertScreen(this->settings->shouldInvertScreen);
 	this->openValveTimer.SetDuration(this->settings->secondsToStayOpen * 1000 + 10000);
 
   this->display->BeginBatch();
@@ -294,7 +295,7 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   this->SetStateFromDeviceStatus();
   this->sensors->CloseSolenoids();
 
-  this->nfcClient->Initialize(this->settings->deviceId);
+  this->nfcClient->Initialize(this->settings->deviceId, this->settings->nfcStatus);
 }
 
 void KegeratorStateMachine::SetStateFromDeviceStatus() {

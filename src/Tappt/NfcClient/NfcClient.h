@@ -12,6 +12,7 @@
 #include "Tappt/ITick.h"
 #include "Tappt/Pins.h"
 #include "Tappt/ServerLink/ServerLink.h"
+#include "Tappt/ServerLink/DeviceNFCStatus.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
 //#define P2P 1
 
@@ -30,7 +31,7 @@ public:
   void Setup(ServerLink *serverLink);
   void SendPendingMessage();
   virtual int Tick();
-  int Initialize(String data);
+  int Initialize(String data, uint8_t deviceNFCStatus);
 private:
   NfcState::value ReadMessage();
   NfcState::value SendMessage();
@@ -51,6 +52,8 @@ private:
   TapptTimer swapTimer = TapptTimer(1000);
   // Either read mode or write mode
   uint8_t state = 0;
+  // How should the NFC be configured read/write/disabled
+  uint8_t deviceNFCStatus;
 };
 
 #endif

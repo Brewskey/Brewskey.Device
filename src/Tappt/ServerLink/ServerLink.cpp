@@ -102,6 +102,14 @@ void ServerLink::Initialize(const char* event, const char* data) {
   start = end + delimeter.length();
   end = response.indexOf(delimeter, start);
 
+  this->settings.shouldInvertScreen = response.substring(start, end) == "true";
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
+  this->settings.nfcStatus = response.substring(start, end).toInt();
+  start = end + delimeter.length();
+  end = response.indexOf(delimeter, start);
+
   // Build out Tap IDs
   delimeter = ",";
   start = 0;

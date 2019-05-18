@@ -309,7 +309,7 @@ void Sensors::ParsePourPacket()
 
     // Get difference to determine if it is still pouring
     uint32_t totalPulses = this->taps[tapIndex].GetTotalPulses();
-    if (pulses == totalPulses) {
+    if (pulses <= totalPulses) {
       continue;
     }
 

@@ -2,6 +2,7 @@
 #define DeviceSettings_h
 
 #include "application.h"
+#include "DeviceNFCStatus.h"
 
 struct DeviceSettings {
   String authorizationToken;
@@ -20,6 +21,8 @@ struct DeviceSettings {
   uint8_t timeForValveOpen = 5;
   // Used when going into cleaning or free-pour mode
   unsigned long secondsToStayOpen = 3600;
+  bool shouldInvertScreen = false;
+  uint8_t nfcStatus = DeviceNFCStatus::PHONE_ONLY;
 };
 
 #endif

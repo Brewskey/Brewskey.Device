@@ -33,6 +33,9 @@ Display::Display() :
 void Display::DimScreen(bool shouldDim) {
   display.dim(shouldDim);
 }
+void Display::InvertScreen(bool shouldInvert) {
+  display.invertDisplay(shouldInvert);
+}
 
 void Display::BeginBatch() {
   display.clearDisplay();
