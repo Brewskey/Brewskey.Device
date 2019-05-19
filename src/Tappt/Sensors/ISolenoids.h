@@ -3,8 +3,10 @@
 
 #include "application.h"
 #include "Tappt/KegeratorStateMachine/KegeratorState.h"
+#include "Tappt/ITick.h"
 
-class ISolenoids {
+
+class ISolenoids : public ITick {
 public:
   virtual void OpenSolenoids() = 0;
   virtual void CloseSolenoid(uint8_t solenoid) = 0;

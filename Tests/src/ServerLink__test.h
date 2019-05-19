@@ -3,7 +3,7 @@
 #include "Tappt/KegeratorStateMachine/KegeratorStateMachine.h"
 #include "Tappt/ServerLink/ServerLink.h"
 
-TEST_CASE("ServerLink", "[Initialize]") {
+TEST_CASE("ServerLink::Initialize", "[ServerLink]") {
   SECTION("empty input string") {
     fakeit::Mock<KegeratorStateMachine> stateMock;
     ServerLink link(&stateMock.get());
@@ -85,7 +85,7 @@ TEST_CASE("ServerLink", "[Initialize]") {
       s.secondsToStayOpen,
       s.shouldInvertScreen ? "true" : "false",
       s.nfcStatus
-      );
+    );
     return String(input);
   };
 
@@ -169,113 +169,203 @@ TEST_CASE("ServerLink", "[Initialize]") {
     Verify(Method(stateMock, Initialize)).Once();
   }
 
-  SECTION("Device Status") {
-    SECTION("Device Status Active") {
-      fakeit::Mock<KegeratorStateMachine> stateMock;
-      DeviceSettings s;
-      s.authorizationToken = "totpKey";
-      s.deviceId = "deviceID";
-      s.deviceStatus = DeviceStatus::ACTIVE;
-      s.pulsesPerGallon = new uint[1]{ 1 };
-      s.tapCount = 1;
-      s.tapIds = new uint32_t[1]{ 1 };
+  SECTION("Device Status Active") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = DeviceStatus::ACTIVE;
+    s.pulsesPerGallon = new uint[1]{ 1 };
+    s.tapCount = 1;
+    s.tapIds = new uint32_t[1]{ 1 };
 
-      String input = serializeDeviceSettings(s);
+    String input = serializeDeviceSettings(s);
 
-      ServerLink link(&stateMock.get());
-      When(Method(stateMock, Initialize)
-        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
 
-      link.Initialize("", input.c_str());
-      Verify(Method(stateMock, Initialize)).Once();
-    }
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
 
-    SECTION("Device Status Inactive") {
-      fakeit::Mock<KegeratorStateMachine> stateMock;
-      DeviceSettings s;
-      s.authorizationToken = "totpKey";
-      s.deviceId = "deviceID";
-      s.deviceStatus = DeviceStatus::INACTIVE;
-      s.pulsesPerGallon = new uint[1]{ 1 };
-      s.tapCount = 1;
-      s.tapIds = new uint32_t[1]{ 1 };
+  SECTION("Device Status Inactive") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = DeviceStatus::INACTIVE;
+    s.pulsesPerGallon = new uint[1]{ 1 };
+    s.tapCount = 1;
+    s.tapIds = new uint32_t[1]{ 1 };
 
-      String input = serializeDeviceSettings(s);
+    String input = serializeDeviceSettings(s);
 
-      ServerLink link(&stateMock.get());
-      When(Method(stateMock, Initialize)
-        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
 
-      link.Initialize("", input.c_str());
-      Verify(Method(stateMock, Initialize)).Once();
-    }
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
 
-    SECTION("Device Status Cleaning") {
-      fakeit::Mock<KegeratorStateMachine> stateMock;
-      DeviceSettings s;
-      s.authorizationToken = "totpKey";
-      s.deviceId = "deviceID";
-      s.deviceStatus = DeviceStatus::CLEANING;
-      s.pulsesPerGallon = new uint[1]{ 1 };
-      s.tapCount = 1;
-      s.tapIds = new uint32_t[1]{ 1 };
+  SECTION("Device Status Cleaning") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = DeviceStatus::CLEANING;
+    s.pulsesPerGallon = new uint[1]{ 1 };
+    s.tapCount = 1;
+    s.tapIds = new uint32_t[1]{ 1 };
 
-      String input = serializeDeviceSettings(s);
+    String input = serializeDeviceSettings(s);
 
-      ServerLink link(&stateMock.get());
-      When(Method(stateMock, Initialize)
-        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
 
-      link.Initialize("", input.c_str());
-      Verify(Method(stateMock, Initialize)).Once();
-    }
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
 
-    SECTION("Device Status Unlocked") {
-      fakeit::Mock<KegeratorStateMachine> stateMock;
-      DeviceSettings s;
-      s.authorizationToken = "totpKey";
-      s.deviceId = "deviceID";
-      s.deviceStatus = DeviceStatus::UNLOCKED;
-      s.pulsesPerGallon = new uint[1]{ 1 };
-      s.tapCount = 1;
-      s.tapIds = new uint32_t[1]{ 1 };
+  SECTION("Device Status Unlocked") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = DeviceStatus::UNLOCKED;
+    s.pulsesPerGallon = new uint[1]{ 1 };
+    s.tapCount = 1;
+    s.tapIds = new uint32_t[1]{ 1 };
 
-      String input = serializeDeviceSettings(s);
+    String input = serializeDeviceSettings(s);
 
-      ServerLink link(&stateMock.get());
-      When(Method(stateMock, Initialize)
-        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
 
-      link.Initialize("", input.c_str());
-      Verify(Method(stateMock, Initialize)).Once();
-    }
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
 
 
-    SECTION("New Settings") {
-      fakeit::Mock<KegeratorStateMachine> stateMock;
-      DeviceSettings s;
-      s.authorizationToken = "totpKey";
-      s.deviceId = "deviceID";
-      s.deviceStatus = DeviceStatus::UNLOCKED;
-      s.pulsesPerGallon = new uint[1]{ 1 };
-      s.tapCount = 1;
-      s.tapIds = new uint32_t[1]{ 1 };
-      s.isScreenDisabled = true;
-      s.isTOTPDisabled = true;
-      s.ledBrightness = 20;
-      s.secondsToStayOpen = 3000;
-      s.timeForValveOpen = 10;
-      s.shouldInvertScreen = true;
-      s.nfcStatus = 2;
+  SECTION("New Settings") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    DeviceSettings s;
+    s.authorizationToken = "totpKey";
+    s.deviceId = "deviceID";
+    s.deviceStatus = DeviceStatus::UNLOCKED;
+    s.pulsesPerGallon = new uint[1]{ 1 };
+    s.tapCount = 1;
+    s.tapIds = new uint32_t[1]{ 1 };
+    s.isScreenDisabled = true;
+    s.isTOTPDisabled = true;
+    s.ledBrightness = 20;
+    s.secondsToStayOpen = 3000;
+    s.timeForValveOpen = 10;
+    s.shouldInvertScreen = true;
+    s.nfcStatus = 2;
 
-      String input = serializeDeviceSettings(s);
+    String input = serializeDeviceSettings(s);
 
-      ServerLink link(&stateMock.get());
-      When(Method(stateMock, Initialize)
-        .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, Initialize)
+      .Matching([&](DeviceSettings *ds) {return deviceSettingsComparer(s, *ds); })).AlwaysReturn();
 
-      link.Initialize("", input.c_str());
-      Verify(Method(stateMock, Initialize)).Once();
-    }
+    link.Initialize("", input.c_str());
+    Verify(Method(stateMock, Initialize)).Once();
+  }
+}
+
+TEST_CASE("ServerLink::Pour", "[ServerLink]") {
+  SECTION("Fail for empty string") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    String input = "";
+
+    ServerLink link(&stateMock.get());
+    
+    link.PourResponse("", input.c_str());
+    Verify(Method(stateMock, StartPour)).Never();
+  }
+
+  SECTION("Succeeds for result where token is missing tilde") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    String input = "token";
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, StartPour)
+      .Matching([&](
+        String ds, 
+        int constraintCount, 
+        TapConstraint *constraints
+      ) {return input == ds && constraintCount == 0 && constraints == NULL; }))
+      .AlwaysReturn();
+
+    link.PourResponse("", input.c_str());
+  }
+
+  SECTION("Fails for result where there are zero constraints") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    String input = "token~0~";
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, StartPour)
+      .Matching([&](
+        String ds,
+        int constraintCount,
+        TapConstraint *constraints
+        ) {return String("token") == ds && constraintCount == 0 && constraints == NULL; }))
+      .AlwaysReturn();
+    link.PourResponse("", input.c_str());
+  }
+
+  SECTION("Succeeds for result where there is one constraint") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    String input = "token~1~1,2,100";
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, StartPour)
+      .Matching([&](
+        String ds,
+        int constraintCount,
+        TapConstraint *constraints
+        ) {
+          return String("token") == ds &&
+            constraintCount == 1 &&
+            constraints[0].tapIndex == 1 &&
+            constraints[0].type == 2 &&
+            constraints[0].pulses == 100;
+          }
+      ))
+      .AlwaysReturn();
+
+    link.PourResponse("", input.c_str());
+  }
+
+  SECTION("Succeeds for result where there is two constraints") {
+    fakeit::Mock<KegeratorStateMachine> stateMock;
+    String input = "token~2~1,2,100~4,1,300";
+
+    ServerLink link(&stateMock.get());
+    When(Method(stateMock, StartPour)
+      .Matching([&](
+        String ds,
+        int constraintCount,
+        TapConstraint *constraints
+        ) {
+          return String("token") == ds &&
+            constraintCount == 2 &&
+            constraints[0].tapIndex == 1 &&
+            constraints[0].type == 2 &&
+            constraints[0].pulses == 100 &&
+            constraints[1].tapIndex == 4 &&
+            constraints[1].type == 1 &&
+            constraints[1].pulses == 300;
+        }
+      ))
+      .AlwaysReturn();
+
+    link.PourResponse("", input.c_str());
   }
 }

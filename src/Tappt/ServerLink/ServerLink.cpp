@@ -1,5 +1,14 @@
 #include "ServerLink.h"
 
+String getNextToken(String input, int *start, String delimiter)
+{
+  int end = input.indexOf(delimiter, *start);
+  String data = input.substring(*start, end);
+  *start = end + delimiter.length();
+
+  return data;
+}
+
 ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
   this->kegeratorStateMachine = kegeratorStateMachine;
   this->settings.tapIds = NULL;
@@ -37,6 +46,7 @@ void ServerLink::CallInitialize() {
 void SetError(String message) {
   RGB.control(true);
   RGB.color(56, 56, 128);
+  Serial.print("Error: ");
   Serial.println(message);
 }
 
@@ -53,72 +63,44 @@ void ServerLink::Initialize(const char* event, const char* data) {
   this->initializeTimer.stop();
 
   String response = String(data);
-  String delimeter = "~";
+  String delimiter = "~";
   int start = 1;
-  int end = response.indexOf(delimeter, start);
+  int end = response.indexOf(delimiter, start);
 
   if (end == -1) {
     SetError("Bad Input");
     return;
   }
 
-  this->settings.deviceId = response.substring(start, end);
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
+  this->settings.deviceId = getNextToken(response, &start, delimiter);
+  this->settings.authorizationToken = getNextToken(response, &start, delimiter);
 
-  this->settings.authorizationToken = response.substring(start, end);
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
+  String tapIds = getNextToken(response, &start, delimiter);
 
-  String tapIds = response.substring(start, end);
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
+  this->settings.deviceStatus = getNextToken(response, &start, delimiter).toInt();
 
-  this->settings.deviceStatus = response.substring(start, end).toInt();
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
+  String pulsesPerGallon = getNextToken(response, &start, delimiter);
 
-  String pulsesPerGallon = response.substring(start, end);
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.ledBrightness = response.substring(start, end).toInt();
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.isTOTPDisabled = response.substring(start, end) == "true";
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.isScreenDisabled = response.substring(start, end) == "true";
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.timeForValveOpen = response.substring(start, end).toInt();
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.secondsToStayOpen = response.substring(start, end).toInt();
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.shouldInvertScreen = response.substring(start, end) == "true";
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
-
-  this->settings.nfcStatus = response.substring(start, end).toInt();
-  start = end + delimeter.length();
-  end = response.indexOf(delimeter, start);
+  this->settings.ledBrightness = getNextToken(response, &start, delimiter).toInt();
+  this->settings.isTOTPDisabled = getNextToken(response, &start, delimiter) == "true";
+  this->settings.isScreenDisabled = getNextToken(response, &start, delimiter) == "true";
+  this->settings.timeForValveOpen = getNextToken(response, &start, delimiter).toInt();
+  this->settings.secondsToStayOpen = getNextToken(response, &start, delimiter).toInt();
+  this->settings.shouldInvertScreen = getNextToken(response, &start, delimiter) == "true";
+  this->settings.nfcStatus = getNextToken(response, &start, delimiter).toInt();
 
   // Build out Tap IDs
-  delimeter = ",";
+  delimiter = ",";
   start = 0;
-  end = tapIds.indexOf(delimeter);
   int tapCount = 0;
 
-  while (end > 0) {
-    start = end + delimeter.length();
-    end = tapIds.indexOf(delimeter, start);
+  String tapResult;
+  while (true) {
+    tapResult = getNextToken(tapIds, &start, delimiter);
+    if (tapResult == "") {
+      break;
+    }
+
     tapCount++;
   }
 
@@ -129,18 +111,14 @@ void ServerLink::Initialize(const char* event, const char* data) {
   }
   this->settings.tapIds = new uint32_t[tapCount];
   start = 0;
-  end = tapIds.indexOf(delimeter);
   int iter = 0;
-  while (end >= 0 && tapCount > 0 && iter < tapCount) {
-    this->settings.tapIds[iter] = tapIds.substring(start, end).toInt();
-    start = end + delimeter.length();
-    end = tapIds.indexOf(delimeter, start);
+  while (tapCount > 0 && iter < tapCount) {
+    this->settings.tapIds[iter] = getNextToken(tapIds, &start, delimiter).toInt();
     iter++;
   }
 
   // End Tap IDs
   start = 0;
-  end = pulsesPerGallon.indexOf(delimeter);
   iter = 0;
 
   if (this->settings.pulsesPerGallon != NULL) {
@@ -148,11 +126,8 @@ void ServerLink::Initialize(const char* event, const char* data) {
   }
 
   this->settings.pulsesPerGallon = new uint32_t[tapCount];
-  while (end >= 0 && tapCount > 0 && iter < tapCount) {
-    this->settings.pulsesPerGallon[iter] =
-      pulsesPerGallon.substring(start, end).toInt();
-    start = end + delimeter.length();
-    end = pulsesPerGallon.indexOf(delimeter, start);
+  while (tapCount > 0 && iter < tapCount) {
+    this->settings.pulsesPerGallon[iter] = getNextToken(pulsesPerGallon, &start, delimiter).toInt();
     iter++;
   }
 
@@ -194,8 +169,38 @@ int ServerLink::Pour(String data) {
     return -1;
   }
 
-  this->kegeratorStateMachine->StartPour(data);
+  int start = 0;
+  String delimiter = "~";
+  String token = getNextToken(data, &start, delimiter);
 
+  // TODO: Remove this once the firmware has rolled out for a while
+  if (token == data) {
+    this->kegeratorStateMachine->StartPour(token, 0, NULL);
+    return 0;
+  }
+
+  int constraintCount = getNextToken(data, &start, delimiter).toInt();
+  if (constraintCount == 0) {
+    this->kegeratorStateMachine->StartPour(token, 0, NULL);
+    return 0;
+  }
+
+  int iter = 0;
+  TapConstraint* constraints = new TapConstraint[constraintCount];
+  while (iter < constraintCount) {
+    String constraintString = getNextToken(data, &start, delimiter);
+
+    int constraintStart = 0;
+    TapConstraint& constraint = constraints[iter];
+    constraint.tapIndex = getNextToken(constraintString, &constraintStart, ",").toInt();
+    constraint.type = getNextToken(constraintString, &constraintStart, ",").toInt();
+    constraint.pulses = getNextToken(constraintString, &constraintStart, ",").toInt();
+
+    iter++;
+  }
+
+  this->kegeratorStateMachine->StartPour(token, constraintCount, constraints);
+  delete[] constraints;
   return 0;
 }
 

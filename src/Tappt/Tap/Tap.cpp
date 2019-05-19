@@ -5,7 +5,7 @@ Tap::Tap() {
   this->pulsesPerGallon = 0;
   this->isPouring = false;
   this->totalPulses = 0;
-  this->pourStartTime = 0;
+  this->lastTimePulsesWasSet = 0;
 }
 
 uint32_t Tap::GetId() {
@@ -35,6 +35,20 @@ void Tap::Setup(
   this->timeForValveOpen = timeForValveOpen;
 }
 
+void Tap::SetConstraint(uint8_t tapConstraintType, uint32_t constraintPulses) {
+  this->tapConstraintType = tapConstraintType;
+  this->constraintPulses = constraintPulses;
+
+  // For payments, we immediately start the pour on this tap
+  if (tapConstraintType == TapConstraintType::PURCHASE_VOLUME) {
+    this->isPouring = true;
+    this->pourDeviceStartTime = Time.now();
+
+    this->kegeratorStateMachine->TapStartedPouring(*this);
+  }
+}
+
+
 void Tap::SetAuthToken(String authenticationKey) {
   this->authenticationKey = authenticationKey;
 }
@@ -51,6 +65,8 @@ void Tap::StopPour() {
 
   this->totalPulses = 0;
   this->authenticationKey = "";
+  this->tapConstraintType = TapConstraintType::NONE;
+  this->constraintPulses = 0;
 
   if (totalPulses > PULSE_EPSILON && isPouring) {
     this->kegeratorStateMachine->TapStoppedPouring(
@@ -70,7 +86,21 @@ int Tap::Tick() {
     return 0;
   }
 
-  long delta = millis() - this->pourStartTime;
+  // Check pour constraint to see if we should stop pouring
+  if (
+    this->tapConstraintType != TapConstraintType::NONE &&
+    this->totalPulses >= this->constraintPulses
+    ) {
+    this->StopPour();
+  }
+
+  // If we have the PURCHASE_VOLUME constraint, we should exit early as we
+  // don't close after a certain amount of time
+  if (this->tapConstraintType == TapConstraintType::PURCHASE_VOLUME) {
+    return 0;
+  }
+
+  long delta = millis() - this->lastTimePulsesWasSet;
   if (delta > this->timeForValveOpen * 1000 && delta != 4294967295) {
     this->StopPour();
   }
@@ -92,7 +122,7 @@ void Tap::SetTotalPulses(uint32_t pulses) {
   }
 
   this->totalPulses = pulses;
-  this->pourStartTime = millis();
+  this->lastTimePulsesWasSet = millis();
   this->pourDeviceEndTime = Time.now();
 
   if (this->totalPulses > PULSE_EPSILON && !this->isPouring) {

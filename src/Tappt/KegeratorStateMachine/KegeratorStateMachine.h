@@ -8,6 +8,7 @@
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/KegeratorStateMachine/KegeratorState.h"
 #include "Tappt/Tap/Tap.h"
+#include "Tappt/Tap/TapConstraint.h"
 #include "Tappt/Pins.h"
 #include "Tappt/NfcClient/NfcClient.h"
 #include "Tappt/Sensors/Sensors.h"
@@ -27,7 +28,7 @@ public:
   );
   virtual int Tick();
   void Initialize(DeviceSettings *settings);
-  int StartPour(String data);
+  int StartPour(String token, int constraintCount, TapConstraint *constraints);
   int Settings(String data);
 
   void OnConfigureNextBox(uint8_t destination);

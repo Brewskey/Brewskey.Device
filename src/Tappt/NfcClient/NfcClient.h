@@ -28,7 +28,7 @@ namespace NfcState {
 class NfcClient : public ITick {
 public:
   NfcClient();
-  void Setup(ServerLink *serverLink);
+  virtual void Setup(ServerLink *serverLink);
   void SendPendingMessage();
   virtual int Tick();
   int Initialize(String data, uint8_t deviceNFCStatus);

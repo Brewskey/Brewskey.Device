@@ -3,7 +3,7 @@
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 
-TEST_CASE("Tap", "[GetId]") {
+TEST_CASE("Tap::GetId", "[Tap]") {
   fakeit::Mock<IKegeratorStateMachine> mock;
   SECTION("tap ID is empty") {
     Tap tap;

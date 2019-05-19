@@ -18,7 +18,7 @@
 
 #endif
 
-class Sensors : public ISolenoids, public ITick {
+class Sensors : public ISolenoids {
 public:
   #ifdef EXPANSION_BOX_PIN
   Sensors(PacketReader &packetReader);

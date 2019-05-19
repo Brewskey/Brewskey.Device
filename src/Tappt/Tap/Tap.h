@@ -3,6 +3,7 @@
 
 #include "application.h"
 #include "Tappt/Tap/ITap.h"
+#include "Tappt/Tap/TapConstraintType.h"
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/ITick.h"
 #include "Tappt/Pins.h"
@@ -18,6 +19,7 @@ public:
   bool IsPouring();
   uint32_t GetTotalPulses();
   void Setup(IKegeratorStateMachine *kegeratorStateMachine, uint32_t tapId, uint32_t pulsesPerGallon, uint8_t timeForValveOpen);
+  void SetConstraint(uint8_t tapConstraintType, uint32_t constraintPulses);
   virtual int Tick();
   virtual void SetAuthToken(String authenticationKey);
   virtual void SetTotalPulses(uint32_t pulses);
@@ -29,14 +31,16 @@ private:
   bool isPouring;
   uint32_t totalPulses;
   String authenticationKey;
-  unsigned long pourStartTime;  // is reset each time we get more pulses.
+  unsigned long lastTimePulsesWasSet;  // is reset each time we get more pulses.
   unsigned long pourDeviceEndTime; // actual start time in UTC ticks
   unsigned long pourDeviceStartTime; // actual start time in UTC ticks
   uint8_t timeForValveOpen; // Comes from settings -- how long the tap should wait before closing
+  uint8_t tapConstraintType = TapConstraintType::NONE;
+  uint32_t constraintPulses = 0;
 
   // Sometimes the expansion box and the brewskey box aren't quite in sync.
   // This makes sure we don't end up with duplicate pours.
-  TapptTimer pourCooldownTimer = TapptTimer(500, 400);
+  TapptTimer pourCooldownTimer = TapptTimer(500, 1000);
 };
 
 #endif

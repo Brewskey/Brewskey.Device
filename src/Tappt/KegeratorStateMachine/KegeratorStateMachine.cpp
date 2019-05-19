@@ -322,16 +322,30 @@ int KegeratorStateMachine::Settings(String data) {
   return 0;
 }
 
-int KegeratorStateMachine::StartPour(String data) {
-	// Split the pour data here
-	// shouldOpenSolenoid
-	// maxOunces
-	// shouldStayOpenUntilMaxOunces
-  this->lastAuthorizedToken = data;
+int KegeratorStateMachine::StartPour(
+	String token,
+	int constraintCount,
+	TapConstraint *constraints
+) {
+	this->lastAuthorizedToken = token;
 
-  // This is only really necessary when anonymous pours are turned off
-  // When anon pours are enabled, the solenoid isn't used.
-  this->sensors->OpenSolenoids();
+	if (constraintCount != 0 && constraints != NULL) {
+		for (uint8_t ii = 0; ii < constraintCount; ii++) {
+			TapConstraint& constraint = constraints[ii];
+			Tap& tap = this->taps[constraint.tapIndex];
+
+			if (tap.IsPouring()) {
+				continue;
+			}
+
+			tap.SetConstraint(constraint.type, constraint.pulses);
+			this->sensors->OpenSolenoid(constraint.tapIndex);
+		}
+	} else {
+	  // This is only necessary for "unlocked" mode when the taps have solenoids.
+	  this->sensors->OpenSolenoids();
+	}
+
   this->pourResponseStartTime = millis();
   this->SetState(KegeratorState::POUR_AUTHORIZED);
 
