@@ -87,22 +87,17 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout) {
   // http://www.nxp.com/documents/application_note/AN133910.pdf
   uint8_t command[] = {
       PN532_COMMAND_TGINITASTARGET,
-      0x05,                  // MODE: PICC only, Passive only
+      5, // MODE: PICC only, Passive only
 
-      0x04, 0x00,         // SENS_RES
-      0x00, 0x00, 0x00,   // NFCID1
-      0x20,               // SEL_RES
+      0x04, 0x00,       // SENS_RES
+      0x00, 0x00, 0x00, // NFCID1
+      0x20,             // SEL_RES
 
-      0x01, 0xFE,         // Parameters to build POL_RES
-      0xA2, 0xA3, 0xA4,
-      0xA5, 0xA6, 0xA7,
-      0xC0, 0xC1, 0xC2,
-      0xC3, 0xC4, 0xC5,
-      0xC6, 0xC7, 0xFF,
-      0xFF,
-      0xAA, 0x99, 0x88, //NFCID3t (10 bytes)
-      0x77, 0x66, 0x55, 0x44,
-      0x33, 0x22, 0x11,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, // FeliCaParams
+      0, 0,
+
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // NFCID3t
 
       0, // length of general bytes
       0  // length of historical bytes
@@ -156,11 +151,11 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout) {
 
     firstRead = false;
 
-    if (rwbuf[C_APDU_CLA] != 0x00) {
-      DMSG("C_APDU_CLA not zero");
-      pn532.inRelease();
-      return false;
-    }
+    // if (rwbuf[C_APDU_CLA] != 0x00) {
+    //   DMSG("C_APDU_CLA not zero");
+    //   pn532.inRelease();
+    //   return false;
+    // }
 
     uint8_t p1 = rwbuf[C_APDU_P1];
     uint8_t p2 = rwbuf[C_APDU_P2];
@@ -213,21 +208,25 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout) {
       }
       break;
     case ISO7816_READ_BINARY:
-      if (p1p2_length > NDEF_MAX_LENGTH) {
-        setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
-      }
-
       switch (currentFile) {
       case NONE_Tag_File:
         setResponse(TAG_NOT_FOUND, rwbuf, &sendlen);
         break;
       case CC_Tag_File:
-        memcpy(rwbuf, compatibility_container + p1p2_length, lc);
-        setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+        if (p1p2_length > NDEF_MAX_LENGTH) {
+          setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
+        } else {
+          memcpy(rwbuf, compatibility_container + p1p2_length, lc);
+          setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+        }
         break;
       case NDEF_Tag_File:
-        memcpy(rwbuf, ndef_file + p1p2_length, lc);
-        setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+        if (p1p2_length > NDEF_MAX_LENGTH) {
+          setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen);
+        } else {
+          memcpy(rwbuf, ndef_file + p1p2_length, lc);
+          setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+        }
         break;
       }
 
@@ -261,7 +260,7 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout) {
     }
 
     status = pn532.tgSetData(rwbuf, sendlen);
-    if (!status) {
+    if (status < 0) {
       DMSG("tgSetData failed\r\n!");
       pn532.inRelease();
       return true;
