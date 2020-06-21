@@ -5,11 +5,11 @@
 #include "DeviceNFCStatus.h"
 
 struct DeviceSettings {
-  String authorizationToken;
-  String deviceId;
+  String authorizationToken = "";
+  String deviceId = "";
   uint8_t deviceStatus;
   uint32_t  *tapIds = NULL;
-  uint8_t tapCount;
+  uint8_t tapCount = 0;
   uint32_t *pulsesPerGallon = NULL;
 
   // How bright the blue LEDs are

@@ -334,12 +334,13 @@ int KegeratorStateMachine::StartPour(
 			TapConstraint& constraint = constraints[ii];
 			Tap& tap = this->taps[constraint.tapIndex];
 
+			this->sensors->OpenSolenoid(constraint.tapIndex);
+
 			if (tap.IsPouring()) {
 				continue;
 			}
 
 			tap.SetConstraint(constraint.type, constraint.pulses);
-			this->sensors->OpenSolenoid(constraint.tapIndex);
 		}
 	} else {
 	  // This is only necessary for "unlocked" mode when the taps have solenoids.
@@ -390,9 +391,10 @@ void KegeratorStateMachine::TapStoppedPouring(
 }
 
 void KegeratorStateMachine::StopPouring() {
-  for (int i = 0; i < this->settings->tapCount; i++) {
-    if (this->taps[i].IsPouring()) {
-      this->taps[i].StopPour();
+  for (uint8_t ii = 0; ii < this->settings->tapCount; ii++) {
+    if (this->taps[ii].IsPouring()) {
+      this->taps[ii].StopPour();
+			this->sensors->ResetFlowSensor(ii);
     }
   }
 }

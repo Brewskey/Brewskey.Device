@@ -14,5 +14,5 @@ public:
 
 private:
   bool isReady = true;
-  uint8_t destination;
+  uint8_t destination = 0;
 };

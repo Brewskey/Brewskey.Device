@@ -48,6 +48,7 @@ void Sensors::Setup(
   while (Serial1.available()) {
     Serial1.read();
   }
+  this->reader.Reset();
   this->packetResponseTimer.Start();
   #endif
 }
@@ -64,7 +65,7 @@ int Sensors::Tick() {
   }
 
   this->packetResponseTimer.Tick();
-  if (this->packetResponseTimer.ShouldTrigger()) {
+  if (this->packetResponseTimer.ShouldTrigger() && !this->isParsingReaderData) {
     this->isWaitingForResponse = false;
     this->reader.Reset();
   }
@@ -236,9 +237,9 @@ void Sensors::ReadMultitap(void)
   }
 
   bool isValid = this->reader.IsValid();
-  this->reader.Reset();
   if (!isValid) {
     this->isWaitingForResponse = false;
+    this->reader.Reset();
     return;
   }
 
@@ -247,9 +248,11 @@ void Sensors::ReadMultitap(void)
 
   if (destination != 0x00) {
     this->isWaitingForResponse = false;
+    this->reader.Reset();
     return;
   }
 
+  this->isParsingReaderData = true;
   if (packetType == CONFIGURATION_RESPONSE_PACKET_TYPE)
   {
     this->ParseConfigurationPacket();
@@ -260,6 +263,8 @@ void Sensors::ReadMultitap(void)
   }
 
   this->isWaitingForResponse = false;
+  this->isParsingReaderData = false;
+  this->reader.Reset();
 }
 
 void Sensors::ParseConfigurationPacket()
@@ -309,7 +314,12 @@ void Sensors::ParsePourPacket()
 
     // Get difference to determine if it is still pouring
     uint32_t totalPulses = this->taps[tapIndex].GetTotalPulses();
-    if (pulses <= totalPulses) {
+    if (pulses == totalPulses) {
+      continue;
+    }
+
+    // Fix phantom pours
+    if (pulses == 205 && totalPulses == 0) {
       continue;
     }
 

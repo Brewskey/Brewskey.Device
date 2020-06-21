@@ -26,15 +26,15 @@ public:
   void StopPour();
 private:
   IKegeratorStateMachine * kegeratorStateMachine;
-  uint32_t tapId;
-  int pulsesPerGallon;
-  bool isPouring;
-  uint32_t totalPulses;
-  String authenticationKey;
-  unsigned long lastTimePulsesWasSet;  // is reset each time we get more pulses.
-  unsigned long pourDeviceEndTime; // actual start time in UTC ticks
-  unsigned long pourDeviceStartTime; // actual start time in UTC ticks
-  uint8_t timeForValveOpen; // Comes from settings -- how long the tap should wait before closing
+  uint32_t tapId = 0;
+  int pulsesPerGallon = 0;
+  bool isPouring = false;
+  uint32_t totalPulses = 0;
+  String authenticationKey = "";
+  unsigned long lastTimePulsesWasSet = 0;  // is reset each time we get more pulses.
+  unsigned long pourDeviceEndTime = 0; // actual start time in UTC ticks
+  unsigned long pourDeviceStartTime = 0; // actual start time in UTC ticks
+  uint8_t timeForValveOpen = 0; // Comes from settings -- how long the tap should wait before closing
   uint8_t tapConstraintType = TapConstraintType::NONE;
   uint32_t constraintPulses = 0;
 

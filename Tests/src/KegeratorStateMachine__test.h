@@ -18,8 +18,11 @@ TEST_CASE("KegeratorStateMachine::StartPour", "[KegeratorStateMachine]") {
 
   SECTION("one constraints") {
     fakeit::Mock<Display> display;
+    PacketReader cls;
+    fakeit::Mock<PacketReader> packetReader(cls);
     fakeit::Mock<NfcClient> nfcClient;
-    fakeit::Mock<Sensors> sensors;
+    Sensors sensorsCls(packetReader.get());
+    fakeit::Mock<Sensors> sensors(sensorsCls);
     When(Method(sensors, SetState)).AlwaysReturn();
     When(Method(sensors, OpenSolenoid)).AlwaysReturn();
     When(Method(nfcClient, Setup)).AlwaysReturn();

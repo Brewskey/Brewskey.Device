@@ -59,6 +59,7 @@ private:
 
   // start true so we wait to send first packet
   bool isWaitingForResponse = true;
+  bool isParsingReaderData = false;
   TapptTimer packetResponseTimer = TapptTimer(400);
 };
 

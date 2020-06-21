@@ -21,8 +21,11 @@ uint32_t Tap::GetTotalPulses() {
 }
 
 bool Tap::IsPouring() {
-  return this->isPouring;
+  return this->isPouring ||
+    // It's always "pouring" if the constraint is a purchase.
+    this->tapConstraintType == TapConstraintType::PURCHASE_VOLUME;
 }
+
 void Tap::Setup(
   IKegeratorStateMachine *kegeratorStateMachine,
   uint32_t tapId,
@@ -38,14 +41,6 @@ void Tap::Setup(
 void Tap::SetConstraint(uint8_t tapConstraintType, uint32_t constraintPulses) {
   this->tapConstraintType = tapConstraintType;
   this->constraintPulses = constraintPulses;
-
-  // For payments, we immediately start the pour on this tap
-  if (tapConstraintType == TapConstraintType::PURCHASE_VOLUME) {
-    this->isPouring = true;
-    this->pourDeviceStartTime = Time.now();
-
-    this->kegeratorStateMachine->TapStartedPouring(*this);
-  }
 }
 
 
@@ -90,7 +85,7 @@ int Tap::Tick() {
   if (
     this->tapConstraintType != TapConstraintType::NONE &&
     this->totalPulses >= this->constraintPulses
-    ) {
+  ) {
     this->StopPour();
   }
 

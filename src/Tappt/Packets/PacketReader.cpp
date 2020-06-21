@@ -55,6 +55,8 @@ void PacketReader::Reset()
   this->isPacketReady = false;
   this->isValid = false;
   this->count = 0;				/* Reset Counter - since start of packet */
+
+  memset(this->incomingBuffer, 0, sizeof(this->incomingBuffer));
 }
 
 void PacketReader::Read()

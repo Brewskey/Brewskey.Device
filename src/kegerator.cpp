@@ -1,3 +1,8 @@
+/******************************************************/
+//       THIS IS A GENERATED FILE - DO NOT EDIT       //
+/******************************************************/
+
+#line 1 "c:/dev/Brewskey/Brewskey.Device/src/kegerator.ino"
 #include "application.h"
 
 //#define DEBUG 100
@@ -11,9 +16,17 @@
 #include "Tappt/TapptTimer/TapptTimer.h"
 #include "TOTP/TOTP.h"
 
+void setupLEDs(void);
+void setup(void);
+void loop(void);
+HAL_USB_USART_Config acquireUSBSerial1Buffer();
+void serialEvent1();
+#line 14 "c:/dev/Brewskey/Brewskey.Device/src/kegerator.ino"
 #ifdef TEST_MODE
 SYSTEM_MODE(SEMI_AUTOMATIC);
 #endif
+
+// SerialLogHandler logHandler(LOG_LEVEL_ALL); //, {{"comm", LOG_LEVEL_ALL}, {"system", LOG_LEVEL_ALL}});
 
 PRODUCT_ID(BREWSKEY_PRODUCT_ID);
 PRODUCT_VERSION(BREWSKEY_PRODUCT_VERSION);
