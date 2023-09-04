@@ -132,6 +132,52 @@ uint32_t PN532::getFirmwareVersion(void)
   return response;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Read a PN532 register.
+    @param  reg  the 16-bit register address.
+    @returns  The register value.
+*/
+/**************************************************************************/
+uint32_t PN532::readRegister(uint16_t reg)
+{
+    uint32_t response;
+    pn532_packetbuffer[0] = PN532_COMMAND_READREGISTER;
+    pn532_packetbuffer[1] = (reg >> 8) & 0xFF;
+    pn532_packetbuffer[2] = reg & 0xFF;
+    if (HAL(writeCommand)(pn532_packetbuffer, 3)) {
+        return 0;
+    }
+    // read data packet
+    int16_t status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer));
+    if (0 > status) {
+        return 0;
+    }
+    response = pn532_packetbuffer[0];
+    return response;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Write to a PN532 register.
+    @param  reg  the 16-bit register address.
+    @param  val  the 8-bit value to write.
+    @returns  0 for failure, 1 for success.
+*/
+/**************************************************************************/
+uint32_t PN532::writeRegister(uint16_t reg, uint8_t val)
+{
+    uint32_t response;
+    pn532_packetbuffer[0] = PN532_COMMAND_WRITEREGISTER;
+    pn532_packetbuffer[1] = (reg >> 8) & 0xFF;
+    pn532_packetbuffer[2] = reg & 0xFF;
+    pn532_packetbuffer[3] = val;
+    if (HAL(writeCommand)(pn532_packetbuffer, 4)) {
+        return 0;
+    }
+
+    return 0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer));
+}
 
 /**************************************************************************/
 /*!
@@ -234,7 +280,7 @@ bool PN532::SAMConfig(void)
   if (HAL(writeCommand)(pn532_packetbuffer, 4))
     return false;
 
-  return (0 < HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
+  return (0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
 }
 
 /**************************************************************************/
@@ -258,7 +304,49 @@ bool PN532::setPassiveActivationRetries(uint8_t maxRetries)
   if (HAL(writeCommand)(pn532_packetbuffer, 5))
     return 0x0;  // no ACK
 
-  return (0 < HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
+  return (0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
+}
+
+/**************************************************************************/
+/*!
+    Sets the fRetryTimeout uint8_t of the RFConfiguration register
+    @param  iTimeout    page 102 user manual PN532
+                        In case n = 0 No timeout
+                        In case 1 ≤ n ≤ 16 T ( µs ) = 100 × 2 ( n − 1 )
+                        Table 17. Timings definition for RFConfiguration command
+                        Byte Value (n) Timeout Value
+                        0x00           no timeout
+                        0x01           100 µs
+                        0x02           200 µs
+                        0x03           400 µs
+                        0x04           800 µs
+                        0x05           1.6 ms
+                        0x06           3.2 ms
+                        0x07           6.4 ms
+                        0x08           12.8 ms
+                        0x09           25.6 ms
+                        0x0A           51.2 ms
+                        0x0B           102.4 ms
+                        0x0C           204.8 ms
+                        0x0D           409.6 ms
+                        0x0E           819.2 ms
+                        0x0F           1.64 sec
+                        0x10           3.28 sec
+    @returns true if everything executed properly, false for an error
+*/
+/**************************************************************************/
+bool PN532::setTimeoutComm(uint8_t iTimeout)
+{
+    pn532_packetbuffer[0] = PN532_COMMAND_RFCONFIGURATION;
+    pn532_packetbuffer[1] = 2;    // Config item 2 (Various timings)
+    pn532_packetbuffer[2] = 0;    // RFU
+    pn532_packetbuffer[3] = 0x0B; // fATR_RES_Timeout default 102.4 ms 0x0B
+    pn532_packetbuffer[4] = iTimeout; // fRetryTimeout default 51.2 ms 0x0A
+
+    if (HAL(writeCommand)(pn532_packetbuffer, 5))
+        return 0x0;  // no ACK
+
+    return (0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
 }
 
 /**************************************************************************/
@@ -282,10 +370,10 @@ bool PN532::setRFField(uint8_t autoRFCA, uint8_t rFOnOff)
     pn532_packetbuffer[2] = 0x00 | autoRFCA | rFOnOff;
 
     if (HAL(writeCommand)(pn532_packetbuffer, 3)) {
-        return 0x0;  // command failed
+        return false;
     }
 
-    return (0 < HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
+    return (0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
 }
 
 /***** ISO14443A Commands ******/
@@ -362,6 +450,38 @@ bool PN532::readPassiveTargetID(uint8_t cardbaudrate, TagInformation *tagInfo, u
   }
 
   return 1;
+}
+
+/**************************************************************************/
+/*!
+    set internal parameters of the PN532, and then to configure its behavior
+    regarding different cases.
+    @param  Flags
+    - bit 0: fNADUsed Use of the NAD information in case of initiator
+                      configuration (DEP and ISO/IEC14443-4 PCD).
+    - bit 1: fDIDUsed Use of the DID information in case of initiator
+                      configuration (or CID in case of ISO/IEC14443-4 PCD
+                      configuration).
+    - bit 2: fAutomaticATR_RES Automatic generation of the ATR_RES in case of
+                               target configuration.
+    - bit 3: RFU Must be set to 0
+    - bit 4: fAutomaticRATS Automatic generation of the RATS in case of
+                            ISO/IEC14443-4 PCD mode.
+    - bit 5: fISO14443-4_PICC The emulation of a ISO/IEC14443-4 PICC is enabled.
+    - bit 6: fRemovePrePostAmble The PN532 does not send Preamble and Postamble.
+    - bit 7: RFU Must be set to 0.
+    @returns true if everything executed properly, false for an error
+*/
+/**************************************************************************/
+bool PN532::setParameters(uint8_t iFlags)
+{
+    pn532_packetbuffer[0] = PN532_COMMAND_SETPARAMETERS;
+    pn532_packetbuffer[1] = iFlags;
+
+    if (HAL(writeCommand)(pn532_packetbuffer, 2))
+        return false;  // no ACK
+
+    return (0 <= HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer)));
 }
 
 
