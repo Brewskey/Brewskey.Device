@@ -53,6 +53,30 @@
 
 #define PN532_MIFARE_ISO14443A              (0x00)
 
+// REG CIU
+#define REG_CIU_Mode       0x6301 // Defines general modes for transmitting and receiving.
+#define REG_CIU_TxMode     0x6302 // Defines the transmission data rate and framing during transmission.
+#define REG_CIU_RxMode     0x6303 // Defines the reception data rate and framing during receiving
+#define REG_CIU_TxControl  0x6304 // Controls the logical behavior of the antenna driver pins TX1 and TX2.
+#define REG_CIU_Command    0x6331 // Starts and stops the command execution
+#define REG_CIU_TxAuto     0x6305 // Controls the setting of the antenna driver
+#define REG_CIU_Command    0x6331 // Starts and stops the command execution
+#define REG_CIU_Status2    0x6338 // Contain status flags of the receiver, transmitter and Data Mode Detector
+#define REG_CIU_Control    0x633C // Contains miscellaneous control bits
+#define REG_CIU_ManualRCV  0x630D // Allows manual fine tuning of the internal receiver
+
+// nfc mode
+#define ISO1443A 0x00
+#define ACTIVECOMM 0x01
+#define FELICA 0x02
+#define ISO1443B 0x03
+
+// speed nfc
+#define kb106 0x00
+#define kb212 0x01
+#define kb424 0x02
+#define kb848 0x03
+
 // Mifare Commands
 #define MIFARE_CMD_AUTH_A                   (0x60)
 #define MIFARE_CMD_AUTH_B                   (0x61)
@@ -120,10 +144,15 @@ public:
   // Generic PN532 functions
   bool SAMConfig(void);
   uint32_t getFirmwareVersion(void);
+  uint32_t readRegister(uint16_t reg);
+  uint32_t writeRegister(uint16_t reg, uint8_t val);
   bool writeGPIO(uint8_t pinstate);
   uint8_t readGPIO(void);
   bool setPassiveActivationRetries(uint8_t maxRetries);
   bool setRFField(uint8_t autoRFCA, uint8_t rFOnOff);
+
+  bool setTimeoutComm(uint8_t iTimeout);
+  bool setParameters(uint8_t iFlag);
 
   /**
   * @brief    Init PN532 as a target
