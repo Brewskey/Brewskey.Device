@@ -57,6 +57,8 @@ STARTUP(setupLEDs());
 
 void setup(void) {
   System.on(setup_begin, setupLEDs);
+  Particle.syncTime();
+  waitUntil(Particle.syncTimeDone);
 
   RGB.control(true);
   RGB.color(255, 255, 255);
@@ -65,6 +67,7 @@ void setup(void) {
   Serial1.begin(19200);
   // Serial1.halfDuplex(true);
   Serial.println("Starting");
+  Serial.printlnf("Current time: %s", Time.timeStr().c_str());
 
   // while(!Serial.available()) {
   //  Spark.process();

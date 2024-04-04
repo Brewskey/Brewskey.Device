@@ -4,9 +4,9 @@
   (strncmp(js + (t).start, s, (t).end - (t).start) == 0 && \
    strlen(s) == (t).end - (t).start)
 
-KegeratorStateMachine::KegeratorStateMachine(Display* display,
-                                             NfcClient* nfcClient,
-                                             Sensors* sensors) {
+KegeratorStateMachine::KegeratorStateMachine(Display *display,
+                                             NfcClient *nfcClient,
+                                             Sensors *sensors) {
   this->sensors = sensors;
   this->SetState(KegeratorState::INITIALIZING);
 
@@ -218,7 +218,7 @@ void KegeratorStateMachine::NfcLoop() {
   }
 }
 
-void KegeratorStateMachine::Initialize(DeviceSettings* settings) {
+void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   this->settings = settings;
 
   // Setup taps
@@ -293,13 +293,13 @@ int KegeratorStateMachine::Settings(String data) {
 }
 
 int KegeratorStateMachine::StartPour(String token, int constraintCount,
-                                     TapConstraint* constraints) {
+                                     TapConstraint *constraints) {
   this->lastAuthorizedToken = token;
 
   if (constraintCount != 0 && constraints != NULL) {
     for (uint8_t ii = 0; ii < constraintCount; ii++) {
-      TapConstraint& constraint = constraints[ii];
-      Tap& tap = this->taps[constraint.tapIndex];
+      TapConstraint &constraint = constraints[ii];
+      Tap &tap = this->taps[constraint.tapIndex];
 
       this->sensors->OpenSolenoid(constraint.tapIndex);
 
@@ -320,7 +320,7 @@ int KegeratorStateMachine::StartPour(String token, int constraintCount,
   return 0;
 }
 
-void KegeratorStateMachine::TapStartedPouring(ITap& tap) {
+void KegeratorStateMachine::TapStartedPouring(ITap &tap) {
   this->SetState(KegeratorState::POURING);
   Serial.println("Started Pouring");
 
@@ -335,15 +335,14 @@ void KegeratorStateMachine::TapStartedPouring(ITap& tap) {
 void KegeratorStateMachine::TapStoppedPouring(uint32_t tapID,
                                               uint32_t totalPulses,
                                               String authenticationKey,
-                                              uint32_t pourStartTime,
-                                              uint32_t pourEndTime) {
+                                              uint32_t pourMilliseconds) {
   this->CleanupTapState();
   Serial.println("Finished Pouring");
 
   if (totalPulses > PULSE_EPSILON) {
     this->serverLink->SendPourToServer(tapID, totalPulses, authenticationKey,
                                        this->totpDisplay->GetTOTP(),
-                                       pourStartTime, pourEndTime);
+                                       pourMilliseconds);
 
     // TODO - Maybe show pulse on display a bit longer...?
   }

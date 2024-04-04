@@ -1,7 +1,7 @@
 #include "Sensors.h"
 
 #ifdef EXPANSION_BOX_PIN
-Sensors::Sensors(PacketReader& packetReader)
+Sensors::Sensors(PacketReader &packetReader)
     : reader(packetReader)
 #else
 Sensors::Sensors()
@@ -22,7 +22,7 @@ Sensors::Sensors()
 #endif
 }
 
-void Sensors::Setup(IKegeratorStateMachine* stateMachine, Tap* taps,
+void Sensors::Setup(IKegeratorStateMachine *stateMachine, Tap *taps,
                     uint8_t tapCount) {
   if (this->temperatureSensor == NULL) {
     this->temperatureSensor = new Temperature();
@@ -255,7 +255,7 @@ void Sensors::ReadMultitap(void) {
 }
 
 void Sensors::ParseConfigurationPacket() {
-  uint8_t* incomingBuffer = this->reader.GetDataBuffer();
+  uint8_t *incomingBuffer = this->reader.GetDataBuffer();
   uint32_t pulses = (incomingBuffer[0] << 24) | (incomingBuffer[1] << 16) |
                     (incomingBuffer[2] << 8) | (incomingBuffer[3]);
 
@@ -270,7 +270,7 @@ void Sensors::ParsePourPacket() {
     return;
   }
 
-  uint8_t* incomingBuffer = this->reader.GetDataBuffer();
+  uint8_t *incomingBuffer = this->reader.GetDataBuffer();
   uint8_t ii;
 
   uint8_t source = this->reader.GetSource();

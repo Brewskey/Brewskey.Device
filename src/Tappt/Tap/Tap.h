@@ -35,8 +35,8 @@ class Tap : public ITap {
   String authenticationKey = "";
   unsigned long lastTimePulsesWasSet =
       0;  // is reset each time we get more pulses.
-  unsigned long pourDeviceEndTime = 0;    // actual start time in UTC ticks
-  unsigned long pourDeviceStartTime = 0;  // actual start time in UTC ticks
+  unsigned long pourDeviceStartTimeInMillis =
+      0;  // actual start time in UTC ticks
   uint8_t timeForValveOpen =
       0;  // Comes from settings -- how long the tap should wait before closing
   uint8_t tapConstraintType = TapConstraintType::NONE;
