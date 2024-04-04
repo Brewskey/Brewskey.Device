@@ -1,31 +1,27 @@
 #pragma once
 
-#include "Tappt/ServerLink/DeviceSettings.h"
-#include "Tappt/ServerLink/DeviceStatus.h"
 #include "Tappt/Display/Display.h"
 #include "Tappt/Display/PourDisplay.h"
 #include "Tappt/Display/TotpDisplay.h"
 #include "Tappt/KegeratorStateMachine/IKegeratorStateMachine.h"
 #include "Tappt/KegeratorStateMachine/KegeratorState.h"
+#include "Tappt/NfcClient/NfcClient.h"
+#include "Tappt/Pins.h"
+#include "Tappt/Sensors/Sensors.h"
+#include "Tappt/ServerLink/DeviceSettings.h"
+#include "Tappt/ServerLink/DeviceStatus.h"
+#include "Tappt/ServerLink/ServerLink.h"
 #include "Tappt/Tap/Tap.h"
 #include "Tappt/Tap/TapConstraint.h"
-#include "Tappt/Pins.h"
-#include "Tappt/NfcClient/NfcClient.h"
-#include "Tappt/Sensors/Sensors.h"
-#include "Tappt/ServerLink/ServerLink.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
 
 class KegeratorStateMachine : public IKegeratorStateMachine {
-public:
-  KegeratorStateMachine(Display* display, NfcClient* client, Sensors* sensors);
+ public:
+  KegeratorStateMachine(Display *display, NfcClient *client, Sensors *sensors);
   virtual void TapStartedPouring(ITap &tap);
-  virtual void TapStoppedPouring(
-    uint32_t tapID,
-    uint32_t totalPulses,
-    String authenticationKey,
-    uint32_t pourStartTime,
-    uint32_t pourEndTime
-  );
+  virtual void TapStoppedPouring(uint32_t tapID, uint32_t totalPulses,
+                                 String authenticationKey,
+                                 uint32_t pourStartTime, uint32_t pourEndTime);
   virtual int Tick();
   void Initialize(DeviceSettings *settings);
   int StartPour(String token, int constraintCount, TapConstraint *constraints);
@@ -37,7 +33,7 @@ public:
     this->serverLink->Initialize("", data);
   }
 #endif
-private:
+ private:
   void SetState(KegeratorState::e state);
   void Timeout();
   void CleanupTapState();

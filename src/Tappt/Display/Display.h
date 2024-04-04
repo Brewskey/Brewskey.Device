@@ -9,12 +9,11 @@
 #include "LCD/Adafruit_SSD1306.h"
 #endif
 #include "Tappt/ITick.h"
-
 #include "Tappt/assets/logo.h"
 #include "Tappt/assets/logo_text.h"
 
 class Display {
-public:
+ public:
   Display();
   void DimScreen(bool shouldDim);
   void InvertScreen(bool shouldInvert);
@@ -27,23 +26,12 @@ public:
   //   this->display.fillRect(x,y,w,h,color);
   // };
 
-  void ClearText(
-    String text,
-    uint8_t x,
-    uint8_t y,
-    uint8_t size = 2,
-    int offsetType = 0
-  );
-  void SetText(
-    String text,
-    uint8_t x,
-    uint8_t y,
-    uint8_t size = 2,
-    int offsetType = 0,
-    int color = WHITE
-  );
+  void ClearText(String text, uint8_t x, uint8_t y, uint8_t size = 2,
+                 int offsetType = 0);
+  void SetText(String text, uint8_t x, uint8_t y, uint8_t size = 2,
+               int offsetType = 0, int color = WHITE);
 
-private:
+ private:
   virtual void f() {}
   int GetXOffset(String text, int offsetType, int fontSize);
   void WriteString(String text);

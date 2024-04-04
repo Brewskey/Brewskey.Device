@@ -21,16 +21,16 @@ union _state {
   uint32_t w[HASH_LENGTH / 4];
 };
 
-class Sha1Class : public Print
-{
-public:
+class Sha1Class : public Print {
+ public:
   void init(void);
   void initHmac(const uint8_t* secret, int secretLength);
   uint8_t* result(void);
   uint8_t* resultHmac(void);
-  virtual size_t write(uint8_t); //virtual void write(uint8_t);
+  virtual size_t write(uint8_t);  // virtual void write(uint8_t);
   using Print::write;
-private:
+
+ private:
   void pad();
   void addUncounted(uint8_t data);
   void hashBlock();
@@ -41,7 +41,6 @@ private:
   uint32_t byteCount;
   uint8_t keyBuffer[BLOCK_LENGTH];
   uint8_t innerHash[HASH_LENGTH];
-
 };
 extern Sha1Class Sha1;
 

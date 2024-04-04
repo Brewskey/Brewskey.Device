@@ -15,15 +15,16 @@
 #define SHA1_K60 0xca62c1d6
 
 uint8_t sha1InitState[] PROGMEM = {
-  0x01,0x23,0x45,0x67, // H0
-  0x89,0xab,0xcd,0xef, // H1
-  0xfe,0xdc,0xba,0x98, // H2
-  0x76,0x54,0x32,0x10, // H3
-  0xf0,0xe1,0xd2,0xc3  // H4
+    0x01, 0x23, 0x45, 0x67,  // H0
+    0x89, 0xab, 0xcd, 0xef,  // H1
+    0xfe, 0xdc, 0xba, 0x98,  // H2
+    0x76, 0x54, 0x32, 0x10,  // H3
+    0xf0, 0xe1, 0xd2, 0xc3   // H4
 };
 
 void Sha1Class::init(void) {
-  memcpy(state.b, sha1InitState, HASH_LENGTH);  //memcpy_P(state.b,sha1InitState,HASH_LENGTH);
+  memcpy(state.b, sha1InitState,
+         HASH_LENGTH);  // memcpy_P(state.b,sha1InitState,HASH_LENGTH);
   byteCount = 0;
   bufferOffset = 0;
 }
@@ -43,19 +44,17 @@ void Sha1Class::hashBlock() {
   e = state.w[4];
   for (i = 0; i < 80; i++) {
     if (i >= 16) {
-      t = buffer.w[(i + 13) & 15] ^ buffer.w[(i + 8) & 15] ^ buffer.w[(i + 2) & 15] ^ buffer.w[i & 15];
+      t = buffer.w[(i + 13) & 15] ^ buffer.w[(i + 8) & 15] ^
+          buffer.w[(i + 2) & 15] ^ buffer.w[i & 15];
       buffer.w[i & 15] = rol32(t, 1);
     }
     if (i < 20) {
       t = (d ^ (b & (c ^ d))) + SHA1_K0;
-    }
-    else if (i < 40) {
+    } else if (i < 40) {
       t = (b ^ c ^ d) + SHA1_K20;
-    }
-    else if (i < 60) {
+    } else if (i < 60) {
       t = ((b & c) | (d & (b | c))) + SHA1_K40;
-    }
-    else {
+    } else {
       t = (b ^ c ^ d) + SHA1_K60;
     }
     t += rol32(a, 5) + e + buffer.w[i & 15];
@@ -95,16 +94,15 @@ void Sha1Class::pad() {
   while (bufferOffset != 56) addUncounted(0x00);
 
   // Append length in the last 8 bytes
-  addUncounted(0); // We're only using 32 bit lengths
-  addUncounted(0); // But SHA-1 supports 64 bit lengths
-  addUncounted(0); // So zero pad the top bits
-  addUncounted(byteCount >> 29); // Shifting to multiply by 8
-  addUncounted(byteCount >> 21); // as SHA-1 supports bitstreams as well as
-  addUncounted(byteCount >> 13); // byte.
+  addUncounted(0);                // We're only using 32 bit lengths
+  addUncounted(0);                // But SHA-1 supports 64 bit lengths
+  addUncounted(0);                // So zero pad the top bits
+  addUncounted(byteCount >> 29);  // Shifting to multiply by 8
+  addUncounted(byteCount >> 21);  // as SHA-1 supports bitstreams as well as
+  addUncounted(byteCount >> 13);  // byte.
   addUncounted(byteCount >> 5);
   addUncounted(byteCount << 3);
 }
-
 
 uint8_t* Sha1Class::result(void) {
   // Pad to complete the last block
@@ -136,8 +134,7 @@ void Sha1Class::initHmac(const uint8_t* key, int keyLength) {
     init();
     for (; keyLength--;) write(*key++);
     memcpy(keyBuffer, result(), HASH_LENGTH);
-  }
-  else {
+  } else {
     // Block length keys are used as is
     memcpy(keyBuffer, key, keyLength);
   }

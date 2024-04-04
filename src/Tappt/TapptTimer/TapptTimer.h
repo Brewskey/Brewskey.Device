@@ -1,11 +1,11 @@
 #ifndef Timer_h
 #define Timer_h
 
-#include "application.h"
 #include "Tappt/ITick.h"
+#include "application.h"
 
 class TapptTimer : public ITick {
-public:
+ public:
   TapptTimer(unsigned long interval, unsigned long duration = 0);
   void Start();
   void Stop();
@@ -14,7 +14,8 @@ public:
 
   bool IsRunning() { return this->isRunning; };
   bool ShouldTrigger() { return this->shouldTrigger; };
-private:
+
+ private:
   bool isRunning = false;
   bool shouldTrigger = false;
 

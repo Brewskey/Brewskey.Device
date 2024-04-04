@@ -1,6 +1,6 @@
 #include "StandardSendPacket.h"
 
-uint8_t TAP_BITS[4] = { 0x03, 0x0C, 0x30, 0xC0 };
+uint8_t TAP_BITS[4] = {0x03, 0x0C, 0x30, 0xC0};
 
 #define DATA_PACKET_SIZE 3
 
@@ -14,11 +14,8 @@ uint8_t TAP_BITS[4] = { 0x03, 0x0C, 0x30, 0xC0 };
 #define RESET_FLOW_INDEX 5
 #endif
 
-
-StandardSendPacket::StandardSendPacket() : PacketBase(
-  DATA_PACKET_SIZE,
-  FLOW_CONTROL_PACKET_TYPE)
-{
+StandardSendPacket::StandardSendPacket()
+    : PacketBase(DATA_PACKET_SIZE, FLOW_CONTROL_PACKET_TYPE) {
   // Set version packet for beta hardware
   // Beta hardware had an extra byte :/
 #ifdef USE_BETA_PACKET_FORMAT
@@ -52,8 +49,7 @@ void StandardSendPacket::ResetFlowSensor(uint8_t sensor) {
   this->dataPacket[RESET_FLOW_INDEX] |= TAP_BITS[sensor];
 }
 
-void StandardSendPacket::ResetDataPacket()
-{
+void StandardSendPacket::ResetDataPacket() {
   /* turn solenoid ON
   Bits: 0x03 - solendoid 1
   Bits: 0x0C - solendoid 2

@@ -4,7 +4,7 @@
 #include "application.h"
 
 class DeviceNFCStatus {
-public:
+ public:
   enum e {
     PHONE_ONLY = 0,
     CARD_ONLY = 1,

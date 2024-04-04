@@ -1,14 +1,12 @@
 #include "KegeratorStateMachine.h"
 
-#define TOKEN_STRING(js, t, s) \
-	(strncmp(js+(t).start, s, (t).end - (t).start) == 0 \
-	 && strlen(s) == (t).end - (t).start)
+#define TOKEN_STRING(js, t, s)                             \
+  (strncmp(js + (t).start, s, (t).end - (t).start) == 0 && \
+   strlen(s) == (t).end - (t).start)
 
-KegeratorStateMachine::KegeratorStateMachine(
-  Display* display,
-  NfcClient* nfcClient,
-  Sensors* sensors
-) {
+KegeratorStateMachine::KegeratorStateMachine(Display* display,
+                                             NfcClient* nfcClient,
+                                             Sensors* sensors) {
   this->sensors = sensors;
   this->SetState(KegeratorState::INITIALIZING);
 
@@ -16,189 +14,173 @@ KegeratorStateMachine::KegeratorStateMachine(
   this->pourDisplay = new PourDisplay(display);
   this->totpDisplay = new TotpDisplay(display);
 
-	this->serverLink = new ServerLink(this);
+  this->serverLink = new ServerLink(this);
 
-	this->nfcClient = nfcClient;
+  this->nfcClient = nfcClient;
   nfcClient->Setup(this->serverLink);
 }
 
 void KegeratorStateMachine::SetState(KegeratorState::e newState) {
   switch (newState) {
-	  case KegeratorState::INITIALIZING: {
-	    RGB.control(true);
-	    RGB.color(255, 255, 255);
-	    break;
-	  }
+    case KegeratorState::INITIALIZING: {
+      RGB.control(true);
+      RGB.color(255, 255, 255);
+      break;
+    }
 
-	  case KegeratorState::LISTENING: {
-	    Serial.println("LISTENING");
-	    RGB.control(false);
-	    break;
-	  }
+    case KegeratorState::LISTENING: {
+      Serial.println("LISTENING");
+      RGB.control(false);
+      break;
+    }
 
-	  case KegeratorState::WAITING_FOR_POUR_RESPONSE: {
-	    this->nfcClient->SendPendingMessage();
-			if (
-				this->state != KegeratorState::POUR_AUTHORIZED &&
-				this->state != KegeratorState::POURING
-			) {
-		    RGB.control(true);
-		    RGB.color(255, 255, 0);
-			}
-	    break;
-	  }
+    case KegeratorState::WAITING_FOR_POUR_RESPONSE: {
+      this->nfcClient->SendPendingMessage();
+      if (this->state != KegeratorState::POUR_AUTHORIZED &&
+          this->state != KegeratorState::POURING) {
+        RGB.control(true);
+        RGB.color(255, 255, 0);
+      }
+      break;
+    }
 
-	  case KegeratorState::POUR_AUTHORIZED: {
-	    RGB.control(true);
-	    RGB.color(0, 255, 0);
-	    break;
-	  }
+    case KegeratorState::POUR_AUTHORIZED: {
+      RGB.control(true);
+      RGB.color(0, 255, 0);
+      break;
+    }
 
-	  case KegeratorState::POURING: {
-	    RGB.control(true);
-	    RGB.color(0, 255, 0);
-	    break;
-	  }
+    case KegeratorState::POURING: {
+      RGB.control(true);
+      RGB.color(0, 255, 0);
+      break;
+    }
 
-	  case KegeratorState::UNLOCKED: {
-	    RGB.control(true);
-	    RGB.color(0, 255, 127);
+    case KegeratorState::UNLOCKED: {
+      RGB.control(true);
+      RGB.color(0, 255, 127);
 
-	    // If the box is already in free pour mode we don't want to add additional
-	    // time.
-	    if (!this->openValveTimer.IsRunning())
-	    {
-	      this->openValveTimer.Start();
-	    }
+      // If the box is already in free pour mode we don't want to add additional
+      // time.
+      if (!this->openValveTimer.IsRunning()) {
+        this->openValveTimer.Start();
+      }
 
-	    break;
-	  }
+      break;
+    }
 
-	  case KegeratorState::INACTIVE: {
-	    RGB.control(true);
-	    RGB.color(255, 0, 0);
-	    this->display->BeginBatch();
-	    this->display->SetText("Device", 28, 15);
-	    this->display->SetText("Disabled", 16, 35);
-	    this->displayChangeCount++;
+    case KegeratorState::INACTIVE: {
+      RGB.control(true);
+      RGB.color(255, 0, 0);
+      this->display->BeginBatch();
+      this->display->SetText("Device", 28, 15);
+      this->display->SetText("Disabled", 16, 35);
+      this->displayChangeCount++;
 
-			this->openValveTimer.Stop();
+      this->openValveTimer.Stop();
 
-	    this->StopPouring();
-	    break;
-	  }
+      this->StopPouring();
+      break;
+    }
 
-	  case KegeratorState::CLEANING: {
-	    RGB.control(true);
-	    RGB.color(255, 0, 0);
-	    this->display->BeginBatch();
-	    this->display->SetText("Cleaning", 16, 15);
-	    this->display->SetText("Device", 28, 35);
-	    this->displayChangeCount++;
+    case KegeratorState::CLEANING: {
+      RGB.control(true);
+      RGB.color(255, 0, 0);
+      this->display->BeginBatch();
+      this->display->SetText("Cleaning", 16, 15);
+      this->display->SetText("Device", 28, 35);
+      this->displayChangeCount++;
 
-			this->StopPouring();
-	    this->openValveTimer.Start();
+      this->StopPouring();
+      this->openValveTimer.Start();
 
-	    break;
-	  }
+      break;
+    }
 
-		case KegeratorState::CONFIGURE: {
-	    RGB.control(true);
-	    RGB.color(255, 255, 0);
-	    this->OnConfigureNextBox(0);
+    case KegeratorState::CONFIGURE: {
+      RGB.control(true);
+      RGB.color(255, 255, 0);
+      this->OnConfigureNextBox(0);
 
-			this->StopPouring();
+      this->StopPouring();
 
-	    this->openValveTimer.Start();
+      this->openValveTimer.Start();
 
-	    break;
-	  }
+      break;
+    }
   }
 
   this->state = newState;
-	this->sensors->SetState(newState);
+  this->sensors->SetState(newState);
 }
 
-void KegeratorStateMachine::OnConfigureNextBox(uint8_t destination)
-{
-	this->display->BeginBatch();
-	this->displayChangeCount++;
+void KegeratorStateMachine::OnConfigureNextBox(uint8_t destination) {
+  this->display->BeginBatch();
+  this->displayChangeCount++;
 
-	uint8_t tapIndex = destination * MAX_TAP_COUNT_PER_BOX + 1;
-	if (tapIndex > this->settings->tapCount) {
-		this->settings->deviceStatus = DeviceStatus::ACTIVE;
-		this->StopPouring();
-		this->SetStateFromDeviceStatus();
-		return;
-	}
+  uint8_t tapIndex = destination * MAX_TAP_COUNT_PER_BOX + 1;
+  if (tapIndex > this->settings->tapCount) {
+    this->settings->deviceStatus = DeviceStatus::ACTIVE;
+    this->StopPouring();
+    this->SetStateFromDeviceStatus();
+    return;
+  }
 
-	this->display->SetText("Pour From", 16, 15);
-	this->display->SetText("Tap " + String(tapIndex), 28, 35);
+  this->display->SetText("Pour From", 16, 15);
+  this->display->SetText("Tap " + String(tapIndex), 28, 35);
 }
 
-int KegeratorStateMachine::Tick()
-{
+int KegeratorStateMachine::Tick() {
   // While initializing nothing is set up :(
   if (this->state == KegeratorState::INITIALIZING) {
     return 0;
   }
 
-	this->openValveTimer.Tick();
-  if (this->openValveTimer.IsRunning())
-  {
-    if (this->openValveTimer.ShouldTrigger())
-    {
+  this->openValveTimer.Tick();
+  if (this->openValveTimer.IsRunning()) {
+    if (this->openValveTimer.ShouldTrigger()) {
       this->sensors->OpenSolenoids();
     }
 
-    if (!this->openValveTimer.IsRunning())
-    {
-      if (this->state == KegeratorState::CLEANING)
-      {
+    if (!this->openValveTimer.IsRunning()) {
+      if (this->state == KegeratorState::CLEANING) {
         this->SetState(KegeratorState::INACTIVE);
-      }
-      else
-      {
+      } else {
         this->SetState(KegeratorState::LISTENING);
       }
     }
   }
 
   // We don't need to run the rest of the rendering logic
-  switch (this->state)
-  {
-	  case KegeratorState::CLEANING: {
-			this->sensors->Tick();
+  switch (this->state) {
+    case KegeratorState::CLEANING: {
+      this->sensors->Tick();
 
-			return 0;
-		}
-	  case KegeratorState::INACTIVE: {
-	    return 0;
-	  }
+      return 0;
+    }
+    case KegeratorState::INACTIVE: {
+      return 0;
+    }
   }
 
-	if (this->state == KegeratorState::CONFIGURE) {
-		this->sensors->Tick();
-		return 0;
-	}
+  if (this->state == KegeratorState::CONFIGURE) {
+    this->sensors->Tick();
+    return 0;
+  }
 
   long pourResponseDelta = millis() - this->pourResponseStartTime;
 
   // Only check this if waiting for the response and it's greater that 10
   // seconds. This authorization is coming from the server so we don't need to
-	// make it configurable
-  if (
-    this->state == KegeratorState::WAITING_FOR_POUR_RESPONSE &&
-    pourResponseDelta > 5000
-  ) {
+  // make it configurable
+  if (this->state == KegeratorState::WAITING_FOR_POUR_RESPONSE &&
+      pourResponseDelta > 5000) {
     this->Timeout();
   }
 
   // If the pour is authorized, you have n seconds to pour
-  if (
-    this->state == KegeratorState::POUR_AUTHORIZED &&
-    pourResponseDelta > this->settings->timeForValveOpen * 1000
-  ) {
+  if (this->state == KegeratorState::POUR_AUTHORIZED &&
+      pourResponseDelta > this->settings->timeForValveOpen * 1000) {
     this->Timeout();
   }
 
@@ -212,10 +194,10 @@ int KegeratorStateMachine::Tick()
   this->sensors->Tick();
 
   // Rendering
-	if (this->settings->isScreenDisabled == false) {
-	  this->displayChangeCount += this->pourDisplay->Tick();
-	  this->displayChangeCount += this->totpDisplay->Tick();
-	}
+  if (this->settings->isScreenDisabled == false) {
+    this->displayChangeCount += this->pourDisplay->Tick();
+    this->displayChangeCount += this->totpDisplay->Tick();
+  }
 
   return 0;
 }
@@ -229,16 +211,14 @@ void KegeratorStateMachine::NfcLoop() {
 
   NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
-  if (
-    nfcState == NfcState::SENT_MESSAGE ||
-    nfcState == NfcState::READ_MESSAGE
-  ) {
+  if (nfcState == NfcState::SENT_MESSAGE ||
+      nfcState == NfcState::READ_MESSAGE) {
     this->pourResponseStartTime = millis();
     this->SetState(KegeratorState::WAITING_FOR_POUR_RESPONSE);
   }
 }
 
-void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
+void KegeratorStateMachine::Initialize(DeviceSettings* settings) {
   this->settings = settings;
 
   // Setup taps
@@ -249,12 +229,8 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   uint8_t tapCount = this->settings->tapCount;
   this->taps = new Tap[tapCount];
   for (int i = 0; i < tapCount; i++) {
-    this->taps[i].Setup(
-      this,
-      settings->tapIds[i],
-      settings->pulsesPerGallon[i],
-			settings->timeForValveOpen
-    );
+    this->taps[i].Setup(this, settings->tapIds[i], settings->pulsesPerGallon[i],
+                        settings->timeForValveOpen);
   }
 
   this->sensors->Setup(this, this->taps, tapCount);
@@ -263,30 +239,27 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
 
   this->StopPouring();
 
-  if (
-    this->settings->deviceId.length() <= 0 ||
-    this->settings->authorizationToken.length() <= 0
-  ) {
+  if (this->settings->deviceId.length() <= 0 ||
+      this->settings->authorizationToken.length() <= 0) {
     RGB.control(true);
     RGB.color(0, 128, 0);
     return;
   }
 
-	// Apply settings
-	RGB.brightness(this->settings->ledBrightness);
-	this->display->DimScreen(this->settings->isScreenDisabled);
-	this->display->InvertScreen(this->settings->shouldInvertScreen);
-	this->openValveTimer.SetDuration(this->settings->secondsToStayOpen * 1000 + 10000);
+  // Apply settings
+  RGB.brightness(this->settings->ledBrightness);
+  this->display->DimScreen(this->settings->isScreenDisabled);
+  this->display->InvertScreen(this->settings->shouldInvertScreen);
+  this->openValveTimer.SetDuration(this->settings->secondsToStayOpen * 1000 +
+                                   10000);
 
   this->display->BeginBatch();
   this->display->EndBatch();
 
-	if (
-		settings->deviceStatus == DeviceStatus::ACTIVE ||
-		settings->deviceStatus == DeviceStatus::UNLOCKED
-	) {
-		this->totpDisplay->Reset();
-	}
+  if (settings->deviceStatus == DeviceStatus::ACTIVE ||
+      settings->deviceStatus == DeviceStatus::UNLOCKED) {
+    this->totpDisplay->Reset();
+  }
 
   this->nfcTimer.stop();
   this->nfcTimer.start();
@@ -295,23 +268,20 @@ void KegeratorStateMachine::Initialize(DeviceSettings *settings) {
   this->SetStateFromDeviceStatus();
   this->sensors->CloseSolenoids();
 
-  this->nfcClient->Initialize(this->settings->deviceId, this->settings->nfcStatus);
+  this->nfcClient->Initialize(this->settings->deviceId,
+                              this->settings->nfcStatus);
 }
 
 void KegeratorStateMachine::SetStateFromDeviceStatus() {
   if (this->settings->deviceStatus == DeviceStatus::INACTIVE) {
     this->SetState(KegeratorState::INACTIVE);
-  }
-  else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
+  } else if (this->settings->deviceStatus == DeviceStatus::CLEANING) {
     this->SetState(KegeratorState::CLEANING);
-  }
-	else if (this->settings->deviceStatus == DeviceStatus::UNLOCKED) {
+  } else if (this->settings->deviceStatus == DeviceStatus::UNLOCKED) {
     this->SetState(KegeratorState::UNLOCKED);
-  }
-	else if (this->settings->deviceStatus == DeviceStatus::CONFIGURE) {
+  } else if (this->settings->deviceStatus == DeviceStatus::CONFIGURE) {
     this->SetState(KegeratorState::CONFIGURE);
-  }
-  else {
+  } else {
     this->SetState(KegeratorState::LISTENING);
   }
 }
@@ -322,30 +292,27 @@ int KegeratorStateMachine::Settings(String data) {
   return 0;
 }
 
-int KegeratorStateMachine::StartPour(
-	String token,
-	int constraintCount,
-	TapConstraint *constraints
-) {
-	this->lastAuthorizedToken = token;
+int KegeratorStateMachine::StartPour(String token, int constraintCount,
+                                     TapConstraint* constraints) {
+  this->lastAuthorizedToken = token;
 
-	if (constraintCount != 0 && constraints != NULL) {
-		for (uint8_t ii = 0; ii < constraintCount; ii++) {
-			TapConstraint& constraint = constraints[ii];
-			Tap& tap = this->taps[constraint.tapIndex];
+  if (constraintCount != 0 && constraints != NULL) {
+    for (uint8_t ii = 0; ii < constraintCount; ii++) {
+      TapConstraint& constraint = constraints[ii];
+      Tap& tap = this->taps[constraint.tapIndex];
 
-			this->sensors->OpenSolenoid(constraint.tapIndex);
+      this->sensors->OpenSolenoid(constraint.tapIndex);
 
-			if (tap.IsPouring()) {
-				continue;
-			}
+      if (tap.IsPouring()) {
+        continue;
+      }
 
-			tap.SetConstraint(constraint.type, constraint.pulses);
-		}
-	} else {
-	  // This is only necessary for "unlocked" mode when the taps have solenoids.
-	  this->sensors->OpenSolenoids();
-	}
+      tap.SetConstraint(constraint.type, constraint.pulses);
+    }
+  } else {
+    // This is only necessary for "unlocked" mode when the taps have solenoids.
+    this->sensors->OpenSolenoids();
+  }
 
   this->pourResponseStartTime = millis();
   this->SetState(KegeratorState::POUR_AUTHORIZED);
@@ -353,7 +320,7 @@ int KegeratorStateMachine::StartPour(
   return 0;
 }
 
-void KegeratorStateMachine::TapStartedPouring(ITap &tap) {
+void KegeratorStateMachine::TapStartedPouring(ITap& tap) {
   this->SetState(KegeratorState::POURING);
   Serial.println("Started Pouring");
 
@@ -362,39 +329,31 @@ void KegeratorStateMachine::TapStartedPouring(ITap &tap) {
   }
 
   this->lastAuthorizedToken = "";
-	this->CleanupTapState();
+  this->CleanupTapState();
 }
 
-void KegeratorStateMachine::TapStoppedPouring(
-  uint32_t tapID,
-  uint32_t totalPulses,
-  String authenticationKey,
-	uint32_t pourStartTime,
-	uint32_t pourEndTime
-) {
+void KegeratorStateMachine::TapStoppedPouring(uint32_t tapID,
+                                              uint32_t totalPulses,
+                                              String authenticationKey,
+                                              uint32_t pourStartTime,
+                                              uint32_t pourEndTime) {
   this->CleanupTapState();
   Serial.println("Finished Pouring");
 
   if (totalPulses > PULSE_EPSILON) {
-    this->serverLink->SendPourToServer(
-      tapID,
-      totalPulses,
-      authenticationKey,
-			this->totpDisplay->GetTOTP(),
-			pourStartTime,
-			pourEndTime
-    );
+    this->serverLink->SendPourToServer(tapID, totalPulses, authenticationKey,
+                                       this->totpDisplay->GetTOTP(),
+                                       pourStartTime, pourEndTime);
 
     // TODO - Maybe show pulse on display a bit longer...?
   }
-
 }
 
 void KegeratorStateMachine::StopPouring() {
   for (uint8_t ii = 0; ii < this->settings->tapCount; ii++) {
     if (this->taps[ii].IsPouring()) {
       this->taps[ii].StopPour();
-			this->sensors->ResetFlowSensor(ii);
+      this->sensors->ResetFlowSensor(ii);
     }
   }
 }
@@ -409,8 +368,7 @@ void KegeratorStateMachine::CleanupTapState() {
   for (uint8_t ii = 0; ii < this->settings->tapCount; ii++) {
     if (this->taps[ii].IsPouring()) {
       allStopped = false;
-    }
-    else {
+    } else {
       this->sensors->CloseSolenoid(ii);
       this->sensors->ResetFlowSensor(ii);
     }

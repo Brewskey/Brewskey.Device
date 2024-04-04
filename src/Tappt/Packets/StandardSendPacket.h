@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketBase.h"
+#include "Tappt/Pins.h"
 
 class StandardSendPacket : public PacketBase {
-public:
+ public:
   StandardSendPacket();
 
   void CloseSolenoids();

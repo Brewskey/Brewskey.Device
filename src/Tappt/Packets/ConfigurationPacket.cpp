@@ -2,18 +2,12 @@
 
 #define DATA_PACKET_SIZE 4
 
-ConfigurationPacket::ConfigurationPacket(
-): PacketBase(DATA_PACKET_SIZE, CONFIGURATION_PACKET_TYPE) {
+ConfigurationPacket::ConfigurationPacket()
+    : PacketBase(DATA_PACKET_SIZE, CONFIGURATION_PACKET_TYPE) {}
 
-}
+bool ConfigurationPacket::IsReady() { return this->isReady; }
 
-bool ConfigurationPacket::IsReady()
-{
-  return this->isReady;
-}
-
-void ConfigurationPacket::PrepareNextResponse(uint32_t pulses)
-{
+void ConfigurationPacket::PrepareNextResponse(uint32_t pulses) {
   if (pulses == 0) {
     return;
   }
@@ -28,8 +22,7 @@ void ConfigurationPacket::PrepareNextResponse(uint32_t pulses)
   this->dataPacket[6] = (uint8_t)(pulses);
 }
 
-void ConfigurationPacket::ResetDataPacket()
-{
+void ConfigurationPacket::ResetDataPacket() {
   this->isReady = false;
 
   // Set the pulses back to zero

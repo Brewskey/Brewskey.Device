@@ -12,22 +12,17 @@ void TapptTimer::Start() {
   this->startMillis = millis();
 }
 
-void TapptTimer::Stop() {
-  this->isRunning = false;
-}
+void TapptTimer::Stop() { this->isRunning = false; }
 
 int TapptTimer::Tick() {
-  if (!this->isRunning)
-  {
+  if (!this->isRunning) {
     return 0;
   }
 
   unsigned long currentMillis = millis();
 
-  if (this->duration != 0)
-  {
-    if ((long)(currentMillis - this->startMillis) > this->duration)
-    {
+  if (this->duration != 0) {
+    if ((long)(currentMillis - this->startMillis) > this->duration) {
       this->isRunning = false;
       return 0;
     }
@@ -35,16 +30,14 @@ int TapptTimer::Tick() {
 
   if (this->interval != 0) {
     this->shouldTrigger =
-      (long)(currentMillis - this->previousMillis) > this->interval;
+        (long)(currentMillis - this->previousMillis) > this->interval;
 
-    if (this->shouldTrigger)
-    {
+    if (this->shouldTrigger) {
       this->previousMillis = currentMillis;
     }
   }
 }
 
-void TapptTimer::SetDuration(unsigned long duration)
-{
+void TapptTimer::SetDuration(unsigned long duration) {
   this->duration = duration;
 }

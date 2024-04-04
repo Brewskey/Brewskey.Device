@@ -14,17 +14,13 @@
 #ifndef _TOTP_H
 #define _TOTP_H
 
-
 class TOTP {
-
-public:
-
+ public:
   TOTP(uint8_t* hmacKey, int keyLength);
   char* getCode(long timeStamp);
 
-private:
-
-  uint8_t * _hmacKey;
+ private:
+  uint8_t* _hmacKey;
   int _keyLength;
   long _timeStep;
   uint8_t _byteArray[8];

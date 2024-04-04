@@ -4,7 +4,7 @@
 #include "application.h"
 
 class DeviceStatus {
-public:
+ public:
   enum e {
     ACTIVE = 1,
     INACTIVE = 2,

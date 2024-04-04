@@ -2,7 +2,7 @@
 #define ITick_h
 
 class ITick {
-public:
+ public:
   virtual int Tick() = 0;
   virtual ~ITick() {}
 };

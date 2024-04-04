@@ -8,30 +8,20 @@ Tap::Tap() {
   this->lastTimePulsesWasSet = 0;
 }
 
-uint32_t Tap::GetId() {
-  return this->tapId;
-}
+uint32_t Tap::GetId() { return this->tapId; }
 
-uint32_t Tap::GetPulsesPerGallon() {
-  return this->pulsesPerGallon;
-}
+uint32_t Tap::GetPulsesPerGallon() { return this->pulsesPerGallon; }
 
-uint32_t Tap::GetTotalPulses() {
-  return this->totalPulses;
-}
+uint32_t Tap::GetTotalPulses() { return this->totalPulses; }
 
 bool Tap::IsPouring() {
   return this->isPouring ||
-    // It's always "pouring" if the constraint is a purchase.
-    this->tapConstraintType == TapConstraintType::PURCHASE_VOLUME;
+         // It's always "pouring" if the constraint is a purchase.
+         this->tapConstraintType == TapConstraintType::PURCHASE_VOLUME;
 }
 
-void Tap::Setup(
-  IKegeratorStateMachine *kegeratorStateMachine,
-  uint32_t tapId,
-  uint32_t pulsesPerGallon,
-  uint8_t timeForValveOpen
-) {
+void Tap::Setup(IKegeratorStateMachine *kegeratorStateMachine, uint32_t tapId,
+                uint32_t pulsesPerGallon, uint8_t timeForValveOpen) {
   this->kegeratorStateMachine = kegeratorStateMachine;
   this->tapId = tapId;
   this->pulsesPerGallon = pulsesPerGallon;
@@ -43,7 +33,6 @@ void Tap::SetConstraint(uint8_t tapConstraintType, uint32_t constraintPulses) {
   this->constraintPulses = constraintPulses;
 }
 
-
 void Tap::SetAuthToken(String authenticationKey) {
   this->authenticationKey = authenticationKey;
 }
@@ -53,7 +42,6 @@ void Tap::StopPour() {
 
   bool isPouring = this->isPouring;
   this->isPouring = false;
-
 
   uint32_t totalPulses = this->totalPulses;
   String authenticationKey = this->authenticationKey;
@@ -65,12 +53,8 @@ void Tap::StopPour() {
 
   if (totalPulses > PULSE_EPSILON && isPouring) {
     this->kegeratorStateMachine->TapStoppedPouring(
-      this->tapId,
-      totalPulses,
-      authenticationKey,
-      this->pourDeviceStartTime,
-      this->pourDeviceEndTime
-    );
+        this->tapId, totalPulses, authenticationKey, this->pourDeviceStartTime,
+        this->pourDeviceEndTime);
   }
 }
 
@@ -82,10 +66,8 @@ int Tap::Tick() {
   }
 
   // Check pour constraint to see if we should stop pouring
-  if (
-    this->tapConstraintType != TapConstraintType::NONE &&
-    this->totalPulses >= this->constraintPulses
-  ) {
+  if (this->tapConstraintType != TapConstraintType::NONE &&
+      this->totalPulses >= this->constraintPulses) {
     this->StopPour();
   }
 

@@ -3,8 +3,8 @@
 
 #include "application.h"
 
-//#define TEST_MODE 1
-#define USE_INTERRUPT 1 // The flow sensor uses interrupt based measurement
+// #define TEST_MODE 1
+#define USE_INTERRUPT 1  // The flow sensor uses interrupt based measurement
 
 #define RED_PIN (WKP)
 #define GREEN_PIN (RX)
@@ -19,7 +19,7 @@
 // 5 - PCB v3 - P1 + PN532 Chip
 // 6 - PCB v3.1 - P1 + PN532 Chip + BIG SCREEN
 #define HARDWARE_CONFIG 6
-//#define SHOW_OUTPUT 2
+// #define SHOW_OUTPUT 2
 
 #define MAX_TAP_COUNT_PER_BOX 4
 
@@ -68,7 +68,7 @@
 #define TEMPERATURE_PIN D2
 #elif HARDWARE_CONFIG == 5
 #define BREWSKEY_PRODUCT_ID 1
-//#define DISABLE_NFC 1
+// #define DISABLE_NFC 1
 #define EXPANSION_BOX_PIN A0
 //  #define SPI_HW_MODE
 #define OLED_SPI

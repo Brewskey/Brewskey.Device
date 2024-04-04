@@ -1,11 +1,11 @@
 #pragma once
 
-#include "application.h"
-#include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketDefinitions.h"
+#include "Tappt/Pins.h"
+#include "application.h"
 
 class PacketBase {
-public:
+ public:
   PacketBase(uint8_t packetSize, uint8_t packetType);
   uint8_t GetPacketSize() { return this->packetSize; }
   void Send();
@@ -13,7 +13,8 @@ public:
   uint8_t GetDestination();
 
   virtual ~PacketBase();
-protected:
+
+ protected:
   virtual void PrepareDataPacket();
 
   // Packets only need to be sent once to devices so this will reset all the
@@ -21,6 +22,7 @@ protected:
   virtual void ResetDataPacket() = 0;
 
   uint8_t *dataPacket = NULL;
-private:
+
+ private:
   uint8_t packetSize = 0;
 };

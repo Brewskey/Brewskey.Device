@@ -1,11 +1,11 @@
 #pragma once
 
-#include "application.h"
-#include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketDefinitions.h"
+#include "Tappt/Pins.h"
+#include "application.h"
 
 /*maximum size of incoming packet from ext board*/
-#define PACKET_BUFFER	64
+#define PACKET_BUFFER 64
 
 #if USE_BETA_PACKET_FORMAT == 1
 #define INCOMING_POUR_BUFFER_SIZE 22
@@ -18,7 +18,7 @@
 #define CONFIGURATION_RESPONSE_BUFFER_SIZE 8
 
 class PacketReader {
-public:
+ public:
   void Read();
   virtual uint8_t GetPacketType();
   virtual uint8_t GetDestination();
@@ -28,7 +28,8 @@ public:
   virtual bool IsPacketReady();
   virtual bool IsValid();
   void Reset();
-private:
+
+ private:
   uint8_t GetBufferSizeForPacket();
   uint8_t count = 0;
   uint8_t esc_flag = 0;

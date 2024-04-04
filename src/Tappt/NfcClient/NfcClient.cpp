@@ -3,18 +3,20 @@
 #define READ_TAG_TIME 70
 #define EMULATE_TAG_TIME 370
 
-NfcClient::NfcClient() :
+NfcClient::NfcClient()
+    :
 #ifdef SPI_HW_MODE
-  pn532spi(SPI, SS),
+      pn532spi(SPI, SS),
 #else
-  pn532spi(SCK, MISO, MOSI, SS),
+      pn532spi(SCK, MISO, MOSI, SS),
 #endif
-  pn532(pn532spi), nfc(pn532spi), nfcAdapter(pn532spi)
-{
+      pn532(pn532spi),
+      nfc(pn532spi),
+      nfcAdapter(pn532spi) {
 #if DISABLE_NFC == 1
   return;
 #endif
-  //this->swapTimer.Start();
+  // this->swapTimer.Start();
 
   // This only needs to happen once for nfc & ndfAdapter
   if (!nfc.init()) {
@@ -29,10 +31,7 @@ NfcClient::NfcClient() :
   }
 }
 
-void NfcClient::Setup(ServerLink *serverLink) {
-  this->serverLink = serverLink;
-}
-
+void NfcClient::Setup(ServerLink* serverLink) { this->serverLink = serverLink; }
 
 int NfcClient::Initialize(String data, uint8_t deviceNFCStatus) {
 #if DISABLE_NFC == 1
@@ -40,11 +39,13 @@ int NfcClient::Initialize(String data, uint8_t deviceNFCStatus) {
 #endif
   this->deviceId = String(data).toInt();
   this->deviceNFCStatus = deviceNFCStatus;
-  Serial.print("Device ID: "); Serial.println(deviceId);
+  Serial.print("Device ID: ");
+  Serial.println(deviceId);
 
   this->message = NdefMessage();
 
-  this->message.addLaunchApp("f523005d-37d3-4375-b3e8-4f1f56704f0f", "d/" + data);
+  this->message.addLaunchApp("f523005d-37d3-4375-b3e8-4f1f56704f0f",
+                             "d/" + data);
   this->message.addUriRecord("https://brewskey.com/d/" + data);
   this->message.addApplicationRecord("com.brewskey.app");
 
@@ -67,8 +68,7 @@ int NfcClient::Initialize(String data, uint8_t deviceNFCStatus) {
   return 0;
 }
 
-int NfcClient::Tick()
-{
+int NfcClient::Tick() {
 #if DISABLE_NFC == 1
   return 0;
 #endif
@@ -93,8 +93,8 @@ int NfcClient::Tick()
       //   return NfcState::NO_MESSAGE;
       // }
 
-      //pn532.setRFField(0x02, 0x01);
-      //pn532.inRelease();
+      // pn532.setRFField(0x02, 0x01);
+      // pn532.inRelease();
 
       this->state++;
       if (this->state == 3) {
@@ -114,7 +114,7 @@ int NfcClient::Tick()
         }
       }
 
-      //pn532.setRFField(0x02, 0x00);
+      // pn532.setRFField(0x02, 0x00);
       return result;
     }
 
@@ -124,19 +124,16 @@ int NfcClient::Tick()
   }
 }
 
-NfcState::value NfcClient::ReadMessage()
-{
+NfcState::value NfcClient::ReadMessage() {
   // If reading authentication from a tag
-  if (!this->nfcAdapter.tagPresent(READ_TAG_TIME))
-  {
+  if (!this->nfcAdapter.tagPresent(READ_TAG_TIME)) {
     Serial.println("Tag not present");
     return NfcState::NO_MESSAGE;
   }
 
   NfcTag tag = this->nfcAdapter.read();
 
-  if (!tag.hasNdefMessage())
-  {
+  if (!tag.hasNdefMessage()) {
     Serial.println("No message");
     return NfcState::NO_MESSAGE;
   }
@@ -170,8 +167,7 @@ NfcState::value NfcClient::ReadMessage()
   return NfcState::READ_MESSAGE;
 }
 
-NfcState::value NfcClient::SendMessage()
-{
+NfcState::value NfcClient::SendMessage() {
   // Serial.println("Emulated Tag");
   if (nfc.emulate(EMULATE_TAG_TIME)) {
     return NfcState::SENT_MESSAGE;
@@ -180,10 +176,8 @@ NfcState::value NfcClient::SendMessage()
   return NfcState::NO_MESSAGE;
 }
 
-void NfcClient::SendPendingMessage()
-{
-  if (this->readAuthenticationKey == "")
-  {
+void NfcClient::SendPendingMessage() {
+  if (this->readAuthenticationKey == "") {
     return;
   }
 

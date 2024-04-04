@@ -1,7 +1,6 @@
 #include "ServerLink.h"
 
-String getNextToken(String input, int *start, String delimiter)
-{
+String getNextToken(String input, int* start, String delimiter) {
   int end = input.indexOf(delimiter, *start);
   String data = input.substring(*start, end);
   *start = end + delimiter.length();
@@ -9,17 +8,13 @@ String getNextToken(String input, int *start, String delimiter)
   return data;
 }
 
-ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
+ServerLink::ServerLink(IKegeratorStateMachine* kegeratorStateMachine) {
   this->kegeratorStateMachine = kegeratorStateMachine;
   this->settings.tapIds = NULL;
   String deviceID = System.deviceID();
 
-  Particle.subscribe(
-    "hook-response/tappt_initialize-" + deviceID,
-    &ServerLink::Initialize,
-    this,
-    MY_DEVICES
-  );
+  Particle.subscribe("hook-response/tappt_initialize-" + deviceID,
+                     &ServerLink::Initialize, this, MY_DEVICES);
 
   // Called by server when device settings are updated.
   Particle.function("settings", &ServerLink::Settings, this);
@@ -27,12 +22,8 @@ ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
   // Called by server when user tries to pour.
   Particle.function("pour", &ServerLink::Pour, this);
   // Response when token is used
-  Particle.subscribe(
-    "hook-response/tappt_request-pour-" + deviceID,
-    &ServerLink::PourResponse,
-    this,
-    MY_DEVICES
-  );
+  Particle.subscribe("hook-response/tappt_request-pour-" + deviceID,
+                     &ServerLink::PourResponse, this, MY_DEVICES);
 
   this->CallInitialize();
 }
@@ -40,7 +31,7 @@ ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
 void ServerLink::CallInitialize() {
   this->initializeTimer.start();
   Serial.println("Getting device settings");
-  Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
+  Particle.publish("tappt_initialize", (const char*)0, 10, PRIVATE);
 }
 
 void SetError(String message) {
@@ -77,16 +68,23 @@ void ServerLink::Initialize(const char* event, const char* data) {
 
   String tapIds = getNextToken(response, &start, delimiter);
 
-  this->settings.deviceStatus = getNextToken(response, &start, delimiter).toInt();
+  this->settings.deviceStatus =
+      getNextToken(response, &start, delimiter).toInt();
 
   String pulsesPerGallon = getNextToken(response, &start, delimiter);
 
-  this->settings.ledBrightness = getNextToken(response, &start, delimiter).toInt();
-  this->settings.isTOTPDisabled = getNextToken(response, &start, delimiter) == "true";
-  this->settings.isScreenDisabled = getNextToken(response, &start, delimiter) == "true";
-  this->settings.timeForValveOpen = getNextToken(response, &start, delimiter).toInt();
-  this->settings.secondsToStayOpen = getNextToken(response, &start, delimiter).toInt();
-  this->settings.shouldInvertScreen = getNextToken(response, &start, delimiter) == "true";
+  this->settings.ledBrightness =
+      getNextToken(response, &start, delimiter).toInt();
+  this->settings.isTOTPDisabled =
+      getNextToken(response, &start, delimiter) == "true";
+  this->settings.isScreenDisabled =
+      getNextToken(response, &start, delimiter) == "true";
+  this->settings.timeForValveOpen =
+      getNextToken(response, &start, delimiter).toInt();
+  this->settings.secondsToStayOpen =
+      getNextToken(response, &start, delimiter).toInt();
+  this->settings.shouldInvertScreen =
+      getNextToken(response, &start, delimiter) == "true";
   this->settings.nfcStatus = getNextToken(response, &start, delimiter).toInt();
 
   // Build out Tap IDs
@@ -113,7 +111,8 @@ void ServerLink::Initialize(const char* event, const char* data) {
   start = 0;
   int iter = 0;
   while (tapCount > 0 && iter < tapCount) {
-    this->settings.tapIds[iter] = getNextToken(tapIds, &start, delimiter).toInt();
+    this->settings.tapIds[iter] =
+        getNextToken(tapIds, &start, delimiter).toInt();
     iter++;
   }
 
@@ -127,7 +126,8 @@ void ServerLink::Initialize(const char* event, const char* data) {
 
   this->settings.pulsesPerGallon = new uint32_t[tapCount];
   while (tapCount > 0 && iter < tapCount) {
-    this->settings.pulsesPerGallon[iter] = getNextToken(pulsesPerGallon, &start, delimiter).toInt();
+    this->settings.pulsesPerGallon[iter] =
+        getNextToken(pulsesPerGallon, &start, delimiter).toInt();
     iter++;
   }
 
@@ -148,16 +148,13 @@ void ServerLink::AuthorizePour(uint32_t deviceId, String authenticationKey) {
   Serial.println(authenticationKey);
   Serial.println("printed");
 
-  sprintf(
-    json,
-    "{\"authToken\":\"%s\",\"id\":\"%lu\",\"tkn\":\"%s\"}",
-    this->settings.authorizationToken.c_str(),
-    deviceId,
-    // remove \u0002 and "en"
-    authenticationKey.substring(3).c_str()
-  );
+  sprintf(json, "{\"authToken\":\"%s\",\"id\":\"%lu\",\"tkn\":\"%s\"}",
+          this->settings.authorizationToken.c_str(), deviceId,
+          // remove \u0002 and "en"
+          authenticationKey.substring(3).c_str());
 
-  Serial.print("Request Pour"); Serial.println(json);
+  Serial.print("Request Pour");
+  Serial.println(json);
   Particle.publish("tappt_request-pour", json, 5, PRIVATE);
 }
 
@@ -192,9 +189,12 @@ int ServerLink::Pour(String data) {
 
     int constraintStart = 0;
     TapConstraint& constraint = constraints[iter];
-    constraint.tapIndex = getNextToken(constraintString, &constraintStart, ",").toInt();
-    constraint.type = getNextToken(constraintString, &constraintStart, ",").toInt();
-    constraint.pulses = getNextToken(constraintString, &constraintStart, ",").toInt();
+    constraint.tapIndex =
+        getNextToken(constraintString, &constraintStart, ",").toInt();
+    constraint.type =
+        getNextToken(constraintString, &constraintStart, ",").toInt();
+    constraint.pulses =
+        getNextToken(constraintString, &constraintStart, ",").toInt();
 
     iter++;
   }
@@ -208,29 +208,20 @@ void ServerLink::PourResponse(const char* event, const char* data) {
   this->Pour(String(data));
 }
 
-void ServerLink::SendPourToServer(
-  uint32_t tapId,
-  uint32_t totalPulses,
-  String authenticationKey,
-  String totp,
-  uint32_t pourStartTime,
-  uint32_t pourEndTime
-) {
-  sprintf(
-    json,
-    "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"totp\":\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
-    this->settings.authorizationToken.c_str(),
-    tapId,
-    authenticationKey != NULL && authenticationKey.length()
-    ? authenticationKey.c_str()
-    : "",
-    totp.c_str(),
-    totalPulses,
-    pourStartTime,
-    pourEndTime
-  );
+void ServerLink::SendPourToServer(uint32_t tapId, uint32_t totalPulses,
+                                  String authenticationKey, String totp,
+                                  uint32_t pourStartTime,
+                                  uint32_t pourEndTime) {
+  sprintf(json,
+          "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"totp\":"
+          "\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
+          this->settings.authorizationToken.c_str(), tapId,
+          authenticationKey != NULL && authenticationKey.length()
+              ? authenticationKey.c_str()
+              : "",
+          totp.c_str(), totalPulses, pourStartTime, pourEndTime);
 
-
-  Serial.print("Finished Pour"); Serial.println(json);
+  Serial.print("Finished Pour");
+  Serial.println(json);
   Particle.publish("tappt_pour-finished", json, 60, PRIVATE);
 }

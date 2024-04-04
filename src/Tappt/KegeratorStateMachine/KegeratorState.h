@@ -1,7 +1,7 @@
 #pragma once
 
 class KegeratorState {
-public:
+ public:
   enum e {
     INITIALIZING = 0,
     LISTENING,

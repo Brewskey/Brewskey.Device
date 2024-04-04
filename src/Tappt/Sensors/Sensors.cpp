@@ -1,7 +1,8 @@
 #include "Sensors.h"
 
 #ifdef EXPANSION_BOX_PIN
-Sensors::Sensors(PacketReader &packetReader) : reader(packetReader)
+Sensors::Sensors(PacketReader& packetReader)
+    : reader(packetReader)
 #else
 Sensors::Sensors()
 #endif
@@ -21,11 +22,8 @@ Sensors::Sensors()
 #endif
 }
 
-void Sensors::Setup(
-  IKegeratorStateMachine* stateMachine,
-  Tap* taps,
-  uint8_t tapCount
-) {
+void Sensors::Setup(IKegeratorStateMachine* stateMachine, Tap* taps,
+                    uint8_t tapCount) {
   if (this->temperatureSensor == NULL) {
     this->temperatureSensor = new Temperature();
   }
@@ -35,7 +33,7 @@ void Sensors::Setup(
 
   this->boxCount = ceil((float)tapCount / MAX_TAP_COUNT_PER_BOX);
 
-  #ifdef EXPANSION_BOX_PIN
+#ifdef EXPANSION_BOX_PIN
   if (this->sendPackets != NULL) {
     delete[] this->sendPackets;
   }
@@ -50,7 +48,7 @@ void Sensors::Setup(
   }
   this->reader.Reset();
   this->packetResponseTimer.Start();
-  #endif
+#endif
 }
 
 int Sensors::Tick() {
@@ -90,10 +88,8 @@ int Sensors::Tick() {
     return 0;
   }
 
-  if (
-    !this->isWaitingForResponse
-  ) {
-    //Serial.println("Send");
+  if (!this->isWaitingForResponse) {
+    // Serial.println("Send");
     this->sendPackets[this->sendIndex].Send();
     this->sendIndex++;
     this->sendIndex = this->sendIndex % this->boxCount;
@@ -103,13 +99,11 @@ int Sensors::Tick() {
   return 0;
 }
 
-void Sensors::SetState(KegeratorState::e state)
-{
+void Sensors::SetState(KegeratorState::e state) {
   Serial.print("Sensor::SetState ");
   Serial.println(state);
-  #ifdef EXPANSION_BOX_PIN
-  if (this->state != state)
-  {
+#ifdef EXPANSION_BOX_PIN
+  if (this->state != state) {
     // Begin configuration
     if (state == KegeratorState::CONFIGURE) {
       Serial.println("SetupConfigurationPackets");
@@ -123,15 +117,13 @@ void Sensors::SetState(KegeratorState::e state)
       Serial.println("SetupDefaultSendPackets");
     }
   }
-  #endif
+#endif
 
   this->state = state;
 }
 
-void Sensors::SingleFlowCounter()
-{
-  if (this->state == KegeratorState::CONFIGURE)
-  {
+void Sensors::SingleFlowCounter() {
+  if (this->state == KegeratorState::CONFIGURE) {
     return;
   }
   uint8_t pin = digitalRead(FLOW_PIN);
@@ -148,15 +140,13 @@ void Sensors::SingleFlowCounter()
 
   /*SENSOR_PIN represents the pin status, if high set last bit in buffer to 1
   else it will remain 0*/
-  if (pin != 0)
-  {
+  if (pin != 0) {
     buffer |= 0x01;
   }
 
   /*check for 0x07 pattern (mask upper 2 bits), representing a low to high
   transition verified by 3 low samples followed by 3 high samples*/
-  if ((buffer & 0x3F) == 0x07)
-  {
+  if ((buffer & 0x3F) == 0x07) {
     this->taps[0].SetTotalPulses(this->taps[0].GetTotalPulses() + 1);
   }
 #endif
@@ -185,7 +175,8 @@ void Sensors::CloseSolenoid(uint8_t solenoid) {
   }
 
   uint8_t packetIndex = floor((float)solenoid / MAX_TAP_COUNT_PER_BOX);
-  this->sendPackets[packetIndex].CloseSolenoid(solenoid % MAX_TAP_COUNT_PER_BOX);
+  this->sendPackets[packetIndex].CloseSolenoid(solenoid %
+                                               MAX_TAP_COUNT_PER_BOX);
 #endif
 }
 
@@ -225,8 +216,7 @@ void Sensors::ResetFlowSensor(uint8_t tap) {
 }
 
 #ifdef EXPANSION_BOX_PIN
-void Sensors::ReadMultitap(void)
-{
+void Sensors::ReadMultitap(void) {
   if (!this->isWaitingForResponse) {
     return;
   }
@@ -253,12 +243,9 @@ void Sensors::ReadMultitap(void)
   }
 
   this->isParsingReaderData = true;
-  if (packetType == CONFIGURATION_RESPONSE_PACKET_TYPE)
-  {
+  if (packetType == CONFIGURATION_RESPONSE_PACKET_TYPE) {
     this->ParseConfigurationPacket();
-  }
-  else if (packetType == POUR_PACKET_TYPE)
-  {
+  } else if (packetType == POUR_PACKET_TYPE) {
     this->ParsePourPacket();
   }
 
@@ -267,14 +254,10 @@ void Sensors::ReadMultitap(void)
   this->reader.Reset();
 }
 
-void Sensors::ParseConfigurationPacket()
-{
+void Sensors::ParseConfigurationPacket() {
   uint8_t* incomingBuffer = this->reader.GetDataBuffer();
-  uint32_t pulses =
-    (incomingBuffer[0] << 24) |
-    (incomingBuffer[1] << 16) |
-    (incomingBuffer[2] << 8) |
-    (incomingBuffer[3]);
+  uint32_t pulses = (incomingBuffer[0] << 24) | (incomingBuffer[1] << 16) |
+                    (incomingBuffer[2] << 8) | (incomingBuffer[3]);
 
   Serial.print("Parsed Config Response: ");
   Serial.println(pulses);
@@ -282,8 +265,7 @@ void Sensors::ParseConfigurationPacket()
   this->configPacket.PrepareNextResponse(pulses);
 }
 
-void Sensors::ParsePourPacket()
-{
+void Sensors::ParsePourPacket() {
   if (this->state == KegeratorState::CLEANING) {
     return;
   }
@@ -295,17 +277,17 @@ void Sensors::ParsePourPacket()
   const uint8_t FLOW_START = 1;
 
   for (ii = 0; ii < MAX_TAP_COUNT_PER_BOX; ii++) {
-    uint32_t pulses =
-      (incomingBuffer[FLOW_START + 4 * ii] << 24) |
-      (incomingBuffer[FLOW_START + 4 * ii + 1] << 16) |
-      (incomingBuffer[FLOW_START + 4 * ii + 2] << 8) |
-      (incomingBuffer[FLOW_START + 4 * ii + 3]);
+    uint32_t pulses = (incomingBuffer[FLOW_START + 4 * ii] << 24) |
+                      (incomingBuffer[FLOW_START + 4 * ii + 1] << 16) |
+                      (incomingBuffer[FLOW_START + 4 * ii + 2] << 8) |
+                      (incomingBuffer[FLOW_START + 4 * ii + 3]);
 
     uint8_t tapIndex = (source - 1) * MAX_TAP_COUNT_PER_BOX + ii;
     if (tapIndex >= this->tapCount) {
       if (pulses > 0) {
         Serial.print("Pour occurred on tap that isn't set up: ");
-        Serial.print(tapIndex + 1); // Plus one since people don't expect zero-based
+        Serial.print(tapIndex +
+                     1);  // Plus one since people don't expect zero-based
         Serial.println();
         this->ResetFlowSensor(ii);
       }
@@ -327,15 +309,21 @@ void Sensors::ParsePourPacket()
   }
 
 #if SHOW_OUTPUT
-  Serial.printf("SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, SOL4: %s, PULSES4: %lu\n",
-    (incomingBuffer[0] & 0x03) ? "ON" : "OFF",	/*solenoid 1*/
-    (incomingBuffer[1] << 24) | (incomingBuffer[2] << 16) | (incomingBuffer[3] << 8) | (incomingBuffer[4]), /*flow 1*/
-    (incomingBuffer[0] & 0x0C) ? "ON" : "OFF",	/*solenoid 2*/
-    (incomingBuffer[5] << 24) | (incomingBuffer[6] << 16) | (incomingBuffer[7] << 8) | (incomingBuffer[8]), /*flow 2*/
-    (incomingBuffer[0] & 0x30) ? "ON" : "OFF",	/*solenoid 3*/
-    (incomingBuffer[9] << 24) | (incomingBuffer[10] << 16) | (incomingBuffer[11] << 8) | (incomingBuffer[12]), /*flow 3*/
-    (incomingBuffer[0] & 0xC0) ? "ON" : "OFF",	/*solenoid 4*/
-    (incomingBuffer[13] << 24) | (incomingBuffer[14] << 16) | (incomingBuffer[15] << 8) | (incomingBuffer[16])); /*flow 4*/
+  Serial.printf(
+      "SOL1: %s, PULSES1: %lu, SOL2: %s, PULSES2: %lu, SOL3: %s, PULSES3: %lu, "
+      "SOL4: %s, PULSES4: %lu\n",
+      (incomingBuffer[0] & 0x03) ? "ON" : "OFF", /*solenoid 1*/
+      (incomingBuffer[1] << 24) | (incomingBuffer[2] << 16) |
+          (incomingBuffer[3] << 8) | (incomingBuffer[4]), /*flow 1*/
+      (incomingBuffer[0] & 0x0C) ? "ON" : "OFF",          /*solenoid 2*/
+      (incomingBuffer[5] << 24) | (incomingBuffer[6] << 16) |
+          (incomingBuffer[7] << 8) | (incomingBuffer[8]), /*flow 2*/
+      (incomingBuffer[0] & 0x30) ? "ON" : "OFF",          /*solenoid 3*/
+      (incomingBuffer[9] << 24) | (incomingBuffer[10] << 16) |
+          (incomingBuffer[11] << 8) | (incomingBuffer[12]), /*flow 3*/
+      (incomingBuffer[0] & 0xC0) ? "ON" : "OFF",            /*solenoid 4*/
+      (incomingBuffer[13] << 24) | (incomingBuffer[14] << 16) |
+          (incomingBuffer[15] << 8) | (incomingBuffer[16])); /*flow 4*/
   Serial.println();
 #endif
 }

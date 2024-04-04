@@ -1,8 +1,6 @@
 #ifndef Authorize_h
 #define Authroize_h
 
-struct Authorize {
-
-};
+struct Authorize {};
 
 #endif

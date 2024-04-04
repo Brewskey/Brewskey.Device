@@ -8,15 +8,16 @@
 #define I2C_ADDRESS SSD1306_I2C_ADDRESS
 #endif
 
-Display::Display() :
+Display::Display()
+    :
 #ifdef OLED_SPI
 #ifdef SPI_HW_MODE
-  display(OLED_DC, OLED_RESET, OLED_CS)
+      display(OLED_DC, OLED_RESET, OLED_CS)
 #else
-  display(MOSI, SCK, OLED_DC, OLED_RESET, OLED_CS)
+      display(MOSI, SCK, OLED_DC, OLED_RESET, OLED_CS)
 #endif
 #else
-  display(OLED_RESET)
+      display(OLED_RESET)
 #endif
 {
 #ifdef OLED_SPI
@@ -30,16 +31,12 @@ Display::Display() :
   delay(1);
 }
 
-void Display::DimScreen(bool shouldDim) {
-  display.dim(shouldDim);
-}
+void Display::DimScreen(bool shouldDim) { display.dim(shouldDim); }
 void Display::InvertScreen(bool shouldInvert) {
   display.invertDisplay(shouldInvert);
 }
 
-void Display::BeginBatch() {
-  display.clearDisplay();
-}
+void Display::BeginBatch() { display.clearDisplay(); }
 
 void Display::DrawIcon(int color) {
   display.drawBitmap(3, 12, IMG_ICON, 32, 40, color);
@@ -49,14 +46,8 @@ void Display::DrawLogo(int color) {
   display.drawBitmap(0, 0, IMG_LOGO_TEXT, 128, 64, color);
 }
 
-void Display::SetText(
-  String text,
-  uint8_t x,
-  uint8_t y,
-  uint8_t size,
-  int offsetType,
-  int color
-) {
+void Display::SetText(String text, uint8_t x, uint8_t y, uint8_t size,
+                      int offsetType, int color) {
   int offset = this->GetXOffset(text, offsetType, size);
   display.setTextSize(size);
   display.setTextColor(color);
@@ -67,13 +58,8 @@ void Display::SetText(
   }
 }
 
-void Display::ClearText(
-  String text,
-  uint8_t x,
-  uint8_t y,
-  uint8_t size,
-  int offsetType
-) {
+void Display::ClearText(String text, uint8_t x, uint8_t y, uint8_t size,
+                        int offsetType) {
   this->SetText(text, x, y, size, offsetType, BLACK);
 }
 

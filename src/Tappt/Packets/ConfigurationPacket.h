@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Tappt/Pins.h"
 #include "Tappt/Packets/PacketBase.h"
+#include "Tappt/Pins.h"
 
 class ConfigurationPacket : public PacketBase {
-public:
+ public:
   ConfigurationPacket();
 
   bool IsReady();
@@ -12,7 +12,7 @@ public:
 
   virtual void ResetDataPacket();
 
-private:
+ private:
   bool isReady = true;
   uint8_t destination = 0;
 };

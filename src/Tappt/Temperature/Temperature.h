@@ -1,18 +1,19 @@
 #ifndef Temperature_h
 #define Temperature_h
 
-#include "application.h"
-#include "Tappt/Pins.h"
-#include "OneWire/OneWire.h"
 #include "DallasTemperature/DallasTemperature.h"
+#include "OneWire/OneWire.h"
 #include "Tappt/ITick.h"
+#include "Tappt/Pins.h"
 #include "Tappt/TapptTimer/TapptTimer.h"
+#include "application.h"
 
 class Temperature : public ITick {
-public:
+ public:
   Temperature();
   virtual int Tick();
-private:
+
+ private:
   char json[64];
   void PrintAddress(DeviceAddress deviceAddress);
 
