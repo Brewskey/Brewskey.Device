@@ -1,6 +1,6 @@
 #include "ServerLink.h"
 
-String getNextToken(String input, int *start, String delimiter) {
+String getNextToken(String input, int* start, String delimiter) {
   int end = input.indexOf(delimiter, *start);
   String data = input.substring(*start, end);
   *start = end + delimiter.length();
@@ -8,7 +8,7 @@ String getNextToken(String input, int *start, String delimiter) {
   return data;
 }
 
-ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
+ServerLink::ServerLink(IKegeratorStateMachine* kegeratorStateMachine) {
   this->kegeratorStateMachine = kegeratorStateMachine;
   this->settings.tapIds = NULL;
   String deviceID = System.deviceID();
@@ -31,7 +31,7 @@ ServerLink::ServerLink(IKegeratorStateMachine *kegeratorStateMachine) {
 void ServerLink::CallInitialize() {
   this->initializeTimer.start();
   Serial.println("Getting device settings");
-  Particle.publish("tappt_initialize", (const char *)0, 10, PRIVATE);
+  Particle.publish("tappt_initialize", (const char*)0, 10, PRIVATE);
 }
 
 void SetError(String message) {
@@ -41,7 +41,7 @@ void SetError(String message) {
   Serial.println(message);
 }
 
-void ServerLink::Initialize(const char *event, const char *data) {
+void ServerLink::Initialize(const char* event, const char* data) {
   Serial.println("Initializing");
 
   if (strlen(data) <= 0) {
@@ -132,25 +132,9 @@ void ServerLink::Initialize(const char *event, const char *data) {
   }
 
   // End pulsesPerGallon IDs
-  this->kegeratorStateMachine->Initialize(&this->settings);
 
+  this->kegeratorStateMachine->Initialize(&this->settings);
   Serial.println("Initialized");
-  Serial.print("LED Brightness ");
-  Serial.println(this->settings.ledBrightness, DEC);
-  Serial.print("TOTP Disabled ");
-  Serial.println(this->settings.isTOTPDisabled, DEC);
-  Serial.print("Screen Disabled ");
-  Serial.println(this->settings.isScreenDisabled, DEC);
-  Serial.print("Time For Valve Open ");
-  Serial.println(this->settings.timeForValveOpen, DEC);
-  Serial.print("Seconds To Stay Open ");
-  Serial.println(this->settings.secondsToStayOpen, DEC);
-  Serial.print("Should Invert Screen ");
-  Serial.println(this->settings.shouldInvertScreen, DEC);
-  Serial.print("NFC Status ");
-  Serial.println(this->settings.nfcStatus, DEC);
-  Serial.print("Tap Count ");
-  Serial.println(this->settings.tapCount, DEC);
 }
 
 int ServerLink::Settings(String data) {
@@ -199,12 +183,12 @@ int ServerLink::Pour(String data) {
   }
 
   int iter = 0;
-  TapConstraint *constraints = new TapConstraint[constraintCount];
+  TapConstraint* constraints = new TapConstraint[constraintCount];
   while (iter < constraintCount) {
     String constraintString = getNextToken(data, &start, delimiter);
 
     int constraintStart = 0;
-    TapConstraint &constraint = constraints[iter];
+    TapConstraint& constraint = constraints[iter];
     constraint.tapIndex =
         getNextToken(constraintString, &constraintStart, ",").toInt();
     constraint.type =
@@ -220,13 +204,14 @@ int ServerLink::Pour(String data) {
   return 0;
 }
 
-void ServerLink::PourResponse(const char *event, const char *data) {
+void ServerLink::PourResponse(const char* event, const char* data) {
   this->Pour(String(data));
 }
 
 void ServerLink::SendPourToServer(uint32_t tapId, uint32_t totalPulses,
                                   String authenticationKey, String totp,
-                                  uint32_t pourMilliseconds) {
+                                  uint32_t pourStartTime,
+                                  uint32_t pourEndTime) {
   sprintf(json,
           "{\"authToken\":\"%s\",\"tapId\":\"%u\",\"pourKey\":\"%s\",\"totp\":"
           "\"%s\",\"pulses\":\"%u\",\"start\":\"%u\",\"end\":\"%u\"}",
@@ -234,8 +219,7 @@ void ServerLink::SendPourToServer(uint32_t tapId, uint32_t totalPulses,
           authenticationKey != NULL && authenticationKey.length()
               ? authenticationKey.c_str()
               : "",
-          totp.c_str(), totalPulses,
-          Time.now() - (uint32_t)(pourMilliseconds / 1000), Time.now());
+          totp.c_str(), totalPulses, pourStartTime, pourEndTime);
 
   Serial.print("Finished Pour");
   Serial.println(json);

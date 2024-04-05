@@ -36,8 +36,6 @@ int TapptTimer::Tick() {
       this->previousMillis = currentMillis;
     }
   }
-
-  return 0;
 }
 
 void TapptTimer::SetDuration(unsigned long duration) {

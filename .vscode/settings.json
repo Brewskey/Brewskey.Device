@@ -11,6 +11,5 @@
   },
   "particle.firmwareVersion": "2.3.1",
   "particle.targetPlatform": "p1",
-  "C_Cpp.clang_format_fallbackStyle": "Google",
-  "C_Cpp.formatting": "clangFormat"
+  "C_Cpp.clang_format_fallbackStyle": "Google"
 }

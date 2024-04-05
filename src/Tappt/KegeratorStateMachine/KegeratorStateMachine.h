@@ -21,7 +21,7 @@ class KegeratorStateMachine : public IKegeratorStateMachine {
   virtual void TapStartedPouring(ITap &tap);
   virtual void TapStoppedPouring(uint32_t tapID, uint32_t totalPulses,
                                  String authenticationKey,
-                                 uint32_t pourMilliseconds);
+                                 uint32_t pourStartTime, uint32_t pourEndTime);
   virtual int Tick();
   void Initialize(DeviceSettings *settings);
   int StartPour(String token, int constraintCount, TapConstraint *constraints);
