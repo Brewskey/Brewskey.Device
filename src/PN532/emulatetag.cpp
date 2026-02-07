@@ -127,6 +127,60 @@ bool EmulateTag::emulate(const uint16_t tgInitAsTargetTimeout) {
       0, // length of general bytes
       0  // length of historical bytes
   };
+/*
+  uint8_t command[] = {
+    PN532_COMMAND_TGINITASTARGET,
+    0x05,                  // MODE: 0x04 = PICC only, 0x01 = Passive only (0x02 = DEP only)
+
+    // MIFARE PARAMS
+    0x04, 0x00,         // SENS_RES (seeeds studio set it to 0x04, nxp to 0x08)
+    0x00, 0x00, 0x00,   // NFCID1t    (is set over sketch with setUID())
+    0x20,               // SEL_RES    (0x20=Mifare DelFire, 0x60=custom)
+
+    // FELICA PARAMS
+    0x01, 0xFE,         // NFCID2t (8 bytes) https://github.com/adafruit/Adafruit-PN532/blob/master/Adafruit_PN532.cpp FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
+    0x05, 0x01, 0x86,
+    0x04, 0x02, 0x02,
+    0x03, 0x00,         // PAD (8 bytes)
+    0x4B, 0x02, 0x4F, 
+    0x49, 0x8A, 0x00,   
+    0xFF, 0xFF,         // System code (2 bytes)
+
+    0x01, 0x01, 0x66,   // NFCID3t (10 bytes)
+    0x6D, 0x01, 0x01, 0x10,
+    0x02, 0x00, 0x00,
+
+    0x00, // length of general bytes
+    0x00  // length of historical bytes
+  };*/
+
+  /*
+  uint8_t command[] = {
+      PN532_COMMAND_TGINITASTARGET,
+      0x01,                  // MODE: 0x04 = PICC only, 0x01 = Passive only (0x02 = DEP only)
+
+      // MIFARE PARAMS
+      0x04, 0x00,         // SENS_RES (seeeds studio set it to 0x04, nxp to 0x08)
+      0x00, 0x00, 0x00,   // NFCID1t    (is set over sketch with setUID())
+      0x20,               // SEL_RES    (0x20=Mifare DelFire, 0x60=custom)
+
+      // FELICA PARAMS
+      0x01, 0xFE,         // NFCID2t (8 bytes) https://github.com/adafruit/Adafruit-PN532/blob/master/Adafruit_PN532.cpp FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
+      0xA2, 0xA3, 0xA4,
+      0xA5, 0xA6, 0xA7,
+      0xC0, 0xC1,         // PAD (8 bytes)
+      0xC2, 0xC3, 0xC4, 
+      0xC5, 0xC6, 0xC7,   
+      0xFF, 0xFF,         // System code (2 bytes)
+
+      0xAA, 0x99, 0x88,   // NFCID3t (10 bytes)
+      0x77, 0x66, 0x55, 0x44,
+      0x33, 0x22, 0x11,
+
+      0x00, // length of general bytes
+      0x00  // length of historical bytes
+  };
+  */
 
   if (uidPtr != 0) {  // if uid is set copy 3 bytes to nfcid1
     memcpy(command + 4, uidPtr, 3);
