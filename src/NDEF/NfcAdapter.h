@@ -10,6 +10,7 @@
 // Drivers
 #include "MifareClassic.h"
 #include "MifareUltralight.h"
+#include "Type4Tag.h"
 
 #define TAG_TYPE_MIFARE_CLASSIC (0)
 #define TAG_TYPE_1 (1)

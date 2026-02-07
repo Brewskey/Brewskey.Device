@@ -37,14 +37,14 @@ void NfcAdapter::begin(boolean verbose)
 boolean NfcAdapter::tagPresent(unsigned long timeout)
 {
   uint8_t success;
-
+  // inlist=true so Type 4 (and HCE) can use inDataExchange for APDU
   if (timeout == 0)
   {
-    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo);
+    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo, 1000, true);
   }
   else
   {
-    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo, timeout);
+    success = shield->readPassiveTargetID(PN532_MIFARE_ISO14443A, &tagInfo, timeout, true);
   }
 
   // Only try to read the tags if we know it
@@ -131,11 +131,11 @@ NfcTag NfcAdapter::read()
     return ultralight.read(tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_4) {
-    // TODO - Use DESFire code
-  #ifdef NDEF_DEBUG
-      Serial.println(F("Reading DESFire EV1"));
-  #endif
-    return NfcTag(tagInfo.uid, tagInfo.uidLength);
+#ifdef NDEF_DEBUG
+    Serial.println(F("Reading Type 4 / NDEF (ISO-DEP)"));
+#endif
+    Type4Tag type4 = Type4Tag(*shield);
+    return type4.read(tagInfo.uid, tagInfo.uidLength);
   }
   else if (type == TAG_TYPE_UNKNOWN)
   {
