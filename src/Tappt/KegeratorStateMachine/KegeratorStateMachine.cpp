@@ -1,4 +1,5 @@
 #include "KegeratorStateMachine.h"
+#include "Tappt/ServerLink/DeviceNFCStatus.h"
 
 #define TOKEN_STRING(js, t, s)                             \
   (strncmp(js + (t).start, s, (t).end - (t).start) == 0 && \
@@ -211,8 +212,10 @@ void KegeratorStateMachine::NfcLoop() {
 
   NfcState::value nfcState = (NfcState::value)nfcClient->Tick();
 
-  if (nfcState == NfcState::SENT_MESSAGE ||
-      nfcState == NfcState::READ_MESSAGE) {
+  // In PHONE_ONLY mode the device only emulates a tag for the phone to read (e.g. open app/URL).
+  // Do not trigger the pour flow; stay in listening so the device can be tapped again.
+  if (this->settings->nfcStatus != DeviceNFCStatus::PHONE_ONLY &&
+      (nfcState == NfcState::SENT_MESSAGE || nfcState == NfcState::READ_MESSAGE)) {
     this->pourResponseStartTime = millis();
     this->SetState(KegeratorState::WAITING_FOR_POUR_RESPONSE);
   }
