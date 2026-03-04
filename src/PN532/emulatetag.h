@@ -4,7 +4,8 @@
     @author   Armin Wieser
     @license  BSD
 
-    Implemented using NFC forum documents & library of libnfc
+    NFC Forum Type 3 Tag (FeliCa/NFCF) emulation only.
+    Implemented using NFC Forum Type 3 Tag 1.1 and PN532 as target.
 */
 /**************************************************************************/
 
@@ -13,8 +14,25 @@
 
 #include "PN532/PN532.h"
 
-#define NDEF_MAX_LENGTH 256  // altough ndef can handle up to 0xfffe in size, arduino cannot.
-typedef enum { COMMAND_COMPLETE, TAG_NOT_FOUND, FUNCTION_NOT_SUPPORTED, MEMORY_FAILURE, END_OF_FILE_BEFORE_REACHED_LE_BYTES } responseCommand;
+#define NDEF_MAX_LENGTH 256  // although ndef can handle up to 0xfffe in size, arduino cannot.
+
+// FeliCa command codes
+#define FELICA_CMD_REQUEST_SERVICE    0x02
+#define FELICA_CMD_READ_WITHOUT_ENC   0x06
+#define FELICA_CMD_WRITE_WITHOUT_ENC  0x08
+// FeliCa response codes (command + 1)
+#define FELICA_RSP_REQUEST_SERVICE    0x03
+#define FELICA_RSP_READ_WITHOUT_ENC   0x07
+#define FELICA_RSP_WRITE_WITHOUT_ENC  0x09
+
+// NFC Forum Type 3 Tag (FeliCa) service codes, LSB first in frames
+#define TYPE3_SERVICE_NDEF_READ   0x090F  // bytes: 0x0F, 0x09
+#define TYPE3_SERVICE_NDEF_WRITE  0x090B  // bytes: 0x0B, 0x09
+#define TYPE3_SYSTEM_CODE         0x88B4  // bytes: 0xB4, 0x88
+#define FELICA_BLOCK_SIZE          16
+
+// TgGetData timeout for FeliCa (ms); readers may be slower than ISO14443
+#define FELICA_TGGETDATA_TIMEOUT_MS 400
 
 class EmulateTag {
 
@@ -26,7 +44,9 @@ public:
   bool emulate(const uint16_t tgInitAsTargetTimeout = 0);
 
   /*
-   * @param uid pointer to byte array of length 3 (uid is 4 bytes - first byte is fixed) or zero for uid
+   * For NFCF: optional pointer to 8 bytes used as NFCID2t (IDm) suffix.
+   * NFCID2t is 8 bytes and must start with 01 FE; we use 01 FE + first 6 bytes of uid.
+   * If zero, a default NFCID2t is used.
    */
   void setUid(uint8_t* uid = 0);
 
@@ -65,7 +85,9 @@ private:
   bool tagWriteable;
   void(*updateNdefCallback)(uint8_t *ndef, uint16_t length);
 
-  void setResponse(responseCommand cmd, uint8_t* buf, uint8_t* sendlen, uint8_t sendlenOffset = 0);
+  void buildAttributeBlock(uint8_t* out);
+  void getBlock(uint16_t blockNo, uint8_t* out);
+  int16_t handleFelicaRequest(uint8_t* req, int16_t reqLen, uint8_t* resp, uint8_t respMaxLen);
 };
 
 #endif

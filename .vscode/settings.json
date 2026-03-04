@@ -9,7 +9,7 @@
     "xutility": "cpp",
     "chrono": "cpp"
   },
-  "particle.firmwareVersion": "2.3.1",
+  "particle.firmwareVersion": "1.4.4",
   "particle.targetPlatform": "p1",
   "C_Cpp.clang_format_fallbackStyle": "Google"
 }

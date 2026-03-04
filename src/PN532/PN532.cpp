@@ -842,13 +842,18 @@ int8_t PN532::tgInitAsTarget(uint16_t timeout)
 
 int16_t PN532::tgGetData(uint8_t *buf, uint8_t len)
 {
+  return tgGetData(buf, len, 100);
+}
+
+int16_t PN532::tgGetData(uint8_t *buf, uint8_t len, uint16_t timeoutMs)
+{
   buf[0] = PN532_COMMAND_TGGETDATA;
 
   if (HAL(writeCommand)(buf, 1)) {
     return -1;
   }
 
-  int16_t status = HAL(readResponse)(buf, len, 100);
+  int16_t status = HAL(readResponse)(buf, len, timeoutMs);
   if (0 >= status) {
     DMSG("status is not ok\r\n");
     return status;

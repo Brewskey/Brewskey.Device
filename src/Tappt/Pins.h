@@ -3,7 +3,7 @@
 
 #include "application.h"
 
-// #define TEST_MODE 1
+#define TEST_MODE 1
 #define USE_INTERRUPT 1  // The flow sensor uses interrupt based measurement
 
 #define RED_PIN (WKP)
