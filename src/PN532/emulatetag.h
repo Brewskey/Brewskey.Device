@@ -37,7 +37,7 @@
 class EmulateTag {
 
 public:
-  EmulateTag(PN532Interface &interface_) : pn532(interface_), uidPtr(0), tagWrittenByInitiator(false), tagWriteable(true), updateNdefCallback(0) { }
+  EmulateTag(PN532Interface &interface_) : pn532(interface_), uidPtr(0), tagWrittenByInitiator(false), tagWriteable(true), updateNdefCallback(0), currentFile(0) { }
 
   bool init();
 
@@ -84,10 +84,12 @@ private:
   bool tagWrittenByInitiator;
   bool tagWriteable;
   void(*updateNdefCallback)(uint8_t *ndef, uint16_t length);
+  uint8_t currentFile;  // Type 4: NONE_Tag_File, CC_Tag_File, NDEF_Tag_File
 
   void buildAttributeBlock(uint8_t* out);
   void getBlock(uint16_t blockNo, uint8_t* out);
   int16_t handleFelicaRequest(uint8_t* req, int16_t reqLen, uint8_t* resp, uint8_t respMaxLen);
+  int16_t handleType4Apdu(uint8_t* req, int16_t reqLen, uint8_t* resp, uint8_t respMaxLen);
 };
 
 #endif
