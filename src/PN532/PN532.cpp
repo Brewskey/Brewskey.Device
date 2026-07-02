@@ -793,6 +793,61 @@ bool PN532::inListPassiveTarget()
   return true;
 }
 
+int8_t PN532::tgInitAsTargetStart(const uint8_t* command, const uint8_t len) {
+  int8_t status = HAL(writeCommand)(command, len);
+  if (status < 0) {
+    DMSG("tgInitAsTargetStart write failed\r\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+int8_t PN532::tgInitAsTargetPoll() {
+  // A very short timeout turns readResponse into a poll: if the chip has
+  // not been activated yet it reports PN532_TIMEOUT and the command stays
+  // pending inside the chip.
+  int16_t status = HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), 1);
+
+  if (status > 0) {
+    // Response byte 0 = Mode: bits 5..4 baudrate (00=106k), bit 3
+    // ISO14443-4 PICC, bit 2 DEP, bits 1..0 framing (00=Mifare).
+    // The rest is the initiator's first frame; keep it for the caller.
+    lastTargetActivationMode = pn532_packetbuffer[0];
+    targetFirstFrameLen = (status > 1) ? (uint8_t)(status - 1) : 0;
+    if (targetFirstFrameLen > sizeof(targetFirstFrame)) {
+      targetFirstFrameLen = sizeof(targetFirstFrame);
+    }
+    memcpy(targetFirstFrame, pn532_packetbuffer + 1, targetFirstFrameLen);
+
+    DMSG("Activated, mode:");
+    DMSG_HEX(lastTargetActivationMode);
+    DMSG(" first frame len: ");
+    DMSG_INT(targetFirstFrameLen);
+    DMSG("\r\n");
+    return 1;
+  }
+  else if (PN532_TIMEOUT == status) {
+    return 0;
+  }
+  else {
+    DMSG("tgInitAsTargetPoll read failed\r\n");
+    return -2;
+  }
+}
+
+void PN532::abortCommand() {
+  HAL(sendAck)();
+  // Give the chip a moment to process the abort before the next command.
+  delay(1);
+}
+
+uint8_t PN532::getTargetFirstFrame(uint8_t* buf, uint8_t maxLen) {
+  uint8_t len = (targetFirstFrameLen < maxLen) ? targetFirstFrameLen : maxLen;
+  memcpy(buf, targetFirstFrame, len);
+  return len;
+}
+
 int8_t PN532::tgInitAsTarget(const uint8_t* command, const uint8_t len, const uint16_t timeout) {
 
   int8_t status = HAL(writeCommand)(command, len);
@@ -867,6 +922,48 @@ int16_t PN532::tgGetData(uint8_t *buf, uint8_t len)
   }
 
   return length;
+}
+
+int16_t PN532::tgGetInitiatorCommand(uint8_t *buf, uint8_t len, uint16_t timeout)
+{
+  buf[0] = PN532_COMMAND_TGGETINITIATORCOMMAND;
+
+  if (HAL(writeCommand)(buf, 1)) {
+    return -1;
+  }
+
+  int16_t status = HAL(readResponse)(buf, len, timeout);
+  if (0 >= status) {
+    return status;
+  }
+
+  uint16_t length = status - 1;
+
+  if (buf[0] != 0) {
+    DMSG("tgGetInitiatorCommand status error\r\n");
+    return -5;
+  }
+
+  for (uint8_t i = 0; i < length; i++) {
+    buf[i] = buf[i + 1];
+  }
+
+  return length;
+}
+
+bool PN532::tgResponseToInitiator(const uint8_t *data, uint8_t len)
+{
+  pn532_packetbuffer[0] = PN532_COMMAND_TGRESPONSETOINITIATOR;
+
+  if (HAL(writeCommand)(pn532_packetbuffer, 1, data, len)) {
+    return false;
+  }
+
+  if (0 > HAL(readResponse)(pn532_packetbuffer, sizeof(pn532_packetbuffer), 1000)) {
+    return false;
+  }
+
+  return 0 == pn532_packetbuffer[0];
 }
 
 bool PN532::tgSetData(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)

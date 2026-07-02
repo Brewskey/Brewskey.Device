@@ -135,8 +135,58 @@ public:
   int8_t tgInitAsTarget(uint16_t timeout = 0);
   int8_t tgInitAsTarget(const uint8_t* command, const uint8_t len, const uint16_t timeout = 0);
 
+  /**
+  * @brief    Send TgInitAsTarget without waiting for activation. The chip
+  *           stays armed as a passive target until an initiator activates
+  *           it, tgInitAsTargetPoll() reports it, or abortCommand() is sent.
+  * @return   0       command accepted (target armed)
+  *           < 0     failed
+  */
+  int8_t tgInitAsTargetStart(const uint8_t* command, const uint8_t len);
+
+  /**
+  * @brief    Check whether a pending TgInitAsTarget has been activated by
+  *           an initiator. Cheap enough to call from a polling loop.
+  * @return   1       activated by an initiator
+  *           0       still waiting
+  *           < 0     failed (command no longer pending)
+  */
+  int8_t tgInitAsTargetPoll();
+
+  /**
+  * @brief    Abort the command currently being processed by the chip
+  *           (e.g. a pending TgInitAsTarget) by sending an ACK frame.
+  */
+  void abortCommand();
+
+  /**
+  * @brief    Mode byte from the last successful tgInitAsTargetPoll():
+  *           bits 5..4 baudrate (00 = 106k), bit 3 ISO14443-4 PICC,
+  *           bit 2 DEP, bits 1..0 framing (00 = Mifare, 01 = active,
+  *           10 = FeliCa). Observed: 0x08 = ISO-DEP PICC at 106k.
+  */
+  uint8_t getLastTargetActivationMode() { return lastTargetActivationMode; }
+
+  /**
+  * @brief    The initiator command captured from the last successful
+  *           tgInitAsTargetPoll() response. When the chip completes
+  *           TgInitAsTarget on frame reception, the initiator's first
+  *           frame (e.g. its first C-APDU) arrives here and will never be
+  *           delivered by TgGetData.
+  * @return   number of bytes copied into buf
+  */
+  uint8_t getTargetFirstFrame(uint8_t* buf, uint8_t maxLen);
+
   int16_t tgGetData(uint8_t *buf, uint8_t len);
   bool tgSetData(const uint8_t *header, uint8_t hlen, const uint8_t *body = 0, uint8_t blen = 0);
+
+  /**
+  * @brief    Raw target-mode exchange, for framings TgGetData/TgSetData do
+  *           not carry (e.g. FeliCa when activated as a 212/424 kbps
+  *           passive target). Same response shape as tgGetData.
+  */
+  int16_t tgGetInitiatorCommand(uint8_t *buf, uint8_t len, uint16_t timeout = 100);
+  bool tgResponseToInitiator(const uint8_t *data, uint8_t len);
 
   int16_t inRelease(const uint8_t relevantTarget = 0);
 
@@ -170,6 +220,9 @@ public:
 private:
   uint8_t _uid[7];  // ISO14443A uid
   uint8_t _uidLen;  // uid len
+  uint8_t lastTargetActivationMode = 0;
+  uint8_t targetFirstFrame[63];
+  uint8_t targetFirstFrameLen = 0;
   uint8_t _key[6];  // Mifare Classic key
   uint8_t inListedTag; // Tg number of inlisted tag.
 

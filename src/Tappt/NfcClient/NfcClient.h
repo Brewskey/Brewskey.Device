@@ -12,8 +12,6 @@
 #include "Tappt/Pins.h"
 #include "Tappt/ServerLink/DeviceNFCStatus.h"
 #include "Tappt/ServerLink/ServerLink.h"
-#include "Tappt/TapptTimer/TapptTimer.h"
-// #define P2P 1
 
 namespace NfcState {
 enum value {
@@ -34,7 +32,12 @@ class NfcClient : public ITick {
 
  private:
   NfcState::value ReadMessage();
-  NfcState::value SendMessage();
+  // Drives phone-facing tag emulation; when withCardPolling is set it also
+  // interleaves short reader bursts so physical cards keep working.
+  NfcState::value PhoneTick(bool withCardPolling);
+  // One reader-mode poll for a physical card, leaving the RF field off and
+  // the chip idle afterwards so tag emulation can be re-armed.
+  NfcState::value CardBurst();
 
   uint32_t deviceId;
   String readAuthenticationKey = "";
@@ -49,11 +52,17 @@ class NfcClient : public ITick {
   int messageSize;
   uint8_t ndefBuf[256];
   uint8_t uid[3] = {0x12, 0x34, 0x56};
-  TapptTimer swapTimer = TapptTimer(1000);
-  // Either read mode or write mode
-  uint8_t state = 0;
-  // How should the NFC be configured read/write/disabled
-  uint8_t deviceNFCStatus;
+  // How should the NFC be configured read/write/disabled. Disabled until
+  // Initialize() provides the server-configured mode; PHONE_ONLY is 0, so
+  // leaving this uninitialized armed emulation before the UID/NDEF were set.
+  uint8_t deviceNFCStatus = DeviceNFCStatus::DISABLED;
+
+  uint32_t lastCardPollTime = 0;
+  uint32_t lastEmulatePollTime = 0;
+  // Initialize() runs on the application thread while Tick() runs on the
+  // NFC timer thread; chip commands are deferred here so only the timer
+  // thread ever touches the SPI bus.
+  volatile bool pendingChipSetup = false;
 };
 
 #endif
