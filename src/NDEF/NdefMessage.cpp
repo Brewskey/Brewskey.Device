@@ -311,10 +311,12 @@ void NdefMessage::addLaunchApp(String application, String parameters)
   uint32_t appLength = payloadString.length();
   uint32_t primaryLength = appLength + 5;
   uint32_t fullLength = primaryLength + parameters.length();
+  // +1: getBytes() below writes a trailing NUL one byte past the parameter
+  // bytes, so the buffer must be one byte larger than the encoded payload.
 #if defined(IS_WINDOWS)
-  byte* payload = new byte[fullLength];
+  byte* payload = new byte[fullLength + 1];
 #else
-  byte payload[fullLength];
+  byte payload[fullLength + 1];
 #endif
   payload[0] = 0x00; // start of message
   payload[1] = 0x01;

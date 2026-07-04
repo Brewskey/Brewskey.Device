@@ -20,6 +20,8 @@ public:
 
   int16_t readResponse(uint8_t buf[], uint8_t len, uint16_t timeout);
 
+  void sendAck();
+
 private:
   SPIClass * _spi;
 

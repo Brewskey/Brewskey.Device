@@ -65,7 +65,7 @@ int8_t PN532_SPI::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
   while (!isReady()) {
     delay(1);
     timeout--;
-    if (0 <= timeout) {
+    if (0 == timeout) {
       DMSG("Time out when waiting for ACK\r\n");
       return -2;
     }
@@ -86,7 +86,9 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     delay(1);
     time++;
     if (timeout > 0 && time > timeout) {
-      Serial.println("TIMEOUT\r\n");
+      // Silent: the armed-target poll (tgInitAsTargetPoll) lands here by
+      // design every cycle while waiting for a phone; callers decide
+      // whether PN532_TIMEOUT is worth logging.
       return PN532_TIMEOUT;
     }
   }
@@ -96,6 +98,9 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 
   DMSG("RX:");
 
+  // Every exit from this block must fall through to the SS deassert below;
+  // returning with SS still LOW leaves the chip mid-transfer and the next
+  // isReady() clocks out garbage from the half-read frame.
   int16_t result;
   do {
     write(DATA_READ);
@@ -104,43 +109,51 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     /** Frame Preamble and Start Code */
     if (receive(tmp, 3, timeout) <= 0) {
       DMSG("\r\nFrame Preamble and Start Code timeout\r\n");
-      return PN532_TIMEOUT;
+      result = PN532_TIMEOUT;
+      break;
     }
     if (0 != tmp[0] || 0 != tmp[1] || 0xFF != tmp[2]) {
       DMSG("\r\nPreamble error");
-      return PN532_INVALID_FRAME;
+      result = PN532_INVALID_FRAME;
+      break;
     }
 
     /** receive length and check */
     uint8_t length[2];
     if (receive(length, 2, timeout) <= 0) {
       DMSG("\r\nreceive length and check timeout\r\n");
-      return PN532_TIMEOUT;
+      result = PN532_TIMEOUT;
+      break;
     }
     if (0 != (uint8_t)(length[0] + length[1])) {
       DMSG("\r\nLength error");
-      return PN532_INVALID_FRAME;
+      result = PN532_INVALID_FRAME;
+      break;
     }
     length[0] -= 2;
     if (length[0] > len) {
       DMSG("\r\nNo Space error\r\n");
-      return PN532_NO_SPACE;
+      result = PN532_NO_SPACE;
+      break;
     }
 
     /** receive command byte */
     uint8_t cmd = command + 1;               // response command
     if (receive(tmp, 2, timeout) <= 0) {
       DMSG("\r\nreceive command timeout\r\n");
-      return PN532_TIMEOUT;
+      result = PN532_TIMEOUT;
+      break;
     }
     if (PN532_PN532TOHOST != tmp[0] || cmd != tmp[1]) {
       DMSG("\r\nCommand error");
-      return PN532_INVALID_FRAME;
+      result = PN532_INVALID_FRAME;
+      break;
     }
 
     if (receive(buf, length[0], timeout) != length[0]) {
       DMSG("\r\nTimeout???");
-      return PN532_TIMEOUT;
+      result = PN532_TIMEOUT;
+      break;
     }
 
     uint8_t sum = PN532_PN532TOHOST + cmd;
@@ -151,11 +164,13 @@ int16_t PN532_SPI::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     /** checksum and postamble */
     if (receive(tmp, 2, timeout) <= 0) {
       DMSG("\r\nChecksum timeout\r\n");
-      return PN532_TIMEOUT;
+      result = PN532_TIMEOUT;
+      break;
     }
     if (0 != (uint8_t)(sum + tmp[0]) || 0 != tmp[1]) {
       DMSG("\r\nChecksum error");
-      return PN532_INVALID_FRAME;
+      result = PN532_INVALID_FRAME;
+      break;
     }
 
     result = length[0];
@@ -222,6 +237,21 @@ void PN532_SPI::writeFrame(const uint8_t *header, uint8_t hlen, const uint8_t *b
   digitalWrite(_ss, HIGH);
 
   DMSG("\r\n");
+}
+
+void PN532_SPI::sendAck()
+{
+  const uint8_t PN532_ACK[] = { 0, 0, 0xFF, 0, 0xFF, 0 };
+
+  digitalWrite(_ss, LOW);
+  delay(2);
+
+  write(DATA_WRITE);
+  for (uint8_t i = 0; i < sizeof(PN532_ACK); i++) {
+    write(PN532_ACK[i]);
+  }
+
+  digitalWrite(_ss, HIGH);
 }
 
 int8_t PN532_SPI::readAckFrame()

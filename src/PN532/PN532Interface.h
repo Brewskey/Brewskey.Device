@@ -48,6 +48,13 @@ public:
   *           <0      failed to read response
   */
   virtual int16_t readResponse(uint8_t buf[], uint8_t len, uint16_t timeout = 1000) = 0;
+
+  /**
+  * @brief    send an ACK frame to the PN532. Per UM0701-02 §6.2.1.3 the host
+  *           can send an ACK frame to abort the command currently being
+  *           processed (e.g. a pending TgInitAsTarget or InListPassiveTarget).
+  */
+  virtual void sendAck() = 0;
 };
 
 #endif

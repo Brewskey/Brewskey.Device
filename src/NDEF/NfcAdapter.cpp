@@ -101,6 +101,7 @@ boolean NfcAdapter::clean()
   }
   else if (type == TAG_TYPE_4) {
     // TODO - Use DESFire code
+    return false;
   }
   else
   {
@@ -174,6 +175,7 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
   }
   else if (type == TAG_TYPE_4) {
     // TODO - Use DESFire code
+    success = false;
   }
   else if (type == TAG_TYPE_UNKNOWN)
   {
