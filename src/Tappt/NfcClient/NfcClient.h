@@ -63,6 +63,10 @@ class NfcClient : public ITick {
   // NFC timer thread; chip commands are deferred here so only the timer
   // thread ever touches the SPI bus.
   volatile bool pendingChipSetup = false;
+
+  // False when the PN532 failed to initialize; Tick() retries periodically.
+  bool isAvailable = false;
+  uint32_t lastInitAttemptTime = 0;
 };
 
 #endif

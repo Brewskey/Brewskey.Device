@@ -11,6 +11,8 @@
 #define CARD_POLL_INTERVAL 500
 // Card poll cadence when there is no emulation to interleave with (ms).
 #define CARD_ONLY_POLL_INTERVAL 100
+// How often to retry a failed PN532 init (ms).
+#define NFC_INIT_RETRY_INTERVAL 30000
 
 // Target activation bytes (MODE, SENS_RES byte 0, SENS_RES byte 1, SEL_RES)
 // presented to phones during tag emulation. Variant 1 (unrestricted MODE
@@ -38,17 +40,13 @@ NfcClient::NfcClient()
   return;
 #endif
 
-  // This only needs to happen once for nfc & ndfAdapter
-  if (!nfc.init()) {
-    DMSG("Error initializing PN532\r\n");
-    RGB.control(true);
-    RGB.color(255, 128, 0);
-
-    while (1) {
-      Particle.process();
-      delay(10);
-    }
+  // This only needs to happen once for nfc & ndfAdapter. On failure keep
+  // booting so the device still connects and pours by TOTP; Tick() retries.
+  this->isAvailable = nfc.init();
+  if (!this->isAvailable) {
+    Serial.println("Error initializing PN532");
   }
+  this->lastInitAttemptTime = millis();
 }
 
 void NfcClient::Setup(ServerLink* serverLink) { this->serverLink = serverLink; }
@@ -105,6 +103,20 @@ int NfcClient::Tick() {
 #if DISABLE_NFC == 1
   return 0;
 #endif
+
+  if (!this->isAvailable) {
+    if ((millis() - this->lastInitAttemptTime) < NFC_INIT_RETRY_INTERVAL) {
+      return 0;
+    }
+    this->lastInitAttemptTime = millis();
+    this->isAvailable = this->nfc.init();
+    if (!this->isAvailable) {
+      return 0;
+    }
+    Serial.println("PN532 initialized");
+    // Re-apply any settings Initialize() stored while the chip was down.
+    this->pendingChipSetup = true;
+  }
 
   if (this->pendingChipSetup) {
     this->pendingChipSetup = false;
